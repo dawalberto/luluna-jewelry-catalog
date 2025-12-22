@@ -17,6 +17,7 @@ import type {
     PaginatedResponse,
     PaginationOptions,
     Product,
+    ProductCategory,
     ProductFilters,
     UpdateProductInput,
 } from '../types';
@@ -50,7 +51,8 @@ export class ProductRepository implements IProductRepository {
 
     // Apply filters
     if (filters?.category) {
-      constraints.push(where('category', '==', filters.category));
+      // New model: categories is an array
+      constraints.push(where('categories', 'array-contains', filters.category));
     }
 
     if (filters?.publishedOnly !== false) {
@@ -121,7 +123,7 @@ export class ProductRepository implements IProductRepository {
    * Get products by category
    */
   async getByCategory(
-    category: string,
+    category: ProductCategory,
     pagination?: PaginationOptions
   ): Promise<PaginatedResponse<Product>> {
     return this.getAll({ category, publishedOnly: true }, pagination);
@@ -141,12 +143,20 @@ export class ProductRepository implements IProductRepository {
    * Create a new product
    */
   async create(input: CreateProductInput): Promise<Product> {
-    const productData = {
+    const primaryCategory = input.categories?.[0];
+    const productData: Record<string, unknown> = {
       ...input,
+      // Keep legacy fields for older UI / historical docs
+      category: primaryCategory,
       published: input.published ?? false,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
+
+    // Firestore does NOT allow `undefined` field values.
+    if (input.pricing?.type === 'custom') {
+      productData.price = input.pricing.customPrice;
+    }
 
     const docRef = await addDoc(
       collection(this.db, this.collectionName),
@@ -168,8 +178,21 @@ export class ProductRepository implements IProductRepository {
     const { id, ...updateData } = input;
     const docRef = doc(this.db, this.collectionName, id);
 
+    const maybePrimaryCategory = updateData.categories?.[0];
+    const legacyPatch: Record<string, unknown> = {};
+    if (maybePrimaryCategory) {
+      legacyPatch.category = maybePrimaryCategory;
+    }
+    if (updateData.pricing) {
+      legacyPatch.price =
+        updateData.pricing.type === 'custom'
+          ? updateData.pricing.customPrice
+          : null;
+    }
+
     await updateDoc(docRef, {
       ...updateData,
+      ...legacyPatch,
       updatedAt: serverTimestamp(),
     });
 

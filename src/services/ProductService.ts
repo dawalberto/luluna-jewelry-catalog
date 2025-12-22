@@ -6,6 +6,7 @@ import type {
     PaginatedResponse,
     PaginationOptions,
     Product,
+    ProductCategory,
     ProductFilters,
     UpdateProductInput,
 } from '../types';
@@ -18,11 +19,52 @@ const MultilingualTextSchema = z.object({
   en: z.string().min(1),
 });
 
+const ProductCategorySchema = z.enum([
+  'rings',
+  'necklaces',
+  'bracelets',
+  'earrings',
+  'sets',
+  'custom',
+]);
+
+const ProductPricingSchema = z
+  .object({
+    type: z.enum(['S', 'M', 'L', 'custom']),
+    customPrice: z.number().positive().optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (val.type === 'custom' && (typeof val.customPrice !== 'number' || val.customPrice <= 0)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'customPrice is required when pricing.type is custom',
+        path: ['customPrice'],
+      });
+    }
+    if (val.type !== 'custom' && val.customPrice !== undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'customPrice must be omitted unless pricing.type is custom',
+        path: ['customPrice'],
+      });
+    }
+  });
+
+const ProductDiscountSchema = z
+  .object({
+    enabled: z.boolean(),
+    percent: z.number().min(0).max(100),
+    description: z.string().optional(),
+  })
+  .optional();
+
 const CreateProductSchema = z.object({
   title: MultilingualTextSchema,
   description: MultilingualTextSchema,
-  price: z.number().positive(),
-  category: z.enum(['rings', 'necklaces', 'bracelets', 'earrings', 'sets', 'custom']),
+  categories: z.array(ProductCategorySchema).min(1),
+  pricing: ProductPricingSchema,
+  discount: ProductDiscountSchema,
+  isNew: z.boolean().optional(),
   images: z.array(z.string().url()).min(1),
   published: z.boolean().optional(),
 });
@@ -31,8 +73,10 @@ const UpdateProductSchema = z.object({
   id: z.string().min(1),
   title: MultilingualTextSchema.optional(),
   description: MultilingualTextSchema.optional(),
-  price: z.number().positive().optional(),
-  category: z.enum(['rings', 'necklaces', 'bracelets', 'earrings', 'sets', 'custom']).optional(),
+  categories: z.array(ProductCategorySchema).min(1).optional(),
+  pricing: ProductPricingSchema.optional(),
+  discount: ProductDiscountSchema,
+  isNew: z.boolean().optional(),
   images: z.array(z.string().url()).optional(),
   published: z.boolean().optional(),
 });
@@ -87,7 +131,7 @@ export class ProductService {
    * Get products by category
    */
   async getProductsByCategory(
-    category: string,
+    category: ProductCategory,
     pagination?: PaginationOptions
   ): Promise<PaginatedResponse<Product>> {
     try {

@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
-import type { Product } from '../../types';
+import type { PricingConfig, Product, ProductCategory } from '../../types';
 
 interface ProductCardProps {
   product: Product;
+  pricingConfig?: PricingConfig;
   onClick?: () => void;
 }
 
@@ -16,8 +17,8 @@ const categoryTranslations = {
   custom: { es: 'Personalizado', en: 'Custom' },
 };
 
-export default function ProductCard({ product, onClick }: ProductCardProps) {
-  const { locale } = useI18n();
+export default function ProductCard({ product, pricingConfig, onClick }: ProductCardProps) {
+  const { locale, t } = useI18n();
 
   const images = useMemo(() => (Array.isArray(product.images) ? product.images : []), [product.images]);
   const hasMultipleImages = images.length > 1;
@@ -113,12 +114,56 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
     requestImageChange(nextIndex, 'left');
   };
 
-  const formattedPrice = new Intl.NumberFormat(locale === 'es' ? 'es-ES' : 'en-US', {
-    style: 'currency',
-    currency: locale === 'es' ? 'EUR' : 'USD',
-  }).format(product.price);
+  const categories = useMemo(() => {
+    const list: ProductCategory[] = Array.isArray(product.categories) && product.categories.length > 0
+      ? product.categories
+      : product.category
+        ? [product.category]
+        : [];
+    return list;
+  }, [product.categories, product.category]);
 
-  const categoryLabel = categoryTranslations[product.category]?.[locale] || product.category;
+  const categoryLabel = useMemo(() => {
+    if (categories.length === 0) return '';
+    const first = categories[0];
+    const base = categoryTranslations[first]?.[locale] || first;
+    if (categories.length <= 1) return base;
+    return `${base} +${categories.length - 1}`;
+  }, [categories, locale]);
+
+  const basePrice = useMemo(() => {
+    if (product.pricing) {
+      if (product.pricing.type === 'custom') {
+        const price = product.pricing.customPrice;
+        return typeof price === 'number' && Number.isFinite(price) ? price : null;
+      }
+
+      const tier = product.pricing.type;
+      if (!pricingConfig) return null;
+      const tierPrice = pricingConfig[tier];
+      return typeof tierPrice === 'number' && Number.isFinite(tierPrice) ? tierPrice : null;
+    }
+
+    if (typeof product.price === 'number' && Number.isFinite(product.price)) return product.price;
+    return null;
+  }, [product.pricing, product.price, pricingConfig]);
+
+  const finalPrice = useMemo(() => {
+    if (basePrice == null) return null;
+    if (product.discount?.enabled) {
+      const percent = product.discount.percent;
+      if (typeof percent === 'number' && Number.isFinite(percent) && percent > 0) {
+        return Math.max(0, basePrice * (1 - percent / 100));
+      }
+    }
+    return basePrice;
+  }, [basePrice, product.discount?.enabled, product.discount?.percent]);
+
+  const formatPrice = (value: number) =>
+    new Intl.NumberFormat(locale === 'es' ? 'es-ES' : 'en-US', {
+      style: 'currency',
+      currency: locale === 'es' ? 'EUR' : 'USD',
+    }).format(value);
 
   return (
     <div
@@ -207,9 +252,17 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
 
         <div className="pointer-events-none absolute inset-0 z-10 bg-linear-to-t from-black/35 via-black/0 to-black/0" />
 
-        <div className="absolute left-3 top-3 z-20 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-700 backdrop-blur">
-          {categoryLabel}
-        </div>
+        {!!categoryLabel && (
+          <div className="absolute left-3 top-3 z-20 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-700 backdrop-blur">
+            {categoryLabel}
+          </div>
+        )}
+
+        {product.isNew && (
+          <div className="absolute right-3 top-3 z-20 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-700 backdrop-blur">
+            {t.admin.isNew}
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -223,9 +276,20 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
         </p>
 
         <div className="mt-4 flex items-end justify-between gap-4">
-          <span className="text-3xl font-bold leading-none text-(--color-primary)">
-            {formattedPrice}
-          </span>
+          {finalPrice == null ? (
+            <span className="text-lg font-semibold leading-none text-gray-700">-</span>
+          ) : product.discount?.enabled && basePrice != null && finalPrice !== basePrice ? (
+            <div className="flex flex-col items-start">
+              <span className="text-xs text-gray-500 line-through">{formatPrice(basePrice)}</span>
+              <span className="text-3xl font-bold leading-none text-(--color-primary)">
+                {formatPrice(finalPrice)}
+              </span>
+            </div>
+          ) : (
+            <span className="text-3xl font-bold leading-none text-(--color-primary)">
+              {formatPrice(finalPrice)}
+            </span>
+          )}
         </div>
       </div>
     </div>

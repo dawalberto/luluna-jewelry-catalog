@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { cloudinaryConfig } from '../../config/env';
 import { useI18n } from '../../i18n';
 import { ProductService } from '../../services';
-import type { CreateProductInput, MultilingualText, ProductCategory } from '../../types';
+import type { CreateProductInput, MultilingualText, ProductCategory, ProductPriceType } from '../../types';
 import { Button, Input } from '../ui';
 
 const productService = new ProductService();
@@ -18,8 +18,10 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
   const [formData, setFormData] = useState<CreateProductInput>({
     title: { es: '', en: '' },
     description: { es: '', en: '' },
-    price: 0,
-    category: 'rings',
+    categories: ['rings'],
+    pricing: { type: 'S' },
+    discount: { enabled: false, percent: 0, description: '' },
+    isNew: false,
     images: [],
     published: false,
   });
@@ -37,6 +39,34 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
     } else {
       setFormData((prev) => ({ ...prev, [field]: value }));
     }
+  };
+
+  const toggleCategory = (category: ProductCategory) => {
+    setFormData((prev) => {
+      const has = prev.categories.includes(category);
+      const next = has
+        ? prev.categories.filter((c) => c !== category)
+        : [...prev.categories, category];
+      return {
+        ...prev,
+        categories: next.length > 0 ? next : prev.categories,
+      };
+    });
+  };
+
+  const setPriceType = (type: ProductPriceType) => {
+    setFormData((prev) => {
+      if (type === 'custom') {
+        return {
+          ...prev,
+          pricing: {
+            type,
+            customPrice: prev.pricing.type === 'custom' ? prev.pricing.customPrice : 0,
+          },
+        };
+      }
+      return { ...prev, pricing: { type } };
+    });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,6 +147,30 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
       return;
     }
 
+    if (!formData.categories || formData.categories.length === 0) {
+      setSaving(false);
+      setError('Please select at least one category.');
+      return;
+    }
+
+    if (formData.pricing.type === 'custom') {
+      const price = formData.pricing.customPrice ?? 0;
+      if (!Number.isFinite(price) || price <= 0) {
+        setSaving(false);
+        setError('Please enter a valid custom price.');
+        return;
+      }
+    }
+
+    if (formData.discount?.enabled) {
+      const percent = formData.discount.percent ?? 0;
+      if (!Number.isFinite(percent) || percent <= 0 || percent > 100) {
+        setSaving(false);
+        setError('Please enter a valid discount percentage (1-100).');
+        return;
+      }
+    }
+
     try {
       await productService.createProduct(formData);
       onSuccess?.();
@@ -178,35 +232,147 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
         />
       </div>
 
-      {/* Price */}
-      <Input
-        type="number"
-        label={t.admin.productPrice}
-        value={formData.price}
-        onChange={(e) => handleInputChange('price', parseFloat(e.target.value))}
-        min="0"
-        step="0.01"
-        required
-      />
-
-      {/* Category */}
+      {/* Categories */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          {t.admin.productCategory}
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {t.admin.productCategories}
         </label>
-        <select
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
-          value={formData.category}
-          onChange={(e) => handleInputChange('category', e.target.value as ProductCategory)}
-          required
-        >
-          <option value="rings">{t.categories.rings}</option>
-          <option value="necklaces">{t.categories.necklaces}</option>
-          <option value="bracelets">{t.categories.bracelets}</option>
-          <option value="earrings">{t.categories.earrings}</option>
-          <option value="sets">{t.categories.sets}</option>
-          <option value="custom">{t.categories.custom}</option>
-        </select>
+        <div className="grid grid-cols-2 gap-2">
+          {(
+            [
+              ['rings', t.categories.rings],
+              ['necklaces', t.categories.necklaces],
+              ['bracelets', t.categories.bracelets],
+              ['earrings', t.categories.earrings],
+              ['sets', t.categories.sets],
+              ['custom', t.categories.custom],
+            ] as Array<[ProductCategory, string]>
+          ).map(([cat, label]) => (
+            <label key={cat} className="flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={formData.categories.includes(cat)}
+                onChange={() => toggleCategory(cat)}
+                className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Pricing */}
+      <div className="space-y-3">
+        <label className="block text-sm font-medium text-gray-700">{t.admin.productPrice}</label>
+
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.priceType}</label>
+          <select
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+            value={formData.pricing.type}
+            onChange={(e) => setPriceType(e.target.value as ProductPriceType)}
+          >
+            <option value="S">{t.admin.priceTypeS}</option>
+            <option value="M">{t.admin.priceTypeM}</option>
+            <option value="L">{t.admin.priceTypeL}</option>
+            <option value="custom">{t.admin.priceTypeCustom}</option>
+          </select>
+        </div>
+
+        {formData.pricing.type === 'custom' && (
+          <Input
+            type="number"
+            label={t.admin.customPrice}
+            value={formData.pricing.customPrice ?? 0}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                pricing: { type: 'custom', customPrice: parseFloat(e.target.value) },
+              }))
+            }
+            min="0"
+            step="0.01"
+            required
+          />
+        )}
+      </div>
+
+      {/* Discount */}
+      <div className="space-y-3">
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="discountEnabled"
+            checked={!!formData.discount?.enabled}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                discount: {
+                  enabled: e.target.checked,
+                  percent: prev.discount?.percent ?? 0,
+                  description: prev.discount?.description ?? '',
+                },
+              }))
+            }
+            className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+          />
+          <label htmlFor="discountEnabled" className="ml-2 text-sm text-gray-700">
+            {t.admin.discountEnabled}
+          </label>
+        </div>
+
+        {formData.discount?.enabled && (
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              type="number"
+              label={t.admin.discountPercent}
+              value={formData.discount.percent}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  discount: {
+                    enabled: true,
+                    percent: parseFloat(e.target.value),
+                    description: prev.discount?.description ?? '',
+                  },
+                }))
+              }
+              min="0"
+              max="100"
+              step="1"
+              required
+            />
+            <Input
+              type="text"
+              label={t.admin.discountDescription}
+              value={formData.discount.description ?? ''}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  discount: {
+                    enabled: true,
+                    percent: prev.discount?.percent ?? 0,
+                    description: e.target.value,
+                  },
+                }))
+              }
+            />
+          </div>
+        )}
+      </div>
+
+      {/* New */}
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="isNew"
+          checked={!!formData.isNew}
+          onChange={(e) => handleInputChange('isNew', e.target.checked)}
+          className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+        />
+        <label htmlFor="isNew" className="ml-2 text-sm text-gray-700">
+          {t.admin.isNew}
+        </label>
       </div>
 
       {/* Images */}

@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useI18n } from '../../i18n';
-import type { ProductCategory } from '../../types';
+import { PricingService } from '../../services';
+import type { PricingConfig, ProductCategory } from '../../types';
 import { useProducts } from '../../utils/hooks';
 import CategoryFilter from './CategoryFilter';
 import ProductGrid from './ProductGrid';
 import SearchBar from './SearchBar';
+
+const pricingService = new PricingService();
 
 export default function CatalogView() {
   const { t } = useI18n();
@@ -12,6 +15,7 @@ export default function CatalogView() {
     ProductCategory | 'all'
   >('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [pricingConfig, setPricingConfig] = useState<PricingConfig | undefined>(undefined);
 
   const filters = {
     category: selectedCategory !== 'all' ? selectedCategory : undefined,
@@ -20,6 +24,22 @@ export default function CatalogView() {
   };
 
   const { products, isLoading } = useProducts(filters, { limit: 50 });
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const config = await pricingService.getPricingConfig();
+        if (mounted) setPricingConfig(config);
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -40,7 +60,7 @@ export default function CatalogView() {
       />
 
       {/* Product Grid */}
-      <ProductGrid products={products} isLoading={isLoading} />
+      <ProductGrid products={products} isLoading={isLoading} pricingConfig={pricingConfig} />
     </div>
   );
 }

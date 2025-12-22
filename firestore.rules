@@ -29,6 +29,13 @@ service cloud.firestore {
       // Role management is intentionally locked down (bootstrap via Firebase Console/Admin SDK)
       allow create, update, delete: if false;
     }
+
+    // App settings (public read where needed; admin-only writes)
+    match /settings/{docId} {
+      // Allow the catalog to read pricing config
+      allow read: if docId == 'pricing';
+      allow create, update, delete: if isAdmin();
+    }
     
     // Deny all other access by default
     match /{document=**} {

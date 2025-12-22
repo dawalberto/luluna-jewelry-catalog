@@ -2,11 +2,10 @@
 import { useEffect, useState } from 'react';
 
 interface HeaderSimpleProps {
-  showAdmin?: boolean;
   locale?: 'es' | 'en';
 }
 
-export default function HeaderSimple({ showAdmin = false, locale = 'es' }: HeaderSimpleProps) {
+export default function HeaderSimple({ locale = 'es' }: HeaderSimpleProps) {
   const [currentLocale, setCurrentLocale] = useState<'es' | 'en'>(locale);
 
   useEffect(() => {
@@ -25,18 +24,14 @@ export default function HeaderSimple({ showAdmin = false, locale = 'es' }: Heade
     }
   }, []);
 
-  const nav = {
-    home: currentLocale === 'es' ? 'Inicio' : 'Home',
-    catalog: currentLocale === 'es' ? 'Catálogo' : 'Catalog',
-    admin: currentLocale === 'es' ? 'Administración' : 'Admin',
-  };
+  const catalogHref = `/catalog?lang=${currentLocale}`;
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a href="/" className="flex items-center space-x-2">
+          <a href={catalogHref} className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-[#2E6A77] rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-xl">L</span>
             </div>
@@ -44,30 +39,6 @@ export default function HeaderSimple({ showAdmin = false, locale = 'es' }: Heade
               LuLuna
             </span>
           </a>
-
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <a
-              href="/"
-              className="text-gray-700 hover:text-[#2E6A77] transition-colors"
-            >
-              {nav.home}
-            </a>
-            <a
-              href="/catalog"
-              className="text-gray-700 hover:text-[#2E6A77] transition-colors"
-            >
-              {nav.catalog}
-            </a>
-            {showAdmin && (
-              <a
-                href="/admin"
-                className="text-gray-700 hover:text-[#2E6A77] transition-colors"
-              >
-                {nav.admin}
-              </a>
-            )}
-          </nav>
 
           {/* Language Switcher */}
           <div className="flex gap-2">

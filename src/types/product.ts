@@ -21,14 +21,46 @@ export type ProductCategory =
   | 'custom';
 
 /**
+ * Product price configuration
+ * - tier: price is derived from global pricing config (S/M/L)
+ * - custom: price is stored per-product
+ */
+export type ProductPriceType = 'S' | 'M' | 'L' | 'custom';
+
+export interface ProductDiscount {
+  enabled: boolean;
+  percent: number; // 0-100
+  description?: string;
+}
+
+export interface ProductPricing {
+  type: ProductPriceType;
+  customPrice?: number;
+}
+
+export interface PricingConfig {
+  S: number;
+  M: number;
+  L: number;
+}
+
+/**
  * Product entity from Firestore
  */
 export interface Product {
   id: string;
   title: MultilingualText;
   description: MultilingualText;
-  price: number;
-  category: ProductCategory;
+  // New model
+  categories: ProductCategory[];
+  pricing: ProductPricing;
+  discount?: ProductDiscount;
+  isNew?: boolean;
+
+  // Legacy fields (kept for backward compatibility with existing docs)
+  price?: number;
+  category?: ProductCategory;
+
   images: string[]; // Cloudinary URLs
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -41,8 +73,10 @@ export interface Product {
 export interface CreateProductInput {
   title: MultilingualText;
   description: MultilingualText;
-  price: number;
-  category: ProductCategory;
+  categories: ProductCategory[];
+  pricing: ProductPricing;
+  discount?: ProductDiscount;
+  isNew?: boolean;
   images: string[];
   published?: boolean;
 }
@@ -54,8 +88,10 @@ export interface UpdateProductInput {
   id: string;
   title?: MultilingualText;
   description?: MultilingualText;
-  price?: number;
-  category?: ProductCategory;
+  categories?: ProductCategory[];
+  pricing?: ProductPricing;
+  discount?: ProductDiscount;
+  isNew?: boolean;
   images?: string[];
   published?: boolean;
 }

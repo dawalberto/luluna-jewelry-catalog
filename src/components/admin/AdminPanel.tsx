@@ -1,17 +1,74 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
-import { ProductService } from '../../services';
-import type { Product } from '../../types';
+import { PricingService, ProductService } from '../../services';
+import type { PricingConfig, Product } from '../../types';
 import { useProducts } from '../../utils/hooks';
-import { Button } from '../ui';
+import { Button, Input } from '../ui';
 import ProductForm from './ProductForm';
 
 const productService = new ProductService();
+const pricingService = new PricingService();
+
+const defaultPricing: PricingConfig = { S: 0, M: 0, L: 0 };
+
+function getProductBasePrice(product: Product, pricing: PricingConfig): number | null {
+  if (product.pricing) {
+    if (product.pricing.type === 'custom') {
+      const price = product.pricing.customPrice;
+      return typeof price === 'number' && Number.isFinite(price) ? price : null;
+    }
+
+    const tierPrice = pricing[product.pricing.type];
+    return typeof tierPrice === 'number' && Number.isFinite(tierPrice) ? tierPrice : null;
+  }
+
+  if (typeof product.price === 'number' && Number.isFinite(product.price)) {
+    return product.price;
+  }
+
+  return null;
+}
+
+function getProductFinalPrice(product: Product, pricing: PricingConfig): number | null {
+  const base = getProductBasePrice(product, pricing);
+  if (base == null) return null;
+
+  if (product.discount?.enabled) {
+    const percent = product.discount.percent;
+    if (typeof percent === 'number' && Number.isFinite(percent) && percent > 0) {
+      return Math.max(0, base * (1 - percent / 100));
+    }
+  }
+
+  return base;
+}
 
 function AdminPanelContent() {
   const { t, locale } = useI18n();
   const [showForm, setShowForm] = useState(false);
   const { products, isLoading, mutate } = useProducts({ publishedOnly: false }, { limit: 100 });
+  const [pricing, setPricing] = useState<PricingConfig>(defaultPricing);
+  const [pricingLoading, setPricingLoading] = useState(true);
+  const [pricingSaving, setPricingSaving] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      try {
+        const config = await pricingService.getPricingConfig();
+        if (mounted) setPricing(config);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (mounted) setPricingLoading(false);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const handleDelete = async (id: string) => {
     if (!confirm(t.admin.deleteConfirm)) return;
@@ -35,6 +92,38 @@ function AdminPanelContent() {
     }
   };
 
+  const handleSavePricing = async () => {
+    setPricingSaving(true);
+    try {
+      await pricingService.setPricingConfig(pricing);
+      alert(t.admin.pricingSaved);
+    } catch (err) {
+      const anyErr = err as any;
+      const code = typeof anyErr?.code === 'string' ? anyErr.code : '';
+      const message = typeof anyErr?.message === 'string' ? anyErr.message : '';
+
+      console.error('Error saving pricing', { code, message, err });
+
+      // Give a more actionable error to confirm if this is a rules/auth issue.
+      const suffix = code ? ` (${code})` : '';
+      alert(`${t.admin.pricingSaveError}${suffix}`);
+    } finally {
+      setPricingSaving(false);
+    }
+  };
+
+  const productCategoryLabel = useMemo(() => {
+    return (product: Product) => {
+      const categories = product.categories?.length
+        ? product.categories
+        : product.category
+          ? [product.category]
+          : [];
+      if (categories.length === 0) return '-';
+      return categories.map((c) => t.categories[c]).join(', ');
+    };
+  }, [t.categories]);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
@@ -42,6 +131,47 @@ function AdminPanelContent() {
         <Button onClick={() => setShowForm(!showForm)}>
           {showForm ? t.common.cancel : t.admin.addProduct}
         </Button>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-2xl font-semibold mb-2">{t.admin.pricingTitle}</h2>
+        <p className="text-sm text-gray-600 mb-4">{t.admin.pricingSizes}</p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Input
+            type="number"
+            label={t.admin.pricingS}
+            value={pricing.S}
+            onChange={(e) => setPricing((prev) => ({ ...prev, S: parseFloat(e.target.value) }))}
+            min="0"
+            step="0.01"
+            disabled={pricingLoading || pricingSaving}
+          />
+          <Input
+            type="number"
+            label={t.admin.pricingM}
+            value={pricing.M}
+            onChange={(e) => setPricing((prev) => ({ ...prev, M: parseFloat(e.target.value) }))}
+            min="0"
+            step="0.01"
+            disabled={pricingLoading || pricingSaving}
+          />
+          <Input
+            type="number"
+            label={t.admin.pricingL}
+            value={pricing.L}
+            onChange={(e) => setPricing((prev) => ({ ...prev, L: parseFloat(e.target.value) }))}
+            min="0"
+            step="0.01"
+            disabled={pricingLoading || pricingSaving}
+          />
+        </div>
+
+        <div className="mt-4">
+          <Button onClick={handleSavePricing} disabled={pricingLoading || pricingSaving}>
+            {t.admin.pricingSave}
+          </Button>
+        </div>
       </div>
 
       {showForm && (
@@ -66,7 +196,7 @@ function AdminPanelContent() {
                 {t.admin.productTitle}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t.admin.productCategory}
+                {t.admin.productCategories}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {t.admin.productPrice}
@@ -110,10 +240,14 @@ function AdminPanelContent() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {t.categories[product.category]}
+                    {productCategoryLabel(product)}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
-                    ${product.price.toFixed(2)}
+                    {(() => {
+                      const finalPrice = getProductFinalPrice(product, pricing);
+                      if (finalPrice == null) return '-';
+                      return `$${finalPrice.toFixed(2)}`;
+                    })()}
                   </td>
                   <td className="px-6 py-4">
                     <button

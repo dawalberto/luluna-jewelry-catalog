@@ -3,6 +3,7 @@ import type {
     PaginatedResponse,
     PaginationOptions,
     Product,
+    ProductCategory,
     ProductFilters,
     UpdateProductInput,
 } from '../types';
@@ -24,7 +25,7 @@ export interface IProductRepository {
   getById(id: string): Promise<Product | null>;
   
   getByCategory(
-    category: string,
+    category: ProductCategory,
     pagination?: PaginationOptions
   ): Promise<PaginatedResponse<Product>>;
   
