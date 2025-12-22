@@ -269,7 +269,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
 
             {/* Description */}
             <div className="mb-12">
-              <h2 className="font-heading text-xl font-medium text-(--color-text) mb-4 uppercase tracking-widest text-xs">
+              <h2 className="font-heading text-xs font-medium text-(--color-text) mb-4 uppercase tracking-widest">
                 {t.productDetail.description}
               </h2>
               <p className="font-body text-base md:text-lg text-gray-600 leading-relaxed whitespace-pre-line font-light">
@@ -287,7 +287,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
                 href="https://www.instagram.com/lulunajoyas/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-heading text-lg font-medium py-5 px-6 transition-all shadow-sm hover:shadow-md text-center tracking-wide"
+                className="block w-full bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-heading text-lg font-medium py-5 px-6 transition-all shadow-sm hover:shadow-md text-center tracking-wide"
               >
                 <div className="flex items-center justify-center gap-3">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -317,7 +317,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
             {/* Product Features */}
             <div className="mt-10 pt-8 border-t border-gray-100">
               <h3 className="font-heading text-xs font-medium text-(--color-text) mb-6 uppercase tracking-widest">
-                {t.productDetail.features}
+                {t.productDetail.features || 'Características'}
               </h3>
               <ul className="space-y-4 font-body text-gray-600 font-light">
                 <li className="flex items-start gap-3">

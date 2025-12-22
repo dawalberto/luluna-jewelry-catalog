@@ -51,6 +51,8 @@ export interface Translations {
     new: string;
     save: string;
     description: string;
+    shopViaDM: string;
+    contactInstagram: string;
     contactWhatsApp: string;
     whatsappMessage: string;
     secureCheckout: string;

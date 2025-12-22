@@ -1,3 +1,4 @@
+import imageCompression from 'browser-image-compression';
 import React, { useEffect, useMemo, useState } from 'react';
 import { cloudinaryConfig } from '../../config/env';
 import { useI18n } from '../../i18n';
@@ -149,8 +150,25 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
 
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
+        // Compress image before uploading
+        const options = {
+          maxSizeMB: 1, // Maximum file size in MB
+          maxWidthOrHeight: 2048, // Max dimension
+          useWebWorker: true,
+          fileType: file.type as 'image/jpeg' | 'image/png' | 'image/webp',
+        };
+
+        let compressedFile: File;
+        try {
+          compressedFile = await imageCompression(file, options);
+          console.log(`Image compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+        } catch (compressionError) {
+          console.warn('Image compression failed, using original file:', compressionError);
+          compressedFile = file;
+        }
+
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', compressedFile);
         formData.append('upload_preset', cloudinaryConfig.uploadPreset);
 
         const response = await fetch(
