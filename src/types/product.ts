@@ -45,6 +45,17 @@ export interface PricingConfig {
 }
 
 /**
+ * Global discount configuration (applied to catalog prices when active)
+ * Stored in Firestore at settings/discount
+ */
+export interface GlobalDiscount {
+  active: boolean;
+  percent: number; // 0-100
+  title: string;
+  description?: string;
+}
+
+/**
  * Product entity from Firestore
  */
 export interface Product {

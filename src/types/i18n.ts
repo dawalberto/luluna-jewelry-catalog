@@ -49,6 +49,8 @@ export interface Translations {
   catalog: {
     title: string;
     subtitle: string;
+    promoTitle: string;
+    promoDescription: string;
     noProducts: string;
     noResults: string;
     searchPlaceholder: string;
@@ -88,6 +90,17 @@ export interface Translations {
     pricingSave: string;
     pricingSaved: string;
     pricingSaveError: string;
+
+    globalDiscountTitle: string;
+    globalDiscountHelp: string;
+    globalDiscountActive: string;
+    globalDiscountPercent: string;
+    globalDiscountName: string;
+    globalDiscountDescription: string;
+    globalDiscountSave: string;
+    globalDiscountSaved: string;
+    globalDiscountSaveError: string;
+
     priceType: string;
     priceTypeS: string;
     priceTypeM: string;

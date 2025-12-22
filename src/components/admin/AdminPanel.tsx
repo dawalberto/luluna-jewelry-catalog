@@ -1,15 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
-import { PricingService, ProductService } from '../../services';
-import type { PricingConfig, Product } from '../../types';
+import { GlobalDiscountService, PricingService, ProductService } from '../../services';
+import type { GlobalDiscount, PricingConfig, Product } from '../../types';
 import { useProducts } from '../../utils/hooks';
 import { Button, Input } from '../ui';
 import ProductForm from './ProductForm';
 
 const productService = new ProductService();
 const pricingService = new PricingService();
+const globalDiscountService = new GlobalDiscountService();
 
 const defaultPricing: PricingConfig = { S: 0, M: 0, L: 0 };
+const defaultGlobalDiscount: GlobalDiscount = {
+  active: false,
+  percent: 0,
+  title: '',
+  description: '',
+};
 
 function getProductBasePrice(product: Product, pricing: PricingConfig): number | null {
   if (product.pricing) {
@@ -51,6 +58,10 @@ function AdminPanelContent() {
   const [pricingLoading, setPricingLoading] = useState(true);
   const [pricingSaving, setPricingSaving] = useState(false);
 
+  const [globalDiscount, setGlobalDiscount] = useState<GlobalDiscount>(defaultGlobalDiscount);
+  const [globalDiscountLoading, setGlobalDiscountLoading] = useState(true);
+  const [globalDiscountSaving, setGlobalDiscountSaving] = useState(false);
+
   useEffect(() => {
     let mounted = true;
 
@@ -62,6 +73,25 @@ function AdminPanelContent() {
         console.error(err);
       } finally {
         if (mounted) setPricingLoading(false);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      try {
+        const config = await globalDiscountService.getGlobalDiscount();
+        if (mounted) setGlobalDiscount(config);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (mounted) setGlobalDiscountLoading(false);
       }
     })();
 
@@ -109,6 +139,24 @@ function AdminPanelContent() {
       alert(`${t.admin.pricingSaveError}${suffix}`);
     } finally {
       setPricingSaving(false);
+    }
+  };
+
+  const handleSaveGlobalDiscount = async () => {
+    setGlobalDiscountSaving(true);
+    try {
+      await globalDiscountService.setGlobalDiscount(globalDiscount);
+      alert(t.admin.globalDiscountSaved);
+    } catch (err) {
+      const anyErr = err as any;
+      const code = typeof anyErr?.code === 'string' ? anyErr.code : '';
+      const message = typeof anyErr?.message === 'string' ? anyErr.message : '';
+      console.error('Error saving global discount', { code, message, err });
+
+      const suffix = code ? ` (${code})` : '';
+      alert(`${t.admin.globalDiscountSaveError}${suffix}`);
+    } finally {
+      setGlobalDiscountSaving(false);
     }
   };
 
@@ -170,6 +218,71 @@ function AdminPanelContent() {
         <div className="mt-4">
           <Button onClick={handleSavePricing} disabled={pricingLoading || pricingSaving}>
             {t.admin.pricingSave}
+          </Button>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-2xl font-semibold mb-2">{t.admin.globalDiscountTitle}</h2>
+        <p className="text-sm text-gray-600 mb-4">{t.admin.globalDiscountHelp}</p>
+
+        <div className="flex items-center mb-4">
+          <input
+            type="checkbox"
+            id="globalDiscountActive"
+            checked={!!globalDiscount.active}
+            onChange={(e) => setGlobalDiscount((prev) => ({ ...prev, active: e.target.checked }))}
+            disabled={globalDiscountLoading || globalDiscountSaving}
+            className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+          />
+          <label htmlFor="globalDiscountActive" className="ml-2 text-sm text-gray-700">
+            {t.admin.globalDiscountActive}
+          </label>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            type="number"
+            label={t.admin.globalDiscountPercent}
+            value={globalDiscount.percent}
+            onChange={(e) =>
+              setGlobalDiscount((prev) => ({ ...prev, percent: parseFloat(e.target.value) }))
+            }
+            min="0"
+            max="100"
+            step="1"
+            disabled={globalDiscountLoading || globalDiscountSaving}
+          />
+          <Input
+            type="text"
+            label={t.admin.globalDiscountName}
+            value={globalDiscount.title}
+            onChange={(e) => setGlobalDiscount((prev) => ({ ...prev, title: e.target.value }))}
+            disabled={globalDiscountLoading || globalDiscountSaving}
+          />
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t.admin.globalDiscountDescription}
+          </label>
+          <textarea
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+            rows={3}
+            value={globalDiscount.description ?? ''}
+            onChange={(e) =>
+              setGlobalDiscount((prev) => ({ ...prev, description: e.target.value }))
+            }
+            disabled={globalDiscountLoading || globalDiscountSaving}
+          />
+        </div>
+
+        <div className="mt-4">
+          <Button
+            onClick={handleSaveGlobalDiscount}
+            disabled={globalDiscountLoading || globalDiscountSaving}
+          >
+            {t.admin.globalDiscountSave}
           </Button>
         </div>
       </div>

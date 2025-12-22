@@ -41,6 +41,8 @@
   "catalog": {
     "title": "Nuestro Catálogo",
     "subtitle": "Joyería artesanal única y elegante",
+    "promoTitle": "Promoción",
+    "promoDescription": "Descuento aplicado automáticamente",
     "noProducts": "No hay productos disponibles",
     "noResults": "No se encontraron productos",
     "searchPlaceholder": "Buscar productos..."
@@ -77,6 +79,17 @@
     "pricingSave": "Guardar precios",
     "pricingSaved": "Precios guardados",
     "pricingSaveError": "Error guardando precios",
+
+    "globalDiscountTitle": "Descuento global",
+    "globalDiscountHelp": "Se aplica a todos los productos del catálogo cuando está activo.",
+    "globalDiscountActive": "Activo",
+    "globalDiscountPercent": "Porcentaje",
+    "globalDiscountName": "Título",
+    "globalDiscountDescription": "Descripción",
+    "globalDiscountSave": "Guardar descuento",
+    "globalDiscountSaved": "Descuento guardado",
+    "globalDiscountSaveError": "Error guardando descuento",
+
     "priceType": "Tipo de precio",
     "priceTypeS": "S",
     "priceTypeM": "M",

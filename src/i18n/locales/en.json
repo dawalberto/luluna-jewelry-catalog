@@ -41,6 +41,8 @@
   "catalog": {
     "title": "Our Catalog",
     "subtitle": "Unique and elegant handcrafted jewelry",
+    "promoTitle": "Promotion",
+    "promoDescription": "Discount applied automatically",
     "noProducts": "No products available",
     "noResults": "No products found",
     "searchPlaceholder": "Search products..."
@@ -77,6 +79,17 @@
     "pricingSave": "Save prices",
     "pricingSaved": "Prices saved",
     "pricingSaveError": "Error saving prices",
+
+    "globalDiscountTitle": "Global discount",
+    "globalDiscountHelp": "Applies to all catalog products when active.",
+    "globalDiscountActive": "Active",
+    "globalDiscountPercent": "Percent",
+    "globalDiscountName": "Title",
+    "globalDiscountDescription": "Description",
+    "globalDiscountSave": "Save discount",
+    "globalDiscountSaved": "Discount saved",
+    "globalDiscountSaveError": "Error saving discount",
+
     "priceType": "Price type",
     "priceTypeS": "S",
     "priceTypeM": "M",

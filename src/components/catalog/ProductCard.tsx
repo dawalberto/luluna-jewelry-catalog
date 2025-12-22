@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
-import type { PricingConfig, Product, ProductCategory } from '../../types';
+import type { GlobalDiscount, PricingConfig, Product, ProductCategory } from '../../types';
 
 interface ProductCardProps {
   product: Product;
   pricingConfig?: PricingConfig;
+  globalDiscount?: GlobalDiscount;
   onClick?: () => void;
 }
 
@@ -17,7 +18,7 @@ const categoryTranslations = {
   custom: { es: 'Personalizado', en: 'Custom' },
 };
 
-export default function ProductCard({ product, pricingConfig, onClick }: ProductCardProps) {
+export default function ProductCard({ product, pricingConfig, globalDiscount, onClick }: ProductCardProps) {
   const { locale, t } = useI18n();
 
   const images = useMemo(() => (Array.isArray(product.images) ? product.images : []), [product.images]);
@@ -148,16 +149,27 @@ export default function ProductCard({ product, pricingConfig, onClick }: Product
     return null;
   }, [product.pricing, product.price, pricingConfig]);
 
-  const finalPrice = useMemo(() => {
-    if (basePrice == null) return null;
+  const effectiveDiscountPercent = useMemo(() => {
     if (product.discount?.enabled) {
       const percent = product.discount.percent;
-      if (typeof percent === 'number' && Number.isFinite(percent) && percent > 0) {
-        return Math.max(0, basePrice * (1 - percent / 100));
-      }
+      return typeof percent === 'number' && Number.isFinite(percent) ? percent : 0;
+    }
+
+    if (globalDiscount?.active) {
+      const percent = globalDiscount.percent;
+      return typeof percent === 'number' && Number.isFinite(percent) ? percent : 0;
+    }
+
+    return 0;
+  }, [product.discount?.enabled, product.discount?.percent, globalDiscount?.active, globalDiscount?.percent]);
+
+  const finalPrice = useMemo(() => {
+    if (basePrice == null) return null;
+    if (effectiveDiscountPercent > 0) {
+      return Math.max(0, basePrice * (1 - effectiveDiscountPercent / 100));
     }
     return basePrice;
-  }, [basePrice, product.discount?.enabled, product.discount?.percent]);
+  }, [basePrice, effectiveDiscountPercent]);
 
   const formatPrice = (value: number) =>
     new Intl.NumberFormat(locale === 'es' ? 'es-ES' : 'en-US', {
@@ -278,7 +290,7 @@ export default function ProductCard({ product, pricingConfig, onClick }: Product
         <div className="mt-4 flex items-end justify-between gap-4">
           {finalPrice == null ? (
             <span className="text-lg font-semibold leading-none text-gray-700">-</span>
-          ) : product.discount?.enabled && basePrice != null && finalPrice !== basePrice ? (
+          ) : effectiveDiscountPercent > 0 && basePrice != null && finalPrice !== basePrice ? (
             <div className="flex flex-col items-start">
               <span className="text-xs text-gray-500 line-through">{formatPrice(basePrice)}</span>
               <span className="text-3xl font-bold leading-none text-(--color-primary)">

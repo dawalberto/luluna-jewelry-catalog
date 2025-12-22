@@ -1,5 +1,5 @@
 import { useI18n } from '../../i18n';
-import type { PricingConfig, Product } from '../../types';
+import type { GlobalDiscount, PricingConfig, Product } from '../../types';
 import { LoadingSpinner } from '../ui';
 import ProductCard from './ProductCard';
 
@@ -8,6 +8,7 @@ interface ProductGridProps {
   isLoading?: boolean;
   onProductClick?: (product: Product) => void;
   pricingConfig?: PricingConfig;
+  globalDiscount?: GlobalDiscount;
 }
 
 export default function ProductGrid({
@@ -15,6 +16,7 @@ export default function ProductGrid({
   isLoading,
   onProductClick,
   pricingConfig,
+  globalDiscount,
 }: ProductGridProps) {
   const { t } = useI18n();
 
@@ -54,6 +56,7 @@ export default function ProductGrid({
           key={product.id}
           product={product}
           pricingConfig={pricingConfig}
+          globalDiscount={globalDiscount}
           onClick={() => onProductClick?.(product)}
         />
       ))}
