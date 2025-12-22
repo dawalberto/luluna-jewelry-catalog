@@ -16,7 +16,6 @@ export const firebaseConfig = {
 export const cloudinaryConfig = {
   cloudName: import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME,
   apiKey: import.meta.env.PUBLIC_CLOUDINARY_API_KEY,
-  apiSecret: import.meta.env.CLOUDINARY_API_SECRET,
   uploadPreset: import.meta.env.PUBLIC_CLOUDINARY_UPLOAD_PRESET,
 };
 

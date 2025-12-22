@@ -28,7 +28,7 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  const handleInputChange = (field: string, value: any, lang?: 'es' | 'en') => {
+  const handleInputChange = (field: keyof CreateProductInput, value: any, lang?: 'es' | 'en') => {
     if (lang) {
       setFormData((prev) => ({
         ...prev,
@@ -42,6 +42,18 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+
+    if (!cloudinaryConfig.cloudName) {
+      setError('Cloudinary cloud name is missing. Check PUBLIC_CLOUDINARY_CLOUD_NAME in .env');
+      return;
+    }
+
+    if (!cloudinaryConfig.uploadPreset || cloudinaryConfig.uploadPreset === 'your_upload_preset') {
+      setError(
+        'Cloudinary upload preset is missing/invalid. Create an unsigned upload preset in Cloudinary and set PUBLIC_CLOUDINARY_UPLOAD_PRESET in .env'
+      );
+      return;
+    }
 
     setUploading(true);
     setError('');
@@ -60,17 +72,27 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
           }
         );
 
-        const data = await response.json();
-        return data.secure_url;
+        const data = await response.json().catch(() => ({} as any));
+        if (!response.ok) {
+          const message = data?.error?.message || `Cloudinary upload failed (HTTP ${response.status})`;
+          throw new Error(message);
+        }
+
+        const url = (data as any)?.secure_url;
+        if (typeof url !== 'string' || url.length === 0) {
+          throw new Error('Cloudinary upload succeeded but no secure_url was returned');
+        }
+        return url;
       });
 
       const uploadedUrls = await Promise.all(uploadPromises);
       setFormData((prev) => ({
         ...prev,
-        images: [...prev.images, ...uploadedUrls],
+        images: [...prev.images, ...uploadedUrls.filter((u) => typeof u === 'string' && u.length > 0)],
       }));
     } catch (err) {
-      setError('Error uploading images');
+      const message = err instanceof Error ? err.message : 'Error uploading images';
+      setError(message);
       console.error(err);
     } finally {
       setUploading(false);
@@ -88,6 +110,12 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
     e.preventDefault();
     setSaving(true);
     setError('');
+
+    if (!formData.images || formData.images.length === 0) {
+      setSaving(false);
+      setError('Please upload at least one product image before saving.');
+      return;
+    }
 
     try {
       await productService.createProduct(formData);
