@@ -63,7 +63,8 @@
     "sortPriceDesc": "Price ↓",
     "noProducts": "No products available",
     "noResults": "No products found",
-    "searchPlaceholder": "Search products..."
+    "searchPlaceholder": "Search products...",
+    "filterByTags": "Filter by tags"
   },
   "admin": {
     "title": "Administration",
@@ -114,7 +115,20 @@
     "categoryDeleteConfirm": "Are you sure you want to delete this category?",
     "categoryDeleted": "Category deleted",
     "categoryDeleteError": "Error deleting category",
-
+    "tagsTitle": "Tags",
+    "tagsHelp": "Manage available tags. Tags are used to filter products flexibly.",
+    "addTag": "Add tag",
+    "createTag": "Create",
+    "updateTag": "Update",
+    "tagName": "Name",
+    "noTags": "No tags yet.",
+    "tagCreated": "Tag created",
+    "tagSaved": "Tag updated",
+    "tagSaveError": "Error saving tag",
+    "tagDeleteConfirm": "Are you sure you want to delete this tag?",
+    "tagDeleted": "Tag deleted",
+    "tagDeleteError": "Error deleting tag",
+    "productTags": "Tags",
     "globalDiscountTitle": "Global discount",
     "globalDiscountHelp": "Applies to all catalog products when active.",
     "globalDiscountActive": "Active",

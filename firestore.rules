@@ -29,6 +29,15 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    // Tags collection
+    match /tags/{tagId} {
+      // Public read so catalog can render filters and product details
+      allow read: if true;
+
+      // Only admins can manage tags
+      allow create, update, delete: if isAdmin();
+    }
+
     // Admin role documents: admins/{uid}
     match /admins/{uid} {
       // Allow a signed-in user to read ONLY their own role document

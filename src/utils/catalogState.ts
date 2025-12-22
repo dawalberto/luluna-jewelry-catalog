@@ -4,6 +4,7 @@ const CATALOG_STATE_KEY = 'luluna_catalog_state';
 
 export interface CatalogState {
   selectedCategory: ProductCategory | 'all';
+  selectedTags?: string[];
   searchQuery: string;
   sortBy: 'none' | 'price-asc' | 'price-desc' | 'popularity';
   scrollPosition: number;

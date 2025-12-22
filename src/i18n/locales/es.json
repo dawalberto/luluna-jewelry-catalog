@@ -63,7 +63,8 @@
     "sortPriceDesc": "Precio ↓",
     "noProducts": "No hay productos disponibles",
     "noResults": "No se encontraron productos",
-    "searchPlaceholder": "Buscar productos..."
+    "searchPlaceholder": "Buscar productos...",
+    "filterByTags": "Filtrar por etiquetas"
   },
   "admin": {
     "title": "Administración",
@@ -114,6 +115,21 @@
     "categoryDeleteConfirm": "¿Estás seguro de eliminar esta categoría?",
     "categoryDeleted": "Categoría eliminada",
     "categoryDeleteError": "Error eliminando categoría",
+
+    "tagsTitle": "Etiquetas",
+    "tagsHelp": "Administra las etiquetas disponibles. Las etiquetas se usan para filtrar productos de manera flexible.",
+    "addTag": "Agregar etiqueta",
+    "createTag": "Crear",
+    "updateTag": "Actualizar",
+    "tagName": "Nombre",
+    "noTags": "Aún no hay etiquetas.",
+    "tagCreated": "Etiqueta creada",
+    "tagSaved": "Etiqueta actualizada",
+    "tagSaveError": "Error guardando etiqueta",
+    "tagDeleteConfirm": "¿Estás seguro de eliminar esta etiqueta?",
+    "tagDeleted": "Etiqueta eliminada",
+    "tagDeleteError": "Error eliminando etiqueta",
+    "productTags": "Etiquetas",
 
     "globalDiscountTitle": "Descuento global",
     "globalDiscountHelp": "Se aplica a todos los productos del catálogo cuando está activo.",

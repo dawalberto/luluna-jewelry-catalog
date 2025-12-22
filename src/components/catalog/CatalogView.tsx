@@ -3,7 +3,7 @@ import { useI18n } from '../../i18n';
 import { GlobalDiscountService, PricingService } from '../../services';
 import type { GlobalDiscount, PricingConfig, ProductCategory } from '../../types';
 import { loadCatalogState } from '../../utils';
-import { useProducts } from '../../utils/hooks';
+import { useProducts, useTags } from '../../utils/hooks';
 import CategoryFilter from './CategoryFilter';
 import ProductGrid from './ProductGrid';
 import SearchBar from './SearchBar';
@@ -17,6 +17,7 @@ export default function CatalogView() {
   const [selectedCategory, setSelectedCategory] = useState<
     ProductCategory | 'all'
   >('all');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | undefined>(undefined);
   const [globalDiscount, setGlobalDiscount] = useState<GlobalDiscount | undefined>(undefined);
@@ -29,6 +30,7 @@ export default function CatalogView() {
     const savedState = loadCatalogState();
     if (savedState) {
       setSelectedCategory(savedState.selectedCategory || 'all');
+      setSelectedTags(savedState.selectedTags || []);
       setSearchQuery(savedState.searchQuery || '');
       // Migrar el estado antiguo al nuevo formato
       const legacyState = savedState as any;
@@ -52,6 +54,51 @@ export default function CatalogView() {
   };
 
   const { products, isLoading } = useProducts(filters, { limit: 50 });
+  const { tags: dbTags } = useTags();
+
+  // Filter by tags client-side
+  const tagFilteredProducts = useMemo(() => {
+    if (selectedTags.length === 0) return products;
+    
+    return products.filter((product) => {
+      if (!product.tags || product.tags.length === 0) return false;
+      // Product must have ALL selected tags
+      return selectedTags.every((tag) => product.tags!.includes(tag));
+    });
+  }, [products, selectedTags]);
+
+  // Get all unique tags from database for the filter UI
+  const availableTags = useMemo(() => {
+    // Get tags that are actually used in products
+    const usedTagIds = new Set<string>();
+    products.forEach((product) => {
+      if (product.tags && Array.isArray(product.tags)) {
+        product.tags.forEach((tagId) => {
+          if (tagId && typeof tagId === 'string') {
+            usedTagIds.add(tagId);
+          }
+        });
+      }
+    });
+
+    // Return tags that are used, with their translated labels
+    return dbTags
+      .filter((tag) => usedTagIds.has(tag.id))
+      .map((tag) => ({
+        id: tag.id,
+        label: tag.title?.[locale] ?? tag.title?.es ?? tag.id,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [products, dbTags, locale]);
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTags((prev) => {
+      if (prev.includes(tagId)) {
+        return prev.filter((t) => t !== tagId);
+      }
+      return [...prev, tagId];
+    });
+  };
 
   // Restore scroll position after products are loaded
   useEffect(() => {
@@ -72,7 +119,7 @@ export default function CatalogView() {
   const sortedProducts = useMemo(() => {
     // Sort by popularity if selected
     if (sortBy === 'popularity') {
-      const withMeta = products.map((product, index) => {
+      const withMeta = tagFilteredProducts.map((product, index) => {
         const title =
           product.title?.[locale] ??
           product.title?.es ??
@@ -135,7 +182,7 @@ export default function CatalogView() {
         return base;
       };
 
-      const withMeta = products.map((product, index) => {
+      const withMeta = tagFilteredProducts.map((product, index) => {
         const title =
           product.title?.[locale] ??
           product.title?.es ??
@@ -166,8 +213,8 @@ export default function CatalogView() {
     }
 
     // Default: no sorting
-    return products;
-  }, [products, sortBy, pricingConfig, globalDiscount?.active, globalDiscount?.percent, locale]);
+    return tagFilteredProducts;
+  }, [tagFilteredProducts, sortBy, pricingConfig, globalDiscount?.active, globalDiscount?.percent, locale]);
 
   useEffect(() => {
     let mounted = true;
@@ -218,6 +265,42 @@ export default function CatalogView() {
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
       />
+
+      {/* Tags Filter */}
+      {availableTags.length > 0 && (
+        <div className="mb-8 mt-6">
+          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-widest mb-4 text-center">
+            {(t.catalog as any).filterByTags || 'Filtrar por etiquetas'}
+          </h3>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {availableTags.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => toggleTag(id)}
+                className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                  selectedTags.includes(id)
+                    ? 'bg-[#2E6A77] text-white shadow-md'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {selectedTags.length > 0 && (
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={() => setSelectedTags([])}
+                className="text-sm text-gray-500 hover:text-gray-700 underline"
+              >
+                {t.common.clear || 'Limpiar filtros'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Sort */}
       <div className="mb-8 mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-end gap-4">
@@ -316,6 +399,7 @@ export default function CatalogView() {
         globalDiscount={globalDiscount}
         catalogState={{
           selectedCategory,
+          selectedTags,
           searchQuery,
           sortBy,
         }}

@@ -12,6 +12,7 @@ interface ProductGridProps {
   globalDiscount?: GlobalDiscount;
   catalogState?: {
     selectedCategory: ProductCategory | 'all';
+    selectedTags?: string[];
     searchQuery: string;
     sortBy: 'none' | 'price-asc' | 'price-desc' | 'popularity';
   };
@@ -32,6 +33,7 @@ export default function ProductGrid({
     if (catalogState) {
       saveCatalogState({
         selectedCategory: catalogState.selectedCategory || 'all',
+        selectedTags: catalogState.selectedTags || [],
         searchQuery: catalogState.searchQuery || '',
         sortBy: catalogState.sortBy || 'none',
         scrollPosition: window.scrollY,

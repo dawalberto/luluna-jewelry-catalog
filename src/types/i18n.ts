@@ -93,6 +93,22 @@ export interface Translations {
     categoryDeleted: string;
     categoryDeleteError: string;
 
+    // Tags
+    tagsTitle: string;
+    tagsHelp: string;
+    addTag: string;
+    createTag: string;
+    updateTag: string;
+    tagName: string;
+    noTags: string;
+    tagCreated: string;
+    tagSaved: string;
+    tagSaveError: string;
+    tagDeleteConfirm: string;
+    tagDeleted: string;
+    tagDeleteError: string;
+    productTags: string;
+
     // Auth / access control
     loginTitle: string;
     email: string;

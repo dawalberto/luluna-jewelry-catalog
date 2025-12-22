@@ -59,6 +59,7 @@ export interface Product {
   description: MultilingualText;
   // New model
   categories: ProductCategory[];
+  tags?: string[]; // Product tags for filtering and organization
   pricing: ProductPricing;
   discount?: ProductDiscount;
   isNew?: boolean;
@@ -81,6 +82,7 @@ export interface CreateProductInput {
   title: MultilingualText;
   description: MultilingualText;
   categories: ProductCategory[];
+  tags?: string[];
   pricing: ProductPricing;
   discount?: ProductDiscount;
   isNew?: boolean;
@@ -97,6 +99,7 @@ export interface UpdateProductInput {
   title?: MultilingualText;
   description?: MultilingualText;
   categories?: ProductCategory[];
+  tags?: string[];
   pricing?: ProductPricing;
   discount?: ProductDiscount;
   isNew?: boolean;

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { I18nProvider, useI18n } from '../../i18n';
 import type { GlobalDiscount, PricingConfig, Product } from '../../types';
-import { useCategories } from '../../utils/hooks';
+import { useCategories, useTags } from '../../utils/hooks';
 
 interface ProductDetailProps {
   product: Product;
@@ -12,6 +12,7 @@ interface ProductDetailProps {
 function ProductDetailContent({ product, pricingConfig, globalDiscount }: ProductDetailProps) {
   const { locale, t } = useI18n();
   const { categories: dbCategories } = useCategories();
+  const { tags: dbTags } = useTags();
 
   const baseUrl = import.meta.env.BASE_URL || '/';
   const withBase = (path: string) => `${baseUrl.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
@@ -71,6 +72,18 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
       return typeof fromDb === 'string' && fromDb.length > 0 ? fromDb : catId;
     });
   }, [product.categories, product.category, dbCategories, locale]);
+
+  // Get tag names with translations
+  const tagNames = useMemo(() => {
+    if (!product.tags || product.tags.length === 0) {
+      return [];
+    }
+    return product.tags.map((tagId) => {
+      const dbTag = dbTags.find((t) => t.id === tagId);
+      const fromDb = dbTag?.title?.[locale] ?? dbTag?.title?.es;
+      return typeof fromDb === 'string' && fromDb.length > 0 ? fromDb : tagId;
+    });
+  }, [product.tags, dbTags, locale]);
 
   const handleThumbnailClick = (index: number) => {
     setActiveImageIndex(index);
@@ -314,6 +327,22 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
                 </li>
               </ul>
             </div>
+
+            {/* Tags - Subtle display */}
+            {tagNames.length > 0 && (
+              <div className="mt-8 pt-6 border-t border-gray-50">
+                <div className="flex flex-wrap gap-2">
+                  {tagNames.map((tagName, index) => (
+                    <span
+                      key={index}
+                      className="text-xs text-gray-400 bg-gray-50 px-3 py-1 rounded-full font-light tracking-wide"
+                    >
+                      {tagName}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

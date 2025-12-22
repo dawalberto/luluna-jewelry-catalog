@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
-import { CategoryService, GlobalDiscountService, PricingService, ProductService } from '../../services';
-import type { CreateCategoryInput, GlobalDiscount, PricingConfig, Product, UpdateCategoryInput } from '../../types';
-import { useCategories, useProducts } from '../../utils/hooks';
+import { CategoryService, GlobalDiscountService, PricingService, ProductService, TagService } from '../../services';
+import type { CreateCategoryInput, CreateTagInput, GlobalDiscount, PricingConfig, Product, UpdateCategoryInput, UpdateTagInput } from '../../types';
+import { useCategories, useProducts, useTags } from '../../utils/hooks';
 import { Button, Input } from '../ui';
 import ProductForm from './ProductForm';
 
@@ -10,6 +10,7 @@ const productService = new ProductService();
 const pricingService = new PricingService();
 const globalDiscountService = new GlobalDiscountService();
 const categoryService = new CategoryService();
+const tagService = new TagService();
 
 const defaultPricing: PricingConfig = { S: 0, M: 0, L: 0 };
 const defaultGlobalDiscount: GlobalDiscount = {
@@ -92,15 +93,21 @@ function getProductFinalPrice(product: Product, pricing: PricingConfig): number 
 
 function AdminPanelContent() {
   const { t, locale } = useI18n();
-  type AdminTab = 'products' | 'pricing' | 'discount' | 'categories';
+  type AdminTab = 'products' | 'pricing' | 'discount' | 'categories' | 'tags';
   const [activeTab, setActiveTab] = useState<AdminTab>('products');
   const [showForm, setShowForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { products, isLoading, mutate } = useProducts({ publishedOnly: false }, { limit: 100 });
   const {
     categories,
     isLoading: categoriesLoading,
     mutate: mutateCategories,
   } = useCategories();
+  const {
+    tags,
+    isLoading: tagsLoading,
+    mutate: mutateTags,
+  } = useTags();
   const [pricing, setPricing] = useState<PricingConfig>(defaultPricing);
   const [pricingLoading, setPricingLoading] = useState(true);
   const [pricingSaving, setPricingSaving] = useState(false);
@@ -117,11 +124,26 @@ function AdminPanelContent() {
     title: { es: '', en: '' },
   });
 
+  // Tags state
+  const [showTagForm, setShowTagForm] = useState(false);
+  const [tagSaving, setTagSaving] = useState(false);
+  const [editingTagId, setEditingTagId] = useState<string | null>(null);
+  const [tagForm, setTagForm] = useState<CreateTagInput>({
+    id: '',
+    title: { es: '', en: '' },
+  });
+
   const autoCategoryId = useMemo(() => {
     if (editingCategoryId) return editingCategoryId;
     const existing = new Set(categories.map((c) => c.id));
     return generateUniqueCategoryId(categoryForm.title.es, categoryForm.title.en, existing);
   }, [categories, categoryForm.title.en, categoryForm.title.es, editingCategoryId]);
+
+  const autoTagId = useMemo(() => {
+    if (editingTagId) return editingTagId;
+    const existing = new Set(tags.map((t) => t.id));
+    return generateUniqueCategoryId(tagForm.title.es, tagForm.title.en, existing);
+  }, [tags, tagForm.title.en, tagForm.title.es, editingTagId]);
 
   useEffect(() => {
     let mounted = true;
@@ -321,6 +343,94 @@ function AdminPanelContent() {
       setShowCategoryForm(false);
       resetCategoryForm();
     }
+    if (tab !== 'tags') {
+      setShowTagForm(false);
+      resetTagForm();
+    }
+  };
+
+  const resetTagForm = () => {
+    setEditingTagId(null);
+    setTagForm({ id: '', title: { es: '', en: '' } });
+  };
+
+  const startCreateTag = () => {
+    resetTagForm();
+    setShowTagForm(true);
+  };
+
+  const startEditTag = (id: string) => {
+    const existing = tags.find((t) => t.id === id);
+    if (!existing) return;
+
+    setEditingTagId(id);
+    setTagForm({
+      id: existing.id,
+      title: {
+        es: existing.title?.es ?? '',
+        en: existing.title?.en ?? '',
+      },
+    });
+    setShowTagForm(true);
+  };
+
+  const handleSaveTag = async () => {
+    setTagSaving(true);
+    try {
+      if (editingTagId) {
+        const update: UpdateTagInput = {
+          id: editingTagId,
+          title: { es: tagForm.title.es, en: tagForm.title.en },
+        };
+        await tagService.updateTag(update);
+        alert((t.admin as any).tagSaved || 'Etiqueta actualizada');
+      } else {
+        await tagService.createTag({
+          id: autoTagId,
+          title: { es: tagForm.title.es, en: tagForm.title.en },
+        });
+        alert((t.admin as any).tagCreated || 'Etiqueta creada');
+      }
+
+      resetTagForm();
+      setShowTagForm(false);
+      mutateTags();
+    } catch (err) {
+      const anyErr = err as any;
+      const message = typeof anyErr?.message === 'string' ? anyErr.message : '';
+      console.error('Error saving tag', err);
+      const errorMsg = (t.admin as any).tagSaveError || 'Error guardando etiqueta';
+      alert(message ? `${errorMsg}: ${message}` : errorMsg);
+    } finally {
+      setTagSaving(false);
+    }
+  };
+
+  const handleDeleteTag = async (id: string) => {
+    if (!confirm((t.admin as any).tagDeleteConfirm || '¿Estás seguro de eliminar esta etiqueta?')) return;
+    setTagSaving(true);
+    try {
+      // Remove tag from all products that have it
+      const productsWithTag = products.filter((p) => p.tags && p.tags.includes(id));
+
+      for (const product of productsWithTag) {
+        const updatedTags = product.tags!.filter((t) => t !== id);
+        await productService.updateProduct({
+          id: product.id,
+          tags: updatedTags.length > 0 ? updatedTags : [],
+        });
+      }
+
+      await tagService.deleteTag(id);
+      mutateTags();
+      mutate(); // Refresh products
+      alert((t.admin as any).tagDeleted || 'Etiqueta eliminada');
+    } catch (err) {
+      console.error(err);
+      alert((t.admin as any).tagDeleteError || 'Error eliminando etiqueta');
+    } finally {
+      setTagSaving(false);
+    }
   };
 
   return (
@@ -328,7 +438,17 @@ function AdminPanelContent() {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold text-gray-900">{t.admin.title}</h1>
         {activeTab === 'products' && (
-          <Button onClick={() => setShowForm(!showForm)}>
+          <Button
+            onClick={() => {
+              if (showForm) {
+                setShowForm(false);
+                setEditingProduct(null);
+              } else {
+                setEditingProduct(null);
+                setShowForm(true);
+              }
+            }}
+          >
             {showForm ? t.common.cancel : t.admin.addProduct}
           </Button>
         )}
@@ -371,71 +491,102 @@ function AdminPanelContent() {
         >
           {t.admin.categoriesTitle}
         </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={activeTab === 'tags' ? 'outline' : 'ghost'}
+          onClick={() => handleTabChange('tags')}
+          aria-current={activeTab === 'tags' ? 'page' : undefined}
+        >
+          {(t.admin as any).tagsTitle || 'Etiquetas'}
+        </Button>
       </div>
 
       {activeTab === 'products' && (
         <>
           {showForm && (
             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <h2 className="text-2xl font-semibold mb-6">{t.admin.addProduct}</h2>
+              <h2 className="text-2xl font-semibold mb-6">
+                {editingProduct ? 'Editar Producto' : t.admin.addProduct}
+              </h2>
               <ProductForm
+                product={editingProduct}
                 onSuccess={() => {
                   setShowForm(false);
+                  setEditingProduct(null);
                   mutate();
                   alert(t.admin.saveSuccess);
                 }}
-                onCancel={() => setShowForm(false)}
+                onCancel={() => {
+                  setShowForm(false);
+                  setEditingProduct(null);
+                }}
               />
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-white rounded-lg shadow-md overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     {t.admin.productTitle}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    {t.admin.productDescription}
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     {t.admin.productCategories}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Tags
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     {t.admin.productPrice}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Descuento
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Nuevo
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     {t.admin.productPopularity}
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Creado
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {t.common.edit}
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Estado
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Acciones
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                    <td colSpan={11} className="px-6 py-4 text-center text-gray-500">
                       {t.common.loading}
                     </td>
                   </tr>
                 ) : products.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                    <td colSpan={11} className="px-6 py-4 text-center text-gray-500">
                       {t.catalog.noProducts}
                     </td>
                   </tr>
                 ) : (
                   products.map((product) => (
                     <tr key={product.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center">
+                      <td className="px-4 py-4">
+                        <div className="flex items-center" style={{ minWidth: '200px' }}>
                           {product.images[0] && (
                             <img
                               src={product.images[0]}
                               alt={product.title[locale]}
-                              className="w-12 h-12 rounded object-cover mr-3"
+                              className="w-12 h-12 rounded object-cover mr-3 shrink-0"
                             />
                           )}
                           <div className="text-sm font-medium text-gray-900">
@@ -443,20 +594,58 @@ function AdminPanelContent() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                      <td className="px-4 py-4 text-sm text-gray-500" style={{ maxWidth: '200px' }}>
+                        <div className="line-clamp-2">
+                          {product.description[locale]}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-500 whitespace-nowrap">
                         {productCategoryLabel(product)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-4 py-4 text-sm text-gray-500">
+                        <div className="flex flex-wrap gap-1" style={{ maxWidth: '150px' }}>
+                          {product.tags?.map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded"
+                            >
+                              {tag}
+                            </span>
+                          )) || '-'}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
                         {(() => {
                           const finalPrice = getProductFinalPrice(product, pricing);
                           if (finalPrice == null) return '-';
                           return `€${finalPrice.toFixed(2)}`;
                         })()}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
+                        {product.discount?.enabled ? (
+                          <span className="inline-block px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
+                            {product.discount.percent}%
+                          </span>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
+                        {product.isNew ? (
+                          <span className="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded">
+                            Nuevo
+                          </span>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
                         {product.popularity ?? 0}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-4 text-sm text-gray-500 whitespace-nowrap">
+                        {product.createdAt?.toDate?.()?.toLocaleDateString?.() || '-'}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap">
                         <button
                           onClick={() => handleTogglePublished(product)}
                           className={`px-2 py-1 text-xs rounded-full ${
@@ -468,7 +657,16 @@ function AdminPanelContent() {
                           {product.published ? t.admin.published : t.admin.draft}
                         </button>
                       </td>
-                      <td className="px-6 py-4 text-right text-sm font-medium">
+                      <td className="px-4 py-4 text-right text-sm font-medium whitespace-nowrap">
+                        <button
+                          onClick={() => {
+                            setEditingProduct(product);
+                            setShowForm(true);
+                          }}
+                          className="text-gray-900 hover:text-gray-700"
+                        >
+                          {t.common.edit}
+                        </button>
                         <button
                           onClick={() => handleDelete(product.id)}
                           className="text-red-600 hover:text-red-900 ml-4"
@@ -715,7 +913,7 @@ function AdminPanelContent() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden ring-1 ring-gray-100">
+          <div className="bg-white rounded-lg shadow-md overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -723,7 +921,7 @@ function AdminPanelContent() {
                     {t.admin.categoryName}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {t.common.edit}
+                    Acciones
                   </th>
                 </tr>
               </thead>
@@ -742,22 +940,148 @@ function AdminPanelContent() {
                   </tr>
                 ) : (
                   categories.map((cat) => (
-                    <tr key={cat.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                    <tr key={cat.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                         {cat.title?.[locale] ?? cat.title?.es ?? cat.title?.en ?? cat.id}
                       </td>
                       <td className="px-6 py-4 text-right text-sm font-medium">
                         <button
                           onClick={() => startEditCategory(cat.id)}
-                          className="text-gray-900 hover:text-gray-700"
+                          className="text-gray-900 hover:text-gray-700 transition-colors"
                           disabled={categorySaving}
                         >
                           {t.common.edit}
                         </button>
                         <button
                           onClick={() => handleDeleteCategory(cat.id)}
-                          className="text-red-600 hover:text-red-900 ml-4"
+                          className="text-red-600 hover:text-red-900 ml-4 transition-colors"
                           disabled={categorySaving}
+                        >
+                          {t.common.delete}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'tags' && (
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-2xl font-semibold">{(t.admin as any).tagsTitle || 'Etiquetas'}</h2>
+            <Button
+              type="button"
+              onClick={() => {
+                if (showTagForm) {
+                  setShowTagForm(false);
+                  resetTagForm();
+                } else {
+                  startCreateTag();
+                }
+              }}
+              disabled={tagSaving}
+            >
+              {showTagForm ? t.common.cancel : ((t.admin as any).addTag || 'Agregar etiqueta')}
+            </Button>
+          </div>
+
+          <p className="text-sm text-gray-600 mb-4">{(t.admin as any).tagsHelp || 'Administra las etiquetas disponibles.'}</p>
+
+          {showTagForm && (
+            <div className="border border-gray-200 rounded-lg p-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  type="text"
+                  label={`${(t.admin as any).tagName || 'Nombre'} (ES)`}
+                  value={tagForm.title.es}
+                  onChange={(e) =>
+                    setTagForm((prev: CreateTagInput) => ({
+                      ...prev,
+                      title: { ...prev.title, es: e.target.value },
+                    }))
+                  }
+                  disabled={tagSaving}
+                />
+                <Input
+                  type="text"
+                  label={`${(t.admin as any).tagName || 'Nombre'} (EN)`}
+                  value={tagForm.title.en}
+                  onChange={(e) =>
+                    setTagForm((prev: CreateTagInput) => ({
+                      ...prev,
+                      title: { ...prev.title, en: e.target.value },
+                    }))
+                  }
+                  disabled={tagSaving}
+                />
+              </div>
+
+              <div className="mt-4 flex gap-2">
+                <Button type="button" onClick={handleSaveTag} disabled={tagSaving}>
+                  {editingTagId ? ((t.admin as any).updateTag || 'Actualizar') : ((t.admin as any).createTag || 'Crear')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setShowTagForm(false);
+                    resetTagForm();
+                  }}
+                  disabled={tagSaving}
+                >
+                  {t.common.cancel}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {(t.admin as any).tagName || 'Nombre'}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {tagsLoading ? (
+                  <tr>
+                    <td colSpan={2} className="px-6 py-4 text-center text-gray-500">
+                      {t.common.loading}
+                    </td>
+                  </tr>
+                ) : tags.length === 0 ? (
+                  <tr>
+                    <td colSpan={2} className="px-6 py-4 text-center text-gray-500">
+                      {(t.admin as any).noTags || 'Aún no hay etiquetas.'}
+                    </td>
+                  </tr>
+                ) : (
+                  tags.map((tag) => (
+                    <tr key={tag.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+                        {tag.title?.[locale] ?? tag.title?.es ?? tag.title?.en ?? tag.id}
+                      </td>
+                      <td className="px-6 py-4 text-right text-sm font-medium">
+                        <button
+                          onClick={() => startEditTag(tag.id)}
+                          className="text-gray-900 hover:text-gray-700 transition-colors"
+                          disabled={tagSaving}
+                        >
+                          {t.common.edit}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTag(tag.id)}
+                          className="text-red-600 hover:text-red-900 ml-4 transition-colors"
+                          disabled={tagSaving}
                         >
                           {t.common.delete}
                         </button>

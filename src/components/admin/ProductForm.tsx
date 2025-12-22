@@ -3,19 +3,22 @@ import { cloudinaryConfig } from '../../config/env';
 import { useI18n } from '../../i18n';
 import { ProductService } from '../../services';
 import type { CreateProductInput, MultilingualText, ProductCategory, ProductPriceType } from '../../types';
-import { useCategories } from '../../utils/hooks';
+import { useCategories, useTags } from '../../utils/hooks';
 import { Button, Input } from '../ui';
 
 const productService = new ProductService();
 
 interface ProductFormProps {
+  product?: any; // Producto existente para edición
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
-  const { t } = useI18n();
+export default function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) {
+  const { t, locale } = useI18n();
   const { categories: dbCategories, isLoading: categoriesLoading } = useCategories();
+  const { tags: dbTags, isLoading: tagsLoading } = useTags();
+  const isEditing = !!product;
 
   const categories = useMemo(() => {
     // Fallback to legacy i18n categories if Firestore has none yet.
@@ -27,17 +30,39 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
     const ids = Object.keys(legacy).filter((k) => k !== 'all');
     return ids.map((id) => ({ id, label: legacy[id] as string }));
   }, [dbCategories, t]);
-
-  const [formData, setFormData] = useState<CreateProductInput>({
-    title: { es: '', en: '' },
-    description: { es: '', en: '' },
-    categories: [],
-    pricing: { type: 'S' },
-    discount: { enabled: false, percent: 0, description: '' },
-    isNew: false,
-    popularity: 0,
-    images: [],
-    published: false,
+  const tags = useMemo(() => {
+    if (dbTags.length > 0) {
+      return dbTags.map((tag) => ({ id: tag.id, label: tag.title?.[locale] ?? tag.title?.es ?? tag.id }));
+    }
+    return [] as Array<{ id: string; label: string }>;
+  }, [dbTags, locale]);
+  const [formData, setFormData] = useState<CreateProductInput>(() => {
+    if (product) {
+      return {
+        title: product.title || { es: '', en: '' },
+        description: product.description || { es: '', en: '' },
+        categories: product.categories || [],
+        tags: product.tags || [],
+        pricing: product.pricing || { type: 'S' },
+        discount: product.discount || { enabled: false, percent: 0, description: '' },
+        isNew: product.isNew || false,
+        popularity: product.popularity || 0,
+        images: product.images || [],
+        published: product.published || false,
+      };
+    }
+    return {
+      title: { es: '', en: '' },
+      description: { es: '', en: '' },
+      categories: [],
+      tags: [],
+      pricing: { type: 'S' },
+      discount: { enabled: false, percent: 0, description: '' },
+      isNew: false,
+      popularity: 0,
+      images: [],
+      published: false,
+    };
   });
 
   const [uploading, setUploading] = useState(false);
@@ -64,6 +89,19 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
       return {
         ...prev,
         categories: next.length > 0 ? next : prev.categories,
+      };
+    });
+  };
+
+  const toggleTag = (tagId: string) => {
+    setFormData((prev) => {
+      const has = prev.tags?.includes(tagId) || false;
+      const next = has
+        ? prev.tags!.filter((t) => t !== tagId)
+        : [...(prev.tags || []), tagId];
+      return {
+        ...prev,
+        tags: next,
       };
     });
   };
@@ -193,7 +231,11 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
     }
 
     try {
-      await productService.createProduct(formData);
+      if (isEditing && product?.id) {
+        await productService.updateProduct({ id: product.id, ...formData });
+      } else {
+        await productService.createProduct(formData);
+      }
       onSuccess?.();
     } catch (err: any) {
       setError(err.message || 'Error saving product');
@@ -270,6 +312,32 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
                   type="checkbox"
                   checked={formData.categories.includes(id)}
                   onChange={() => toggleCategory(id)}
+                  className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+                />
+                {label}
+              </label>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Tags */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {(t.admin as any).productTags || 'Etiquetas'}
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          {tagsLoading ? (
+            <div className="text-sm text-gray-500">{t.common.loading}</div>
+          ) : tags.length === 0 ? (
+            <div className="text-sm text-gray-500">{(t.admin as any).noTags || 'Aún no hay etiquetas.'}</div>
+          ) : (
+            tags.map(({ id, label }) => (
+              <label key={id} className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={formData.tags?.includes(id) || false}
+                  onChange={() => toggleTag(id)}
                   className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
                 />
                 {label}

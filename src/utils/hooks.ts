@@ -1,15 +1,17 @@
 import useSWR, { type SWRConfiguration } from 'swr';
-import { CategoryService, ProductService } from '../services';
+import { CategoryService, ProductService, TagService } from '../services';
 import type {
     Category,
     PaginatedResponse,
     PaginationOptions,
     Product,
     ProductFilters,
+    Tag,
 } from '../types';
 
 const productService = new ProductService();
 const categoryService = new CategoryService();
+const tagService = new TagService();
 
 /**
  * Default SWR configuration
@@ -134,6 +136,27 @@ export function useCategories(config?: SWRConfiguration) {
 
   return {
     categories: data || [],
+    isLoading,
+    isError: !!error,
+    error,
+    mutate,
+  };
+}
+
+/**
+ * Hook to fetch all tags
+ */
+export function useTags(config?: SWRConfiguration) {
+  const key = ['tags'];
+
+  const { data, error, isLoading, mutate } = useSWR<Tag[]>(
+    key,
+    () => tagService.getTags(),
+    { ...defaultConfig, ...config }
+  );
+
+  return {
+    tags: data || [],
     isLoading,
     isError: !!error,
     error,
