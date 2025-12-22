@@ -12,7 +12,7 @@ const description =
 ---
 
 <Layout title={title} description={description} lang={locale}>
-  <HeaderSimple client:load locale={locale} showAdmin={true} />
+  <HeaderSimple client:only="react" showAdmin={true} />
   <main class="min-h-screen bg-gray-50">
     <AdminApp client:load initialLocale={locale} />
   </main>

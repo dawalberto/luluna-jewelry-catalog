@@ -1,14 +1,34 @@
 
+import { useEffect, useState } from 'react';
+
 interface HeaderSimpleProps {
   showAdmin?: boolean;
   locale?: 'es' | 'en';
 }
 
 export default function HeaderSimple({ showAdmin = false, locale = 'es' }: HeaderSimpleProps) {
+  const [currentLocale, setCurrentLocale] = useState<'es' | 'en'>(locale);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const langParam = params.get('lang');
+    if (langParam === 'es' || langParam === 'en') {
+      setCurrentLocale(langParam);
+      return;
+    }
+
+    const stored = window.localStorage.getItem('locale');
+    if (stored === 'es' || stored === 'en') {
+      setCurrentLocale(stored);
+    }
+  }, []);
+
   const nav = {
-    home: locale === 'es' ? 'Inicio' : 'Home',
-    catalog: locale === 'es' ? 'Catálogo' : 'Catalog',
-    admin: locale === 'es' ? 'Administración' : 'Admin',
+    home: currentLocale === 'es' ? 'Inicio' : 'Home',
+    catalog: currentLocale === 'es' ? 'Catálogo' : 'Catalog',
+    admin: currentLocale === 'es' ? 'Administración' : 'Admin',
   };
 
   return (
@@ -54,7 +74,7 @@ export default function HeaderSimple({ showAdmin = false, locale = 'es' }: Heade
             <a
               href="?lang=es"
               className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                locale === 'es'
+                currentLocale === 'es'
                   ? 'bg-[#2E6A77] text-white'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}
@@ -64,7 +84,7 @@ export default function HeaderSimple({ showAdmin = false, locale = 'es' }: Heade
             <a
               href="?lang=en"
               className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                locale === 'en'
+                currentLocale === 'en'
                   ? 'bg-[#2E6A77] text-white'
                   : 'text-gray-600 hover:bg-gray-100'
               }`}

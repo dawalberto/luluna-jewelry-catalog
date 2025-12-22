@@ -20,8 +20,26 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     initialLocale || defaultLocale
   );
 
-  // Detect browser locale on mount
+  // Initialize locale in the browser.
+  // Priority: ?lang= -> localStorage -> browser detection (only if no initialLocale)
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const langParam = params.get('lang');
+
+    if (langParam === 'es' || langParam === 'en') {
+      setLocaleState(langParam);
+      localStorage.setItem('locale', langParam);
+      return;
+    }
+
+    const stored = localStorage.getItem('locale');
+    if (stored && (stored === 'es' || stored === 'en')) {
+      setLocaleState(stored);
+      return;
+    }
+
     if (!initialLocale) {
       const detected = detectBrowserLocale();
       setLocaleState(detected);
@@ -35,16 +53,6 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
       localStorage.setItem('locale', newLocale);
     }
   };
-
-  // Load locale from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('locale');
-      if (stored && (stored === 'es' || stored === 'en')) {
-        setLocaleState(stored);
-      }
-    }
-  }, []);
 
   const value: I18nContextValue = {
     locale,

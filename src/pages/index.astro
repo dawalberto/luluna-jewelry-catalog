@@ -13,7 +13,7 @@ const description =
 ---
 
 <Layout title={title} description={description} lang={locale}>
-  <HeaderSimple client:load locale={locale} />
+  <HeaderSimple client:only="react" />
 
   <main>
     {/* Hero Section */}
