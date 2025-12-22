@@ -1,5 +1,6 @@
 import { useI18n } from '../../i18n';
-import type { GlobalDiscount, PricingConfig, Product } from '../../types';
+import type { GlobalDiscount, PricingConfig, Product, ProductCategory } from '../../types';
+import { saveCatalogState } from '../../utils';
 import { LoadingSpinner } from '../ui';
 import ProductCard from './ProductCard';
 
@@ -9,6 +10,12 @@ interface ProductGridProps {
   onProductClick?: (product: Product) => void;
   pricingConfig?: PricingConfig;
   globalDiscount?: GlobalDiscount;
+  catalogState?: {
+    selectedCategory: ProductCategory | 'all';
+    searchQuery: string;
+    priceSortOrder: 'none' | 'asc' | 'desc';
+    sortBy: 'none' | 'price' | 'popularity';
+  };
 }
 
 export default function ProductGrid({
@@ -17,8 +24,19 @@ export default function ProductGrid({
   onProductClick,
   pricingConfig,
   globalDiscount,
+  catalogState,
 }: ProductGridProps) {
   const { t } = useI18n();
+
+  // Handle product click to save catalog state before navigation
+  const handleProductClick = () => {
+    if (catalogState) {
+      saveCatalogState({
+        ...catalogState,
+        scrollPosition: window.scrollY,
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -52,13 +70,14 @@ export default function ProductGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
       {products.map((product) => (
-        <ProductCard
-          key={product.id}
-          product={product}
-          pricingConfig={pricingConfig}
-          globalDiscount={globalDiscount}
-          onClick={() => onProductClick?.(product)}
-        />
+        <div key={product.id} onClick={handleProductClick}>
+          <ProductCard
+            product={product}
+            pricingConfig={pricingConfig}
+            globalDiscount={globalDiscount}
+            onClick={onProductClick ? () => onProductClick(product) : undefined}
+          />
+        </div>
       ))}
     </div>
   );

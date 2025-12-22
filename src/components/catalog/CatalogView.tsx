@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
 import { GlobalDiscountService, PricingService } from '../../services';
 import type { GlobalDiscount, PricingConfig, ProductCategory } from '../../types';
+import { loadCatalogState } from '../../utils';
 import { useProducts } from '../../utils/hooks';
 import CategoryFilter from './CategoryFilter';
 import ProductGrid from './ProductGrid';
@@ -12,6 +13,7 @@ const globalDiscountService = new GlobalDiscountService();
 
 export default function CatalogView() {
   const { t, locale } = useI18n();
+  
   const [selectedCategory, setSelectedCategory] = useState<
     ProductCategory | 'all'
   >('all');
@@ -20,6 +22,25 @@ export default function CatalogView() {
   const [globalDiscount, setGlobalDiscount] = useState<GlobalDiscount | undefined>(undefined);
   type PriceSortOrder = 'none' | 'asc' | 'desc';
   const [priceSortOrder, setPriceSortOrder] = useState<PriceSortOrder>('none');
+  type SortBy = 'none' | 'price' | 'popularity';
+  const [sortBy, setSortBy] = useState<SortBy>('none');
+  const [scrollToRestore, setScrollToRestore] = useState<number | null>(null);
+
+  // Load saved catalog state on mount (client-side only)
+  useEffect(() => {
+    const savedState = loadCatalogState();
+    if (savedState) {
+      setSelectedCategory(savedState.selectedCategory);
+      setSearchQuery(savedState.searchQuery);
+      setPriceSortOrder(savedState.priceSortOrder);
+      setSortBy(savedState.sortBy || 'none');
+      
+      // Store scroll position to restore after products load
+      if (savedState.scrollPosition) {
+        setScrollToRestore(savedState.scrollPosition);
+      }
+    }
+  }, []);
 
   const filters = {
     category: selectedCategory !== 'all' ? selectedCategory : undefined,
@@ -29,76 +50,120 @@ export default function CatalogView() {
 
   const { products, isLoading } = useProducts(filters, { limit: 50 });
 
+  // Restore scroll position after products are loaded
+  useEffect(() => {
+    if (!isLoading && scrollToRestore !== null) {
+      // Use setTimeout to ensure DOM is fully rendered
+      const timeoutId = setTimeout(() => {
+        window.scrollTo({
+          top: scrollToRestore,
+          behavior: 'instant' as ScrollBehavior,
+        });
+        setScrollToRestore(null); // Clear after restoring
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isLoading, scrollToRestore]);
+
   const sortedProducts = useMemo(() => {
-    if (priceSortOrder === 'none') return products;
+    // Sort by popularity if selected
+    if (sortBy === 'popularity') {
+      const withMeta = products.map((product, index) => {
+        const title =
+          product.title?.[locale] ??
+          product.title?.es ??
+          product.title?.en ??
+          '';
+        return { product, index, popularity: product.popularity ?? 0, title };
+      });
 
-    const getBasePrice = (product: any): number | null => {
-      const pricing = product?.pricing;
-      if (pricing) {
-        if (pricing.type === 'custom') {
-          const price = pricing.customPrice;
-          return typeof price === 'number' && Number.isFinite(price) ? price : null;
-        }
+      withMeta.sort((a, b) => {
+        // Sort by popularity descending (higher is better)
+        const diff = b.popularity - a.popularity;
+        if (diff !== 0) return diff;
 
-        if (!pricingConfig) return null;
-        const tierPrice = (pricingConfig as any)[pricing.type];
-        return typeof tierPrice === 'number' && Number.isFinite(tierPrice) ? tierPrice : null;
-      }
-
-      const legacy = product?.price;
-      return typeof legacy === 'number' && Number.isFinite(legacy) ? legacy : null;
-    };
-
-    const getFinalPrice = (product: any): number | null => {
-      const base = getBasePrice(product);
-      if (base == null) return null;
-
-      if (product?.discount?.enabled) {
-        const percent = product.discount.percent;
-        if (typeof percent === 'number' && Number.isFinite(percent) && percent > 0) {
-          return Math.max(0, base * (1 - percent / 100));
-        }
-      }
-
-      if (globalDiscount?.active) {
-        const percent = globalDiscount.percent;
-        if (typeof percent === 'number' && Number.isFinite(percent) && percent > 0) {
-          return Math.max(0, base * (1 - percent / 100));
-        }
-      }
-
-      return base;
-    };
-
-    const withMeta = products.map((product, index) => {
-      const title =
-        product.title?.[locale] ??
-        product.title?.es ??
-        product.title?.en ??
-        '';
-      return { product, index, price: getFinalPrice(product), title };
-    });
-
-    withMeta.sort((a, b) => {
-      const aPrice = a.price;
-      const bPrice = b.price;
-
-      if (aPrice == null && bPrice == null) {
+        // If same popularity, sort by title
         const byTitle = a.title.localeCompare(b.title);
         return byTitle !== 0 ? byTitle : a.index - b.index;
-      }
-      if (aPrice == null) return 1;
-      if (bPrice == null) return -1;
+      });
 
-      const diff = priceSortOrder === 'asc' ? aPrice - bPrice : bPrice - aPrice;
-      if (diff !== 0) return diff;
+      return withMeta.map((x) => x.product);
+    }
 
-      const byTitle = a.title.localeCompare(b.title);
-      return byTitle !== 0 ? byTitle : a.index - b.index;
-    });
+    // Sort by price if selected
+    if (sortBy === 'price' && priceSortOrder !== 'none') {
+      const getBasePrice = (product: any): number | null => {
+        const pricing = product?.pricing;
+        if (pricing) {
+          if (pricing.type === 'custom') {
+            const price = pricing.customPrice;
+            return typeof price === 'number' && Number.isFinite(price) ? price : null;
+          }
 
-    return withMeta.map((x) => x.product);
-  }, [products, priceSortOrder, pricingConfig, globalDiscount?.active, globalDiscount?.percent, locale]);
+          if (!pricingConfig) return null;
+          const tierPrice = (pricingConfig as any)[pricing.type];
+          return typeof tierPrice === 'number' && Number.isFinite(tierPrice) ? tierPrice : null;
+        }
+
+        const legacy = product?.price;
+        return typeof legacy === 'number' && Number.isFinite(legacy) ? legacy : null;
+      };
+
+      const getFinalPrice = (product: any): number | null => {
+        const base = getBasePrice(product);
+        if (base == null) return null;
+
+        if (product?.discount?.enabled) {
+          const percent = product.discount.percent;
+          if (typeof percent === 'number' && Number.isFinite(percent) && percent > 0) {
+            return Math.max(0, base * (1 - percent / 100));
+          }
+        }
+
+        if (globalDiscount?.active) {
+          const percent = globalDiscount.percent;
+          if (typeof percent === 'number' && Number.isFinite(percent) && percent > 0) {
+            return Math.max(0, base * (1 - percent / 100));
+          }
+        }
+
+        return base;
+      };
+
+      const withMeta = products.map((product, index) => {
+        const title =
+          product.title?.[locale] ??
+          product.title?.es ??
+          product.title?.en ??
+          '';
+        return { product, index, price: getFinalPrice(product), title };
+      });
+
+      withMeta.sort((a, b) => {
+        const aPrice = a.price;
+        const bPrice = b.price;
+
+        if (aPrice == null && bPrice == null) {
+          const byTitle = a.title.localeCompare(b.title);
+          return byTitle !== 0 ? byTitle : a.index - b.index;
+        }
+        if (aPrice == null) return 1;
+        if (bPrice == null) return -1;
+
+        const diff = priceSortOrder === 'asc' ? aPrice - bPrice : bPrice - aPrice;
+        if (diff !== 0) return diff;
+
+        const byTitle = a.title.localeCompare(b.title);
+        return byTitle !== 0 ? byTitle : a.index - b.index;
+      });
+
+      return withMeta.map((x) => x.product);
+    }
+
+    // Default: no sorting
+    return products;
+  }, [products, sortBy, priceSortOrder, pricingConfig, globalDiscount?.active, globalDiscount?.percent, locale]);
 
   useEffect(() => {
     let mounted = true;
@@ -141,7 +206,7 @@ export default function CatalogView() {
 
       {/* Search Bar */}
       <div className="flex justify-center mb-10">
-        <SearchBar onSearch={setSearchQuery} />
+        <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
       </div>
 
       {/* Category Filter */}
@@ -151,25 +216,82 @@ export default function CatalogView() {
       />
 
       {/* Sort */}
-      <div className="mb-8 mt-8 flex items-center justify-end gap-3">
-        <span className="text-sm font-medium text-gray-500 uppercase tracking-widest">{t.catalog.sortByPrice}</span>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className={`text-sm font-medium transition-colors ${priceSortOrder === 'asc' ? 'text-[#2E6A77] underline' : 'text-gray-400 hover:text-black'}`}
-            onClick={() => setPriceSortOrder('asc')}
-          >
-            {t.catalog.sortPriceLowHigh}
-          </button>
-          <span className="text-gray-300">|</span>
-          <button
-            type="button"
-            className={`text-sm font-medium transition-colors ${priceSortOrder === 'desc' ? 'text-[#2E6A77] underline' : 'text-gray-400 hover:text-black'}`}
-            onClick={() => setPriceSortOrder('desc')}
-          >
-            {t.catalog.sortPriceHighLow}
-          </button>
+      <div className="mb-8 mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-end gap-4">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-gray-500 uppercase tracking-widest">{t.catalog.sortBy}</span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                sortBy === 'none'
+                  ? 'bg-[#2E6A77] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              onClick={() => {
+                setSortBy('none');
+                setPriceSortOrder('none');
+              }}
+            >
+              {t.catalog.sortDefault}
+            </button>
+            <button
+              type="button"
+              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                sortBy === 'popularity'
+                  ? 'bg-[#2E6A77] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              onClick={() => {
+                setSortBy('popularity');
+                setPriceSortOrder('none');
+              }}
+            >
+              {t.catalog.sortPopularity}
+            </button>
+            <button
+              type="button"
+              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                sortBy === 'price'
+                  ? 'bg-[#2E6A77] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              onClick={() => {
+                setSortBy('price');
+                if (priceSortOrder === 'none') {
+                  setPriceSortOrder('asc');
+                }
+              }}
+            >
+              {t.catalog.sortByPrice}
+            </button>
+          </div>
         </div>
+        
+        {sortBy === 'price' && (
+          <div className="flex items-center gap-3">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className={`text-sm font-medium transition-colors ${
+                  priceSortOrder === 'asc' ? 'text-[#2E6A77] underline' : 'text-gray-400 hover:text-black'
+                }`}
+                onClick={() => setPriceSortOrder('asc')}
+              >
+                {t.catalog.sortPriceLowHigh}
+              </button>
+              <span className="text-gray-300">|</span>
+              <button
+                type="button"
+                className={`text-sm font-medium transition-colors ${
+                  priceSortOrder === 'desc' ? 'text-[#2E6A77] underline' : 'text-gray-400 hover:text-black'
+                }`}
+                onClick={() => setPriceSortOrder('desc')}
+              >
+                {t.catalog.sortPriceHighLow}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {globalDiscount?.active && globalDiscount.percent > 0 && (
@@ -214,6 +336,12 @@ export default function CatalogView() {
         isLoading={isLoading}
         pricingConfig={pricingConfig}
         globalDiscount={globalDiscount}
+        catalogState={{
+          selectedCategory,
+          searchQuery,
+          priceSortOrder,
+          sortBy,
+        }}
       />
     </div>
   );

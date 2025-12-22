@@ -149,6 +149,7 @@ export class ProductRepository implements IProductRepository {
       // Keep legacy fields for older UI / historical docs
       category: primaryCategory,
       published: input.published ?? false,
+      popularity: input.popularity ?? 0,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };

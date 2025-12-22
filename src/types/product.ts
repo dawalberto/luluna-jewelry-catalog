@@ -62,6 +62,7 @@ export interface Product {
   pricing: ProductPricing;
   discount?: ProductDiscount;
   isNew?: boolean;
+  popularity: number; // Popularity score for sorting (default: 0)
 
   // Legacy fields (kept for backward compatibility with existing docs)
   price?: number;
@@ -83,6 +84,7 @@ export interface CreateProductInput {
   pricing: ProductPricing;
   discount?: ProductDiscount;
   isNew?: boolean;
+  popularity?: number;
   images: string[];
   published?: boolean;
 }
@@ -98,6 +100,7 @@ export interface UpdateProductInput {
   pricing?: ProductPricing;
   discount?: ProductDiscount;
   isNew?: boolean;
+  popularity?: number;
   images?: string[];
   published?: boolean;
 }

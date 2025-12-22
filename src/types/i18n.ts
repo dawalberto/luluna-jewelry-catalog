@@ -46,11 +46,27 @@ export interface Translations {
     outOfStock: string;
     inStock: string;
   };
+  productDetail: {
+    new: string;
+    save: string;
+    description: string;
+    contactWhatsApp: string;
+    whatsappMessage: string;
+    secureCheckout: string;
+    features: string;
+    feature1: string;
+    feature2: string;
+    feature3: string;
+    feature4: string;
+  };
   catalog: {
     title: string;
     subtitle: string;
     promoTitle: string;
     promoDescription: string;
+    sortBy: string;
+    sortDefault: string;
+    sortPopularity: string;
     sortByPrice: string;
     sortPriceLowHigh: string;
     sortPriceHighLow: string;
@@ -101,6 +117,8 @@ export interface Translations {
     productPrice: string;
     productCategory: string;
     productCategories: string;
+    productPopularity: string;
+    productPopularityHelp: string;
     pricingTitle: string;
     pricingSizes: string;
     pricingS: string;

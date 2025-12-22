@@ -403,6 +403,9 @@ function AdminPanelContent() {
                     {t.admin.productPrice}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {t.admin.productPopularity}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -413,13 +416,13 @@ function AdminPanelContent() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
                       {t.common.loading}
                     </td>
                   </tr>
                 ) : products.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                    <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
                       {t.catalog.noProducts}
                     </td>
                   </tr>
@@ -447,8 +450,11 @@ function AdminPanelContent() {
                         {(() => {
                           const finalPrice = getProductFinalPrice(product, pricing);
                           if (finalPrice == null) return '-';
-                          return `$${finalPrice.toFixed(2)}`;
+                          return `€${finalPrice.toFixed(2)}`;
                         })()}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {product.popularity ?? 0}
                       </td>
                       <td className="px-6 py-4">
                         <button

@@ -171,13 +171,21 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
   const formatPrice = (value: number) =>
     new Intl.NumberFormat(locale === 'es' ? 'es-ES' : 'en-US', {
       style: 'currency',
-      currency: locale === 'es' ? 'EUR' : 'USD',
+      currency: 'EUR',
     }).format(value);
 
-  return (
-    <div
-      className="group relative overflow-hidden bg-white transition-shadow duration-500 hover:shadow-lg"
-    >
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  const productHref = `${baseUrl.replace(/\/$/, '')}/product/${product.id}`;
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
+  const cardContent = (
+    <>
       {/* Image */}
       <div className="relative aspect-3/4 overflow-hidden bg-[#F5F5F5]">
         {transition ? (
@@ -267,7 +275,7 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
         )}
 
         {product.isNew && (
-          <div className="absolute right-3 top-3 z-20 bg-[#2E6A77] px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-white">
+          <div className="absolute right-3 top-3 z-20 bg-(--color-primary) px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-white">
             {t.admin.isNew}
           </div>
         )}
@@ -275,11 +283,11 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
 
       {/* Content */}
       <div className="p-5 bg-white text-center">
-        <h3 className="text-lg font-heading font-medium leading-tight text-black line-clamp-2">
+        <h3 className="text-lg font-heading font-medium leading-tight text-(--color-text) line-clamp-2">
           {product.title[locale]}
         </h3>
 
-        <p className="mt-2 text-sm font-body text-gray-500 line-clamp-2">
+        <p className="mt-2 text-sm font-body text-gray-500 line-clamp-2 font-light">
           {product.description[locale]}
         </p>
 
@@ -288,18 +296,38 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
             <span className="text-lg font-medium text-gray-400">-</span>
           ) : effectiveDiscountPercent > 0 && basePrice != null && finalPrice !== basePrice ? (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400 line-through">{formatPrice(basePrice)}</span>
-              <span className="text-lg font-medium text-[#2E6A77]">
+              <span className="text-sm text-gray-400 line-through font-light">{formatPrice(basePrice)}</span>
+              <span className="text-lg font-medium text-(--color-primary)">
                 {formatPrice(finalPrice)}
               </span>
             </div>
           ) : (
-            <span className="text-lg font-medium text-black">
+            <span className="text-lg font-medium text-(--color-text)">
               {formatPrice(finalPrice)}
             </span>
           )}
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <div
+        onClick={handleCardClick}
+        className="group relative overflow-hidden bg-white transition-shadow duration-500 hover:shadow-lg cursor-pointer"
+      >
+        {cardContent}
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={productHref}
+      className="group relative overflow-hidden bg-white transition-shadow duration-500 hover:shadow-lg cursor-pointer block no-underline"
+    >
+      {cardContent}
+    </a>
   );
 }

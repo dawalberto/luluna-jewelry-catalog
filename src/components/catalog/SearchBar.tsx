@@ -6,15 +6,22 @@ interface SearchBarProps {
   onSearch: (query: string) => void;
   placeholder?: string;
   debounceMs?: number;
+  initialValue?: string;
 }
 
 export default function SearchBar({
   onSearch,
   placeholder,
   debounceMs = 300,
+  initialValue = '',
 }: SearchBarProps) {
   const { locale } = useI18n();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialValue);
+  
+  // Sync internal state when initialValue changes
+  useEffect(() => {
+    setQuery(initialValue);
+  }, [initialValue]);
   
   const defaultPlaceholder = locale === 'es' ? 'Buscar productos...' : 'Search products...';
 

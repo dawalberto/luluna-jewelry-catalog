@@ -35,6 +35,7 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
     pricing: { type: 'S' },
     discount: { enabled: false, percent: 0, description: '' },
     isNew: false,
+    popularity: 0,
     images: [],
     published: false,
   });
@@ -390,6 +391,19 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
         <label htmlFor="isNew" className="ml-2 text-sm text-gray-700">
           {t.admin.isNew}
         </label>
+      </div>
+
+      {/* Popularity */}
+      <div>
+        <Input
+          type="number"
+          label={t.admin.productPopularity}
+          value={formData.popularity ?? 0}
+          onChange={(e) => handleInputChange('popularity', parseFloat(e.target.value) || 0)}
+          min="0"
+          step="1"
+        />
+        <p className="text-xs text-gray-500 mt-1">{t.admin.productPopularityHelp}</p>
       </div>
 
       {/* Images */}
