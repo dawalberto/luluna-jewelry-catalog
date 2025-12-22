@@ -3,7 +3,8 @@ import type { ProductCategory } from '../types';
 const CATALOG_STATE_KEY = 'luluna_catalog_state';
 
 export interface CatalogState {
-  selectedCategory: ProductCategory | 'all';
+  selectedCategory?: ProductCategory | 'all'; // Legacy: deprecated
+  selectedCategories?: ProductCategory[]; // New: multiple categories
   selectedTags?: string[];
   searchQuery: string;
   sortBy: 'none' | 'price-asc' | 'price-desc' | 'popularity';
@@ -47,9 +48,14 @@ export const loadCatalogState = (): CatalogState | null => {
       return null;
     }
 
-    // Ensure selectedCategory is valid (default to 'all' if undefined or null)
-    if (!state.selectedCategory) {
-      state.selectedCategory = 'all';
+    // Migrate legacy selectedCategory to selectedCategories
+    if (state.selectedCategory && state.selectedCategory !== 'all' && !state.selectedCategories) {
+      state.selectedCategories = [state.selectedCategory];
+    }
+
+    // Ensure selectedCategories is valid (default to empty array if undefined)
+    if (!state.selectedCategories) {
+      state.selectedCategories = [];
     }
 
     return state;

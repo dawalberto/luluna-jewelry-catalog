@@ -112,7 +112,8 @@ export interface UpdateProductInput {
  * Filter options for product queries
  */
 export interface ProductFilters {
-  category?: ProductCategory;
+  category?: ProductCategory; // Legacy: single category (deprecated)
+  categories?: ProductCategory[]; // New: multiple categories filter
   search?: string;
   publishedOnly?: boolean;
 }

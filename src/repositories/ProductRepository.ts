@@ -50,8 +50,17 @@ export class ProductRepository implements IProductRepository {
     const constraints: QueryConstraint[] = [];
 
     // Apply filters
-    if (filters?.category) {
-      // New model: categories is an array
+    if (filters?.categories && filters.categories.length > 0) {
+      // Filter by multiple categories (products must have at least one of the selected categories)
+      if (filters.categories.length === 1) {
+        constraints.push(where('categories', 'array-contains', filters.categories[0]));
+      } else {
+        // Firestore array-contains-any supports up to 10 values
+        const categoriesToFilter = filters.categories.slice(0, 10);
+        constraints.push(where('categories', 'array-contains-any', categoriesToFilter));
+      }
+    } else if (filters?.category) {
+      // Legacy: single category filter
       constraints.push(where('categories', 'array-contains', filters.category));
     }
 

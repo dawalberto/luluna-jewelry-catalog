@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
 import { GlobalDiscountService, PricingService } from '../../services';
 import type { GlobalDiscount, PricingConfig, ProductCategory } from '../../types';
-import { loadCatalogState } from '../../utils';
+import { loadCatalogState, saveCatalogState } from '../../utils';
 import { useCategories, useProducts, useTags } from '../../utils/hooks';
 import ProductGrid from './ProductGrid';
 import SearchBar from './SearchBar';
@@ -13,9 +13,7 @@ const globalDiscountService = new GlobalDiscountService();
 export default function CatalogView() {
   const { t, locale } = useI18n();
   
-  const [selectedCategory, setSelectedCategory] = useState<
-    ProductCategory | 'all'
-  >('all');
+  const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | undefined>(undefined);
@@ -30,7 +28,15 @@ export default function CatalogView() {
   useEffect(() => {
     const savedState = loadCatalogState();
     if (savedState) {
-      setSelectedCategory(savedState.selectedCategory || 'all');
+      // Migrar estado legacy de categoría única a múltiples categorías
+      if (savedState.selectedCategories && savedState.selectedCategories.length > 0) {
+        setSelectedCategories(savedState.selectedCategories);
+      } else if (savedState.selectedCategory && savedState.selectedCategory !== 'all') {
+        setSelectedCategories([savedState.selectedCategory]);
+      } else {
+        setSelectedCategories([]);
+      }
+      
       setSelectedTags(savedState.selectedTags || []);
       setSearchQuery(savedState.searchQuery || '');
       // Migrar el estado antiguo al nuevo formato
@@ -48,8 +54,19 @@ export default function CatalogView() {
     }
   }, []);
 
+  // Save catalog state whenever filters change
+  useEffect(() => {
+    saveCatalogState({
+      selectedCategories,
+      selectedTags,
+      searchQuery,
+      sortBy,
+      scrollPosition: 0, // Reset scroll position when filters change
+    });
+  }, [selectedCategories, selectedTags, searchQuery, sortBy]);
+
   const filters = {
-    category: selectedCategory !== 'all' ? selectedCategory : undefined,
+    categories: selectedCategories.length > 0 ? selectedCategories : undefined,
     search: searchQuery || undefined,
     publishedOnly: true,
   };
@@ -282,17 +299,38 @@ export default function CatalogView() {
         {/* Row 2: Category Filter */}
         <div className="border-t border-gray-200 pt-4">
           <div className="flex items-start gap-3">
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap pt-2">{t.categories.title || 'Categoría'}:</span>
+            <div className="flex items-center gap-2 whitespace-nowrap pt-1">
+              <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                {t.categories.title || 'Categoría'}:
+              </span>
+              {selectedCategories.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategories([]);
+                    // Guardar inmediatamente para evitar que se recargue el estado antiguo
+                    saveCatalogState({
+                      selectedCategories: [],
+                      selectedTags,
+                      searchQuery,
+                      sortBy,
+                      scrollPosition: 0,
+                    });
+                  }}
+                  className="text-xs text-gray-400 hover:text-[#2E6A77] underline"
+                  title={t.common.clear || 'Limpiar'}
+                >
+                  ({selectedCategories.length})
+                </button>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2 flex-1">
-              {[
-                'all',
-                ...(dbCategories.length > 0
-                  ? dbCategories.map((c) => c.id)
-                  : Object.keys((t as any)?.categories ?? {}).filter((k) => k !== 'all')),
-              ].map((category) => {
-                const isSelected = selectedCategory === category;
-                const labelFor = (id: ProductCategory | 'all') => {
-                  if (id === 'all') return t.categories.all;
+              {(dbCategories.length > 0
+                ? dbCategories.map((c) => c.id)
+                : Object.keys((t as any)?.categories ?? {}).filter((k) => k !== 'all')
+              ).map((category) => {
+                const isSelected = selectedCategories.includes(category);
+                const labelFor = (id: ProductCategory) => {
                   const fromDb = dbCategories.find((c) => c.id === id)?.title?.[locale];
                   if (typeof fromDb === 'string' && fromDb.length > 0) return fromDb;
                   const legacy = (t as any)?.categories?.[id];
@@ -300,13 +338,23 @@ export default function CatalogView() {
                   return id;
                 };
                 
+                const toggleCategory = (cat: ProductCategory) => {
+                  setSelectedCategories((prev) => {
+                    if (prev.includes(cat)) {
+                      return prev.filter((c) => c !== cat);
+                    }
+                    return [...prev, cat];
+                  });
+                };
+                
                 return (
                   <button
                     key={category}
-                    onClick={() => setSelectedCategory(category as ProductCategory | 'all')}
+                    type="button"
+                    onClick={() => toggleCategory(category)}
                     className={`px-3 py-1.5 text-xs font-medium uppercase tracking-wider rounded transition-all ${
                       isSelected
-                        ? 'bg-[#2E6A77] text-white'
+                        ? 'bg-[#2E6A77] text-white shadow-sm'
                         : 'bg-white text-gray-600 border border-gray-300 hover:border-[#2E6A77] hover:text-[#2E6A77]'
                     }`}
                   >
@@ -329,7 +377,17 @@ export default function CatalogView() {
                 {selectedTags.length > 0 && (
                   <button
                     type="button"
-                    onClick={() => setSelectedTags([])}
+                    onClick={() => {
+                      setSelectedTags([]);
+                      // Guardar inmediatamente para evitar que se recargue el estado antiguo
+                      saveCatalogState({
+                        selectedCategories,
+                        selectedTags: [],
+                        searchQuery,
+                        sortBy,
+                        scrollPosition: 0,
+                      });
+                    }}
                     className="text-xs text-gray-400 hover:text-[#2E6A77] underline"
                     title={t.common.clear || 'Limpiar'}
                   >
@@ -401,7 +459,7 @@ export default function CatalogView() {
         pricingConfig={pricingConfig}
         globalDiscount={globalDiscount}
         catalogState={{
-          selectedCategory,
+          selectedCategories,
           selectedTags,
           searchQuery,
           sortBy,

@@ -11,7 +11,8 @@ interface ProductGridProps {
   pricingConfig?: PricingConfig;
   globalDiscount?: GlobalDiscount;
   catalogState?: {
-    selectedCategory: ProductCategory | 'all';
+    selectedCategory?: ProductCategory | 'all'; // Legacy: deprecated
+    selectedCategories?: ProductCategory[]; // New: multiple categories
     selectedTags?: string[];
     searchQuery: string;
     sortBy: 'none' | 'price-asc' | 'price-desc' | 'popularity';
@@ -32,7 +33,7 @@ export default function ProductGrid({
   const handleProductClick = () => {
     if (catalogState) {
       saveCatalogState({
-        selectedCategory: catalogState.selectedCategory || 'all',
+        selectedCategories: catalogState.selectedCategories || [],
         selectedTags: catalogState.selectedTags || [],
         searchQuery: catalogState.searchQuery || '',
         sortBy: catalogState.sortBy || 'none',

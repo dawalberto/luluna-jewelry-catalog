@@ -298,7 +298,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
               </a>
 
               <a
-                href={`https://wa.me/1234567890?text=${encodeURIComponent(
+                href={`https://wa.me/659020036?text=${encodeURIComponent(
                   `${t.productDetail.whatsappMessage} ${product.title[locale] || product.title.es}`
                 )}`}
                 target="_blank"
