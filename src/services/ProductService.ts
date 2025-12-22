@@ -55,9 +55,11 @@ const CreateProductSchema = z.object({
   title: MultilingualTextSchema,
   description: MultilingualTextSchema,
   categories: z.array(ProductCategorySchema).min(1),
+  tags: z.array(z.string()).optional(),
   pricing: ProductPricingSchema,
   discount: ProductDiscountSchema,
   isNew: z.boolean().optional(),
+  popularity: z.number().min(0).optional(),
   images: z.array(z.string().url()).min(1),
   published: z.boolean().optional(),
 });
@@ -67,9 +69,11 @@ const UpdateProductSchema = z.object({
   title: MultilingualTextSchema.optional(),
   description: MultilingualTextSchema.optional(),
   categories: z.array(ProductCategorySchema).min(1).optional(),
+  tags: z.array(z.string()).optional(),
   pricing: ProductPricingSchema.optional(),
   discount: ProductDiscountSchema,
   isNew: z.boolean().optional(),
+  popularity: z.number().min(0).optional(),
   images: z.array(z.string().url()).optional(),
   published: z.boolean().optional(),
 });
