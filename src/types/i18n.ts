@@ -51,6 +51,9 @@ export interface Translations {
     subtitle: string;
     promoTitle: string;
     promoDescription: string;
+    sortByPrice: string;
+    sortPriceLowHigh: string;
+    sortPriceHighLow: string;
     noProducts: string;
     noResults: string;
     searchPlaceholder: string;
@@ -58,6 +61,22 @@ export interface Translations {
   admin: {
     title: string;
     products: string;
+
+    // Categories
+    categoriesTitle: string;
+    categoriesHelp: string;
+    addCategory: string;
+    createCategory: string;
+    updateCategory: string;
+    categoryId: string;
+    categoryName: string;
+    noCategories: string;
+    categoryCreated: string;
+    categorySaved: string;
+    categorySaveError: string;
+    categoryDeleteConfirm: string;
+    categoryDeleted: string;
+    categoryDeleteError: string;
 
     // Auth / access control
     loginTitle: string;

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
 import type { GlobalDiscount, PricingConfig, Product, ProductCategory } from '../../types';
+import { useCategories } from '../../utils/hooks';
 
 interface ProductCardProps {
   product: Product;
@@ -9,17 +10,9 @@ interface ProductCardProps {
   onClick?: () => void;
 }
 
-const categoryTranslations = {
-  rings: { es: 'Anillos', en: 'Rings' },
-  necklaces: { es: 'Collares', en: 'Necklaces' },
-  bracelets: { es: 'Pulseras', en: 'Bracelets' },
-  earrings: { es: 'Pendientes', en: 'Earrings' },
-  sets: { es: 'Conjuntos', en: 'Sets' },
-  custom: { es: 'Personalizado', en: 'Custom' },
-};
-
 export default function ProductCard({ product, pricingConfig, globalDiscount, onClick }: ProductCardProps) {
   const { locale, t } = useI18n();
+  const { categories: dbCategories } = useCategories();
 
   const images = useMemo(() => (Array.isArray(product.images) ? product.images : []), [product.images]);
   const hasMultipleImages = images.length > 1;
@@ -127,10 +120,14 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
   const categoryLabel = useMemo(() => {
     if (categories.length === 0) return '';
     const first = categories[0];
-    const base = categoryTranslations[first]?.[locale] || first;
+    const fromDb = dbCategories.find((c) => c.id === first)?.title?.[locale];
+    const base =
+      (typeof fromDb === 'string' && fromDb.length > 0
+        ? fromDb
+        : (t as any)?.categories?.[first] ?? first) as string;
     if (categories.length <= 1) return base;
     return `${base} +${categories.length - 1}`;
-  }, [categories, locale]);
+  }, [categories, dbCategories, locale, t]);
 
   const basePrice = useMemo(() => {
     if (product.pricing) {

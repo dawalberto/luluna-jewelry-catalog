@@ -20,6 +20,15 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    // Categories collection
+    match /categories/{categoryId} {
+      // Public read so catalog can render filters
+      allow read: if true;
+
+      // Only admins can manage categories
+      allow create, update, delete: if isAdmin();
+    }
+
     // Admin role documents: admins/{uid}
     match /admins/{uid} {
       // Allow a signed-in user to read ONLY their own role document

@@ -1,6 +1,7 @@
 import useSWR, { type SWRConfiguration } from 'swr';
-import { ProductService } from '../services';
+import { CategoryService, ProductService } from '../services';
 import type {
+    Category,
     PaginatedResponse,
     PaginationOptions,
     Product,
@@ -8,6 +9,7 @@ import type {
 } from '../types';
 
 const productService = new ProductService();
+const categoryService = new CategoryService();
 
 /**
  * Default SWR configuration
@@ -111,6 +113,27 @@ export function useProductSearch(
     products: data?.data || [],
     total: data?.total || 0,
     hasMore: data?.hasMore || false,
+    isLoading,
+    isError: !!error,
+    error,
+    mutate,
+  };
+}
+
+/**
+ * Hook to fetch all categories
+ */
+export function useCategories(config?: SWRConfiguration) {
+  const key = ['categories'];
+
+  const { data, error, isLoading, mutate } = useSWR<Category[]>(
+    key,
+    () => categoryService.getCategories(),
+    { ...defaultConfig, ...config }
+  );
+
+  return {
+    categories: data || [],
     isLoading,
     isError: !!error,
     error,

@@ -19,14 +19,7 @@ const MultilingualTextSchema = z.object({
   en: z.string().min(1),
 });
 
-const ProductCategorySchema = z.enum([
-  'rings',
-  'necklaces',
-  'bracelets',
-  'earrings',
-  'sets',
-  'custom',
-]);
+const ProductCategorySchema = z.string().min(1);
 
 const ProductPricingSchema = z
   .object({

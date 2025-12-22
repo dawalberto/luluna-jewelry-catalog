@@ -12,13 +12,8 @@ export interface MultilingualText {
 /**
  * Product category
  */
-export type ProductCategory = 
-  | 'rings'
-  | 'necklaces'
-  | 'bracelets'
-  | 'earrings'
-  | 'sets'
-  | 'custom';
+// Categories are dynamic (stored in Firestore). We keep the type as string.
+export type ProductCategory = string;
 
 /**
  * Product price configuration

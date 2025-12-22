@@ -1,36 +1,34 @@
 import { useI18n } from '../../i18n';
 import type { ProductCategory } from '../../types';
+import { useCategories } from '../../utils/hooks';
 
 interface CategoryFilterProps {
   selectedCategory?: ProductCategory | 'all';
   onCategoryChange: (category: ProductCategory | 'all') => void;
 }
 
-const categories: (ProductCategory | 'all')[] = [
-  'all',
-  'rings',
-  'necklaces',
-  'bracelets',
-  'earrings',
-  'sets',
-  'custom',
-];
-
-const categoryTranslations: Record<ProductCategory | 'all', { es: string; en: string }> = {
-  all: { es: 'Todos', en: 'All' },
-  rings: { es: 'Anillos', en: 'Rings' },
-  necklaces: { es: 'Collares', en: 'Necklaces' },
-  bracelets: { es: 'Pulseras', en: 'Bracelets' },
-  earrings: { es: 'Pendientes', en: 'Earrings' },
-  sets: { es: 'Conjuntos', en: 'Sets' },
-  custom: { es: 'Personalizado', en: 'Custom' },
-};
-
 export default function CategoryFilter({
   selectedCategory = 'all',
   onCategoryChange,
 }: CategoryFilterProps) {
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
+  const { categories: dbCategories } = useCategories();
+
+  const categories: Array<ProductCategory | 'all'> = [
+    'all',
+    ...(dbCategories.length > 0
+      ? dbCategories.map((c) => c.id)
+      : Object.keys((t as any)?.categories ?? {}).filter((k) => k !== 'all')),
+  ];
+
+  const labelFor = (id: ProductCategory | 'all') => {
+    if (id === 'all') return t.categories.all;
+    const fromDb = dbCategories.find((c) => c.id === id)?.title?.[locale];
+    if (typeof fromDb === 'string' && fromDb.length > 0) return fromDb;
+    const legacy = (t as any)?.categories?.[id];
+    if (typeof legacy === 'string') return legacy;
+    return id;
+  };
 
   return (
     <div className="flex flex-wrap gap-2 mb-8">
@@ -47,7 +45,7 @@ export default function CategoryFilter({
                 : 'bg-[#F9E5E5] text-gray-700 hover:bg-[#f0d0d0]'
             }`}
           >
-            {categoryTranslations[category][locale]}
+            {labelFor(category)}
           </button>
         );
       })}

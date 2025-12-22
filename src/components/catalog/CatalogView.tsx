@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
 import { GlobalDiscountService, PricingService } from '../../services';
 import type { GlobalDiscount, PricingConfig, ProductCategory } from '../../types';
 import { useProducts } from '../../utils/hooks';
+import { Button } from '../ui';
 import CategoryFilter from './CategoryFilter';
 import ProductGrid from './ProductGrid';
 import SearchBar from './SearchBar';
@@ -18,6 +19,8 @@ export default function CatalogView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | undefined>(undefined);
   const [globalDiscount, setGlobalDiscount] = useState<GlobalDiscount | undefined>(undefined);
+  type PriceSortOrder = 'none' | 'asc' | 'desc';
+  const [priceSortOrder, setPriceSortOrder] = useState<PriceSortOrder>('none');
 
   const filters = {
     category: selectedCategory !== 'all' ? selectedCategory : undefined,
@@ -26,6 +29,77 @@ export default function CatalogView() {
   };
 
   const { products, isLoading } = useProducts(filters, { limit: 50 });
+
+  const sortedProducts = useMemo(() => {
+    if (priceSortOrder === 'none') return products;
+
+    const getBasePrice = (product: any): number | null => {
+      const pricing = product?.pricing;
+      if (pricing) {
+        if (pricing.type === 'custom') {
+          const price = pricing.customPrice;
+          return typeof price === 'number' && Number.isFinite(price) ? price : null;
+        }
+
+        if (!pricingConfig) return null;
+        const tierPrice = (pricingConfig as any)[pricing.type];
+        return typeof tierPrice === 'number' && Number.isFinite(tierPrice) ? tierPrice : null;
+      }
+
+      const legacy = product?.price;
+      return typeof legacy === 'number' && Number.isFinite(legacy) ? legacy : null;
+    };
+
+    const getFinalPrice = (product: any): number | null => {
+      const base = getBasePrice(product);
+      if (base == null) return null;
+
+      if (product?.discount?.enabled) {
+        const percent = product.discount.percent;
+        if (typeof percent === 'number' && Number.isFinite(percent) && percent > 0) {
+          return Math.max(0, base * (1 - percent / 100));
+        }
+      }
+
+      if (globalDiscount?.active) {
+        const percent = globalDiscount.percent;
+        if (typeof percent === 'number' && Number.isFinite(percent) && percent > 0) {
+          return Math.max(0, base * (1 - percent / 100));
+        }
+      }
+
+      return base;
+    };
+
+    const withMeta = products.map((product, index) => {
+      const title =
+        product.title?.[locale] ??
+        product.title?.es ??
+        product.title?.en ??
+        '';
+      return { product, index, price: getFinalPrice(product), title };
+    });
+
+    withMeta.sort((a, b) => {
+      const aPrice = a.price;
+      const bPrice = b.price;
+
+      if (aPrice == null && bPrice == null) {
+        const byTitle = a.title.localeCompare(b.title);
+        return byTitle !== 0 ? byTitle : a.index - b.index;
+      }
+      if (aPrice == null) return 1;
+      if (bPrice == null) return -1;
+
+      const diff = priceSortOrder === 'asc' ? aPrice - bPrice : bPrice - aPrice;
+      if (diff !== 0) return diff;
+
+      const byTitle = a.title.localeCompare(b.title);
+      return byTitle !== 0 ? byTitle : a.index - b.index;
+    });
+
+    return withMeta.map((x) => x.product);
+  }, [products, priceSortOrder, pricingConfig, globalDiscount?.active, globalDiscount?.percent, locale]);
 
   useEffect(() => {
     let mounted = true;
@@ -77,6 +151,27 @@ export default function CatalogView() {
         onCategoryChange={setSelectedCategory}
       />
 
+      {/* Sort */}
+      <div className="mb-6 mt-6 flex items-center justify-end gap-2">
+        <span className="text-sm text-gray-600">{t.catalog.sortByPrice}</span>
+        <Button
+          type="button"
+          size="sm"
+          variant={priceSortOrder === 'asc' ? 'primary' : 'outline'}
+          onClick={() => setPriceSortOrder('asc')}
+        >
+          {t.catalog.sortPriceLowHigh}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={priceSortOrder === 'desc' ? 'primary' : 'outline'}
+          onClick={() => setPriceSortOrder('desc')}
+        >
+          {t.catalog.sortPriceHighLow}
+        </Button>
+      </div>
+
       {globalDiscount?.active && globalDiscount.percent > 0 && (
         <div className="mb-6 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-gray-100">
           <div className="text-sm font-semibold text-gray-900">{t.catalog.promoTitle}</div>
@@ -115,7 +210,7 @@ export default function CatalogView() {
 
       {/* Product Grid */}
       <ProductGrid
-        products={products}
+        products={sortedProducts}
         isLoading={isLoading}
         pricingConfig={pricingConfig}
         globalDiscount={globalDiscount}

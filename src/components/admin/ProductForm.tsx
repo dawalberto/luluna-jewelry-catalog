@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { cloudinaryConfig } from '../../config/env';
 import { useI18n } from '../../i18n';
 import { ProductService } from '../../services';
 import type { CreateProductInput, MultilingualText, ProductCategory, ProductPriceType } from '../../types';
+import { useCategories } from '../../utils/hooks';
 import { Button, Input } from '../ui';
 
 const productService = new ProductService();
@@ -14,11 +15,23 @@ interface ProductFormProps {
 
 export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
   const { t } = useI18n();
+  const { categories: dbCategories, isLoading: categoriesLoading } = useCategories();
+
+  const categories = useMemo(() => {
+    // Fallback to legacy i18n categories if Firestore has none yet.
+    if (dbCategories.length > 0) {
+      return dbCategories.map((c) => ({ id: c.id, label: c.title?.es ?? c.id }));
+    }
+    const legacy = (t as any)?.categories;
+    if (!legacy) return [] as Array<{ id: string; label: string }>;
+    const ids = Object.keys(legacy).filter((k) => k !== 'all');
+    return ids.map((id) => ({ id, label: legacy[id] as string }));
+  }, [dbCategories, t]);
 
   const [formData, setFormData] = useState<CreateProductInput>({
     title: { es: '', en: '' },
     description: { es: '', en: '' },
-    categories: ['rings'],
+    categories: [],
     pricing: { type: 'S' },
     discount: { enabled: false, percent: 0, description: '' },
     isNew: false,
@@ -53,6 +66,13 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
       };
     });
   };
+
+  useEffect(() => {
+    // If nothing selected yet, pick the first available category.
+    if (formData.categories.length > 0) return;
+    if (categories.length === 0) return;
+    setFormData((prev) => ({ ...prev, categories: [categories[0].id] }));
+  }, [categories, formData.categories.length]);
 
   const setPriceType = (type: ProductPriceType) => {
     setFormData((prev) => {
@@ -238,26 +258,23 @@ export default function ProductForm({ onSuccess, onCancel }: ProductFormProps) {
           {t.admin.productCategories}
         </label>
         <div className="grid grid-cols-2 gap-2">
-          {(
-            [
-              ['rings', t.categories.rings],
-              ['necklaces', t.categories.necklaces],
-              ['bracelets', t.categories.bracelets],
-              ['earrings', t.categories.earrings],
-              ['sets', t.categories.sets],
-              ['custom', t.categories.custom],
-            ] as Array<[ProductCategory, string]>
-          ).map(([cat, label]) => (
-            <label key={cat} className="flex items-center gap-2 text-sm text-gray-700">
-              <input
-                type="checkbox"
-                checked={formData.categories.includes(cat)}
-                onChange={() => toggleCategory(cat)}
-                className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
-              />
-              {label}
-            </label>
-          ))}
+          {categoriesLoading ? (
+            <div className="text-sm text-gray-500">{t.common.loading}</div>
+          ) : categories.length === 0 ? (
+            <div className="text-sm text-gray-500">{t.admin.noCategories}</div>
+          ) : (
+            categories.map(({ id, label }) => (
+              <label key={id} className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={formData.categories.includes(id)}
+                  onChange={() => toggleCategory(id)}
+                  className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+                />
+                {label}
+              </label>
+            ))
+          )}
         </div>
       </div>
 
