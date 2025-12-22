@@ -28,20 +28,20 @@ export default function HeaderSimple({ locale = 'es' }: HeaderSimpleProps) {
     <div className="absolute top-4 right-4 z-50 flex gap-2">
       <a
         href="?lang=es"
-        className={`px-3 py-1 border-2 border-black text-sm font-bold uppercase transition-all ${
+        className={`px-2 py-1 text-xs font-medium uppercase tracking-widest transition-all duration-300 ${
           currentLocale === 'es'
-            ? 'bg-[#2E6A77] text-white shadow-[2px_2px_0px_0px_#000000] -translate-y-0.5 -translate-x-0.5'
-            : 'bg-white text-black hover:bg-gray-100 hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[2px_2px_0px_0px_#000000]'
+            ? 'text-[#2E6A77] border-b border-[#2E6A77]'
+            : 'text-gray-400 hover:text-black border-b border-transparent'
         }`}
       >
         ES
       </a>
       <a
         href="?lang=en"
-        className={`px-3 py-1 border-2 border-black text-sm font-bold uppercase transition-all ${
+        className={`px-2 py-1 text-xs font-medium uppercase tracking-widest transition-all duration-300 ${
           currentLocale === 'en'
-            ? 'bg-[#2E6A77] text-white shadow-[2px_2px_0px_0px_#000000] -translate-y-0.5 -translate-x-0.5'
-            : 'bg-white text-black hover:bg-gray-100 hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[2px_2px_0px_0px_#000000]'
+            ? 'text-[#2E6A77] border-b border-[#2E6A77]'
+            : 'text-gray-400 hover:text-black border-b border-transparent'
         }`}
       >
         EN

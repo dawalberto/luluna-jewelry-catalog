@@ -137,7 +137,7 @@ export default function CatalogView() {
     <div className="container mx-auto px-4 py-6 md:py-12">
       <div className="text-center mb-8 md:mb-16">
         <h1 className="text-4xl md:text-7xl font-black text-black mb-6 uppercase tracking-tighter">{t.catalog.title}</h1>
-        <p className="text-xl font-bold text-black max-w-2xl mx-auto border-2 border-black p-4 shadow-[2px_2px_0px_0px_#000000] bg-white">{t.catalog.subtitle}</p>
+        <p className="text-lg font-body text-gray-600 max-w-2xl mx-auto mt-4">{t.catalog.subtitle}</p>
       </div>
 
       {/* Search Bar */}
@@ -153,29 +153,30 @@ export default function CatalogView() {
 
       {/* Sort */}
       <div className="mb-8 mt-8 flex items-center justify-end gap-3">
-        <span className="text-sm font-bold text-black uppercase tracking-wide">{t.catalog.sortByPrice}</span>
-        <Button
-          type="button"
-          size="sm"
-          variant={priceSortOrder === 'asc' ? 'primary' : 'outline'}
-          onClick={() => setPriceSortOrder('asc')}
-        >
-          {t.catalog.sortPriceLowHigh}
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={priceSortOrder === 'desc' ? 'primary' : 'outline'}
-          onClick={() => setPriceSortOrder('desc')}
-        >
-          {t.catalog.sortPriceHighLow}
-        </Button>
+        <span className="text-sm font-medium text-gray-500 uppercase tracking-widest">{t.catalog.sortByPrice}</span>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className={`text-sm font-medium transition-colors ${priceSortOrder === 'asc' ? 'text-[#2E6A77] underline' : 'text-gray-400 hover:text-black'}`}
+            onClick={() => setPriceSortOrder('asc')}
+          >
+            {t.catalog.sortPriceLowHigh}
+          </button>
+          <span className="text-gray-300">|</span>
+          <button
+            type="button"
+            className={`text-sm font-medium transition-colors ${priceSortOrder === 'desc' ? 'text-[#2E6A77] underline' : 'text-gray-400 hover:text-black'}`}
+            onClick={() => setPriceSortOrder('desc')}
+          >
+            {t.catalog.sortPriceHighLow}
+          </button>
+        </div>
       </div>
 
       {globalDiscount?.active && globalDiscount.percent > 0 && (
-        <div className="mb-10 border-3 border-black bg-[#FFFDF5] px-6 py-6 shadow-[2px_2px_0px_0px_#000000]">
-          <div className="text-lg font-black text-black uppercase tracking-wide mb-2">{t.catalog.promoTitle}</div>
-          <div className="text-base font-bold text-black">
+        <div className="mb-12 bg-[#2E6A77]/5 border border-[#2E6A77]/20 px-8 py-8 text-center">
+          <div className="text-sm font-medium text-[#2E6A77] uppercase tracking-widest mb-2">{t.catalog.promoTitle}</div>
+          <div className="text-2xl font-heading font-medium text-black mb-4">
             {(() => {
               const localizedTitle =
                 globalDiscount.title?.[locale] ??
@@ -185,12 +186,12 @@ export default function CatalogView() {
 
               return (
                 <>
-                  <span className="font-black bg-[#2E6A77] text-white px-2 py-0.5">{localizedTitle}</span>
+                  <span>{localizedTitle}</span>
                   {localizedTitle ? ' — ' : ''}
                 </>
               );
             })()}
-            <span className="ml-2 text-2xl font-black">{globalDiscount.percent}% OFF</span>
+            <span className="ml-2 text-[#2E6A77]">{globalDiscount.percent}% OFF</span>
           </div>
           {(() => {
             const localizedDescription =
@@ -200,9 +201,9 @@ export default function CatalogView() {
               '';
 
             return localizedDescription ? (
-              <div className="mt-2 text-sm font-medium text-black border-l-4 border-black pl-3">{localizedDescription}</div>
+              <div className="text-sm text-gray-500 max-w-2xl mx-auto">{localizedDescription}</div>
             ) : (
-              <div className="mt-2 text-sm font-medium text-black border-l-4 border-black pl-3">{t.catalog.promoDescription}</div>
+              <div className="text-sm text-gray-500 max-w-2xl mx-auto">{t.catalog.promoDescription}</div>
             );
           })()}
         </div>

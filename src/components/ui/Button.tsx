@@ -14,13 +14,13 @@ export default function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'inline-flex items-center justify-center font-bold border-3 border-black transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:opacity-50 disabled:cursor-not-allowed';
+    'inline-flex items-center justify-center font-medium transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed tracking-wide';
 
   const variants = {
-    primary: 'bg-[#2E6A77] text-white shadow-[2px_2px_0px_0px_#000000] hover:bg-[#245560]',
-    secondary: 'bg-white text-black shadow-[2px_2px_0px_0px_#000000] hover:bg-gray-50',
-    outline: 'bg-transparent text-black shadow-[2px_2px_0px_0px_#000000] hover:bg-[#2E6A77] hover:text-white',
-    ghost: 'border-transparent shadow-none hover:bg-gray-100',
+    primary: 'bg-[#2E6A77] text-white hover:bg-[#245560] hover:shadow-md',
+    secondary: 'bg-white text-black border border-gray-200 hover:bg-gray-50 hover:border-gray-300',
+    outline: 'bg-transparent text-black border border-black hover:bg-black hover:text-white',
+    ghost: 'bg-transparent text-black hover:bg-gray-100',
   };
 
   const sizes = {
