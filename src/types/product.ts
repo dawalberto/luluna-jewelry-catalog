@@ -51,8 +51,8 @@ export interface PricingConfig {
 export interface GlobalDiscount {
   active: boolean;
   percent: number; // 0-100
-  title: string;
-  description?: string;
+  title: MultilingualText;
+  description?: MultilingualText;
 }
 
 /**

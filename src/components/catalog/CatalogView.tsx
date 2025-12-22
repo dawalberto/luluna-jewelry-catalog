@@ -11,7 +11,7 @@ const pricingService = new PricingService();
 const globalDiscountService = new GlobalDiscountService();
 
 export default function CatalogView() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [selectedCategory, setSelectedCategory] = useState<
     ProductCategory | 'all'
   >('all');
@@ -81,16 +81,35 @@ export default function CatalogView() {
         <div className="mb-6 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-gray-100">
           <div className="text-sm font-semibold text-gray-900">{t.catalog.promoTitle}</div>
           <div className="mt-1 text-sm text-gray-700">
-            <span className="font-medium">{globalDiscount.title}</span>
-            {globalDiscount.title ? ' — ' : ''}
+            {(() => {
+              const localizedTitle =
+                globalDiscount.title?.[locale] ??
+                globalDiscount.title?.es ??
+                globalDiscount.title?.en ??
+                '';
+
+              return (
+                <>
+                  <span className="font-medium">{localizedTitle}</span>
+                  {localizedTitle ? ' — ' : ''}
+                </>
+              );
+            })()}
             {globalDiscount.percent}%
           </div>
-          {globalDiscount.description && (
-            <div className="mt-1 text-sm text-gray-600">{globalDiscount.description}</div>
-          )}
-          {!globalDiscount.description && (
-            <div className="mt-1 text-sm text-gray-600">{t.catalog.promoDescription}</div>
-          )}
+          {(() => {
+            const localizedDescription =
+              globalDiscount.description?.[locale] ??
+              globalDiscount.description?.es ??
+              globalDiscount.description?.en ??
+              '';
+
+            return localizedDescription ? (
+              <div className="mt-1 text-sm text-gray-600">{localizedDescription}</div>
+            ) : (
+              <div className="mt-1 text-sm text-gray-600">{t.catalog.promoDescription}</div>
+            );
+          })()}
         </div>
       )}
 
