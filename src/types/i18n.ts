@@ -31,6 +31,7 @@ export interface Translations {
     admin: string;
   };
   categories: {
+    title: string;
     all: string;
     rings: string;
     necklaces: string;

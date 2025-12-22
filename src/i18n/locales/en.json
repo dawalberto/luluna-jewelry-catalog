@@ -23,6 +23,7 @@
     "admin": "Admin"
   },
   "categories": {
+    "title": "Category",
     "all": "All",
     "rings": "Rings",
     "necklaces": "Necklaces",

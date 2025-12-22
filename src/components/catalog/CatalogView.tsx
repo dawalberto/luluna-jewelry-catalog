@@ -3,8 +3,7 @@ import { useI18n } from '../../i18n';
 import { GlobalDiscountService, PricingService } from '../../services';
 import type { GlobalDiscount, PricingConfig, ProductCategory } from '../../types';
 import { loadCatalogState } from '../../utils';
-import { useProducts, useTags } from '../../utils/hooks';
-import CategoryFilter from './CategoryFilter';
+import { useCategories, useProducts, useTags } from '../../utils/hooks';
 import ProductGrid from './ProductGrid';
 import SearchBar from './SearchBar';
 
@@ -24,6 +23,8 @@ export default function CatalogView() {
   type SortBy = 'none' | 'price-asc' | 'price-desc' | 'popularity';
   const [sortBy, setSortBy] = useState<SortBy>('none');
   const [scrollToRestore, setScrollToRestore] = useState<number | null>(null);
+
+  const { categories: dbCategories } = useCategories();
 
   // Load saved catalog state on mount (client-side only)
   useEffect(() => {
@@ -250,109 +251,111 @@ export default function CatalogView() {
 
   return (
     <div className="container mx-auto px-4 py-6 md:py-12">
-      <div className="text-center mb-8 md:mb-16">
+      <div className="text-center mb-8 md:mb-12">
         <h1 className="text-4xl md:text-7xl font-black text-black mb-6 uppercase tracking-tighter">{t.catalog.title}</h1>
         <p className="text-lg font-body text-gray-600 max-w-2xl mx-auto mt-4">{t.catalog.subtitle}</p>
       </div>
 
-      {/* Search Bar */}
-      <div className="flex justify-center mb-10">
-        <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
-      </div>
-
-      {/* Category Filter */}
-      <CategoryFilter
-        selectedCategory={selectedCategory}
-        onCategoryChange={setSelectedCategory}
-      />
-
-      {/* Tags Filter */}
-      {availableTags.length > 0 && (
-        <div className="mb-8 mt-6">
-          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-widest mb-4 text-center">
-            {(t.catalog as any).filterByTags || 'Filtrar por etiquetas'}
-          </h3>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {availableTags.map(({ id, label }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => toggleTag(id)}
-                className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                  selectedTags.includes(id)
-                    ? 'bg-[#2E6A77] text-white shadow-md'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+      {/* Compact Filters Bar */}
+      <div className="mb-8 bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 space-y-4">
+        {/* Row 1: Search and Sort */}
+        <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+          <div className="flex-1 max-w-md">
+            <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
           </div>
-          {selectedTags.length > 0 && (
-            <div className="text-center mt-4">
-              <button
-                type="button"
-                onClick={() => setSelectedTags([])}
-                className="text-sm text-gray-500 hover:text-gray-700 underline"
-              >
-                {t.common.clear || 'Limpiar filtros'}
-              </button>
+          
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">{t.catalog.sortBy}:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortBy)}
+              className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2E6A77] focus:border-transparent"
+            >
+              <option value="none">{t.catalog.sortDefault}</option>
+              <option value="popularity">{t.catalog.sortPopularity}</option>
+              <option value="price-asc">{t.catalog.sortPriceAsc}</option>
+              <option value="price-desc">{t.catalog.sortPriceDesc}</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Row 2: Category Filter */}
+        <div className="border-t border-gray-200 pt-4">
+          <div className="flex items-start gap-3">
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap pt-2">{t.categories.title || 'Categoría'}:</span>
+            <div className="flex flex-wrap gap-2 flex-1">
+              {[
+                'all',
+                ...(dbCategories.length > 0
+                  ? dbCategories.map((c) => c.id)
+                  : Object.keys((t as any)?.categories ?? {}).filter((k) => k !== 'all')),
+              ].map((category) => {
+                const isSelected = selectedCategory === category;
+                const labelFor = (id: ProductCategory | 'all') => {
+                  if (id === 'all') return t.categories.all;
+                  const fromDb = dbCategories.find((c) => c.id === id)?.title?.[locale];
+                  if (typeof fromDb === 'string' && fromDb.length > 0) return fromDb;
+                  const legacy = (t as any)?.categories?.[id];
+                  if (typeof legacy === 'string') return legacy;
+                  return id;
+                };
+                
+                return (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category as ProductCategory | 'all')}
+                    className={`px-3 py-1.5 text-xs font-medium uppercase tracking-wider rounded transition-all ${
+                      isSelected
+                        ? 'bg-[#2E6A77] text-white'
+                        : 'bg-white text-gray-600 border border-gray-300 hover:border-[#2E6A77] hover:text-[#2E6A77]'
+                    }`}
+                  >
+                    {labelFor(category)}
+                  </button>
+                );
+              })}
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Sort */}
-      <div className="mb-8 mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-end gap-4">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-gray-500 uppercase tracking-widest">{t.catalog.sortBy}</span>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                sortBy === 'none'
-                  ? 'bg-[#2E6A77] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-              onClick={() => setSortBy('none')}
-            >
-              {t.catalog.sortDefault}
-            </button>
-            <button
-              type="button"
-              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                sortBy === 'popularity'
-                  ? 'bg-[#2E6A77] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-              onClick={() => setSortBy('popularity')}
-            >
-              {t.catalog.sortPopularity}
-            </button>
-            <button
-              type="button"
-              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                sortBy === 'price-asc'
-                  ? 'bg-[#2E6A77] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-              onClick={() => setSortBy('price-asc')}
-            >
-              {t.catalog.sortPriceAsc}
-            </button>
-            <button
-              type="button"
-              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                sortBy === 'price-desc'
-                  ? 'bg-[#2E6A77] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-              onClick={() => setSortBy('price-desc')}
-            >
-              {t.catalog.sortPriceDesc}
-            </button>
           </div>
         </div>
+
+        {/* Row 3: Tags Filter */}
+        {availableTags.length > 0 && (
+          <div className="border-t border-gray-200 pt-4">
+            <div className="flex items-start gap-3">
+              <div className="flex items-center gap-2 whitespace-nowrap pt-1">
+                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {(t.catalog as any).filterByTags || 'Etiquetas'}:
+                </span>
+                {selectedTags.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTags([])}
+                    className="text-xs text-gray-400 hover:text-[#2E6A77] underline"
+                    title={t.common.clear || 'Limpiar'}
+                  >
+                    ({selectedTags.length})
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2 flex-1">
+                {availableTags.map(({ id, label }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => toggleTag(id)}
+                    className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
+                      selectedTags.includes(id)
+                        ? 'bg-[#2E6A77] text-white shadow-sm'
+                        : 'bg-white text-gray-600 border border-gray-300 hover:border-[#2E6A77] hover:text-[#2E6A77]'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {globalDiscount?.active && globalDiscount.percent > 0 && (

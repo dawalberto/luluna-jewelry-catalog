@@ -23,6 +23,7 @@
     "admin": "Administración"
   },
   "categories": {
+    "title": "Categoría",
     "all": "Todas",
     "rings": "Anillos",
     "necklaces": "Collares",
@@ -56,7 +57,7 @@
     "subtitle": "Joyería artesanal única y elegante",
     "promoTitle": "Promoción",
     "promoDescription": "Descuento aplicado automáticamente",
-    "sortBy": "Ordenar por:",
+    "sortBy": "Ordenar por",
     "sortDefault": "Por defecto",
     "sortPopularity": "Popularidad",
     "sortPriceAsc": "Precio ↑",
