@@ -2,14 +2,32 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
     
     // Products collection
     match /products/{productId} {
       // Allow public read access (for testing - TODO: restrict later)
       allow read: if true;
       
-      // Only authenticated users can create, update, or delete products
-      allow create, update, delete: if request.auth != null;
+      // Only admins can create, update, or delete products
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Admin role documents: admins/{uid}
+    match /admins/{uid} {
+      // Allow a signed-in user to read ONLY their own role document
+      allow get: if isSignedIn() && request.auth.uid == uid;
+      allow list: if false;
+
+      // Role management is intentionally locked down (bootstrap via Firebase Console/Admin SDK)
+      allow create, update, delete: if false;
     }
     
     // Deny all other access by default

@@ -56,6 +56,20 @@ export interface Translations {
   admin: {
     title: string;
     products: string;
+
+    // Auth / access control
+    loginTitle: string;
+    email: string;
+    password: string;
+    signIn: string;
+    signOut: string;
+    checkingAccess: string;
+    notAuthorized: string;
+    signInError: string;
+    adminCheckError: string;
+    emailLinkHelp: string;
+    linkSent: string;
+
     addProduct: string;
     editProduct: string;
     deleteProduct: string;

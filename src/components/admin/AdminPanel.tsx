@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { I18nProvider, useI18n } from '../../i18n';
+import { useI18n } from '../../i18n';
 import { ProductService } from '../../services';
 import type { Product } from '../../types';
 import { useProducts } from '../../utils/hooks';
@@ -146,9 +146,5 @@ function AdminPanelContent() {
 }
 
 export default function AdminPanel() {
-  return (
-    <I18nProvider>
-      <AdminPanelContent />
-    </I18nProvider>
-  );
+  return <AdminPanelContent />;
 }
