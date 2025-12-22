@@ -1,0 +1,38 @@
+---
+import Layout from "../layouts/Layout.astro"
+import { Footer } from "../components/common"
+import HeaderSimple from "../components/common/HeaderSimple"
+import { CatalogApp } from "../components/catalog"
+import { defaultLocale } from "../i18n/config"
+
+const locale = defaultLocale
+const title = locale === "es" ? "Catálogo" : "Catalog"
+const description =
+  locale === "es"
+    ? "Explora nuestra colección de joyería artesanal"
+    : "Explore our handcrafted jewelry collection"
+---
+
+<Layout title={title} description={description} lang={locale}>
+  <HeaderSimple client:load locale={locale} />
+  <main class="min-h-screen bg-gray-50 py-8">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          {locale === "es" ? "Nuestro Catálogo" : "Our Catalog"}
+        </h1>
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          {
+            locale === "es"
+              ? "Descubre nuestra colección de joyería artesanal, hecha con amor y dedicación"
+              : "Discover our handcrafted jewelry collection, made with love and dedication"
+          }
+        </p>
+      </div>
+
+      <CatalogApp client:load initialLocale={locale} />
+    </div>
+  </main>
+
+  <Footer client:load />
+</Layout>

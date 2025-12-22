@@ -1,0 +1,68 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close"
+  },
+  "nav": {
+    "home": "Home",
+    "catalog": "Catalog",
+    "about": "About",
+    "contact": "Contact",
+    "admin": "Admin"
+  },
+  "categories": {
+    "all": "All",
+    "rings": "Rings",
+    "necklaces": "Necklaces",
+    "bracelets": "Bracelets",
+    "earrings": "Earrings",
+    "sets": "Sets",
+    "custom": "Custom"
+  },
+  "product": {
+    "price": "Price",
+    "addToCart": "Add to cart",
+    "viewDetails": "View details",
+    "outOfStock": "Out of stock",
+    "inStock": "In stock"
+  },
+  "catalog": {
+    "title": "Our Catalog",
+    "subtitle": "Unique and elegant handcrafted jewelry",
+    "noProducts": "No products available",
+    "noResults": "No products found",
+    "searchPlaceholder": "Search products..."
+  },
+  "admin": {
+    "title": "Administration",
+    "products": "Products",
+    "addProduct": "Add product",
+    "editProduct": "Edit product",
+    "deleteProduct": "Delete product",
+    "deleteConfirm": "Are you sure you want to delete this product?",
+    "uploadImages": "Upload images",
+    "productTitle": "Product title",
+    "productDescription": "Description",
+    "productPrice": "Price",
+    "productCategory": "Category",
+    "productImages": "Images",
+    "published": "Published",
+    "draft": "Draft",
+    "saveSuccess": "Product saved successfully",
+    "saveError": "Error saving product",
+    "deleteSuccess": "Product deleted successfully",
+    "deleteError": "Error deleting product"
+  }
+}

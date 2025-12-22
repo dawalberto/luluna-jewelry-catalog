@@ -1,0 +1,68 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "clear": "Limpiar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "close": "Cerrar"
+  },
+  "nav": {
+    "home": "Inicio",
+    "catalog": "Catálogo",
+    "about": "Nosotros",
+    "contact": "Contacto",
+    "admin": "Administración"
+  },
+  "categories": {
+    "all": "Todas",
+    "rings": "Anillos",
+    "necklaces": "Collares",
+    "bracelets": "Pulseras",
+    "earrings": "Aretes",
+    "sets": "Conjuntos",
+    "custom": "Personalizados"
+  },
+  "product": {
+    "price": "Precio",
+    "addToCart": "Añadir al carrito",
+    "viewDetails": "Ver detalles",
+    "outOfStock": "Agotado",
+    "inStock": "Disponible"
+  },
+  "catalog": {
+    "title": "Nuestro Catálogo",
+    "subtitle": "Joyería artesanal única y elegante",
+    "noProducts": "No hay productos disponibles",
+    "noResults": "No se encontraron productos",
+    "searchPlaceholder": "Buscar productos..."
+  },
+  "admin": {
+    "title": "Administración",
+    "products": "Productos",
+    "addProduct": "Agregar producto",
+    "editProduct": "Editar producto",
+    "deleteProduct": "Eliminar producto",
+    "deleteConfirm": "¿Estás seguro de eliminar este producto?",
+    "uploadImages": "Subir imágenes",
+    "productTitle": "Título del producto",
+    "productDescription": "Descripción",
+    "productPrice": "Precio",
+    "productCategory": "Categoría",
+    "productImages": "Imágenes",
+    "published": "Publicado",
+    "draft": "Borrador",
+    "saveSuccess": "Producto guardado exitosamente",
+    "saveError": "Error al guardar el producto",
+    "deleteSuccess": "Producto eliminado exitosamente",
+    "deleteError": "Error al eliminar el producto"
+  }
+}

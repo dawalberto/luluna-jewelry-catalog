@@ -1,0 +1,29 @@
+---
+import "../styles/global.css"
+import type { Locale } from "../types/i18n"
+
+interface Props {
+  title: string
+  description?: string
+  lang?: Locale
+}
+
+const { title, description, lang = "es" } = Astro.props
+const siteTitle = "LuLuna Jewelry"
+const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{fullTitle}</title>
+  </head>
+  <body class="min-h-screen bg-gray-50">
+    <slot />
+  </body>
+</html>

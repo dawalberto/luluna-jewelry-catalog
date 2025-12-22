@@ -1,7 +1,13 @@
 {
   "name": "luluna-jewelry-catalog",
   "type": "module",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "description": "Headless jewelry catalog with Astro + React + Firebase",
+  "author": "LuLuna",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.20.8"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -9,6 +15,17 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.16.6"
+    "@astrojs/react": "^4.4.2",
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "astro": "^5.16.6",
+    "cloudinary": "^2.8.0",
+    "firebase": "^12.7.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "swr": "^2.3.8",
+    "tailwindcss": "^4.1.18",
+    "zod": "^3.25.76"
   }
 }

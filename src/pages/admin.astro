@@ -1,0 +1,21 @@
+---
+import Layout from "../layouts/Layout.astro"
+import { Footer } from "../components/common"
+import HeaderSimple from "../components/common/HeaderSimple"
+import { AdminApp } from "../components/admin"
+import { defaultLocale } from "../i18n/config"
+
+const locale = defaultLocale
+const title = locale === "es" ? "Administración" : "Administration"
+const description =
+  locale === "es" ? "Panel de administración de productos" : "Product administration panel"
+---
+
+<Layout title={title} description={description} lang={locale}>
+  <HeaderSimple client:load locale={locale} showAdmin={true} />
+  <main class="min-h-screen bg-gray-50">
+    <AdminApp client:load initialLocale={locale} />
+  </main>
+
+  <Footer client:load />
+</Layout>
