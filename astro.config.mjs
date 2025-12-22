@@ -7,9 +7,8 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   // Configure for GitHub Pages deployment
-  // Uncomment and update 'site' and 'base' when deploying to GitHub Pages:
-  // site: 'https://your-username.github.io',
-  // base: '/luluna-jewelry-catalog',
+  site: 'https://dawalberto.github.io',
+  base: '/luluna-jewelry-catalog',
   
   integrations: [react()],
 
