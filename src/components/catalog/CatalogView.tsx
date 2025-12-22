@@ -20,9 +20,7 @@ export default function CatalogView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | undefined>(undefined);
   const [globalDiscount, setGlobalDiscount] = useState<GlobalDiscount | undefined>(undefined);
-  type PriceSortOrder = 'none' | 'asc' | 'desc';
-  const [priceSortOrder, setPriceSortOrder] = useState<PriceSortOrder>('none');
-  type SortBy = 'none' | 'price' | 'popularity';
+  type SortBy = 'none' | 'price-asc' | 'price-desc' | 'popularity';
   const [sortBy, setSortBy] = useState<SortBy>('none');
   const [scrollToRestore, setScrollToRestore] = useState<number | null>(null);
 
@@ -30,10 +28,15 @@ export default function CatalogView() {
   useEffect(() => {
     const savedState = loadCatalogState();
     if (savedState) {
-      setSelectedCategory(savedState.selectedCategory);
-      setSearchQuery(savedState.searchQuery);
-      setPriceSortOrder(savedState.priceSortOrder);
-      setSortBy(savedState.sortBy || 'none');
+      setSelectedCategory(savedState.selectedCategory || 'all');
+      setSearchQuery(savedState.searchQuery || '');
+      // Migrar el estado antiguo al nuevo formato
+      const legacyState = savedState as any;
+      if (legacyState.sortBy === 'price' && legacyState.priceSortOrder) {
+        setSortBy(legacyState.priceSortOrder === 'asc' ? 'price-asc' : 'price-desc');
+      } else {
+        setSortBy(savedState.sortBy || 'none');
+      }
       
       // Store scroll position to restore after products load
       if (savedState.scrollPosition) {
@@ -92,7 +95,8 @@ export default function CatalogView() {
     }
 
     // Sort by price if selected
-    if (sortBy === 'price' && priceSortOrder !== 'none') {
+    if (sortBy === 'price-asc' || sortBy === 'price-desc') {
+      const priceSortOrder = sortBy === 'price-asc' ? 'asc' : 'desc';
       const getBasePrice = (product: any): number | null => {
         const pricing = product?.pricing;
         if (pricing) {
@@ -163,7 +167,7 @@ export default function CatalogView() {
 
     // Default: no sorting
     return products;
-  }, [products, sortBy, priceSortOrder, pricingConfig, globalDiscount?.active, globalDiscount?.percent, locale]);
+  }, [products, sortBy, pricingConfig, globalDiscount?.active, globalDiscount?.percent, locale]);
 
   useEffect(() => {
     let mounted = true;
@@ -227,10 +231,7 @@ export default function CatalogView() {
                   ? 'bg-[#2E6A77] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
-              onClick={() => {
-                setSortBy('none');
-                setPriceSortOrder('none');
-              }}
+              onClick={() => setSortBy('none')}
             >
               {t.catalog.sortDefault}
             </button>
@@ -241,57 +242,34 @@ export default function CatalogView() {
                   ? 'bg-[#2E6A77] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
-              onClick={() => {
-                setSortBy('popularity');
-                setPriceSortOrder('none');
-              }}
+              onClick={() => setSortBy('popularity')}
             >
               {t.catalog.sortPopularity}
             </button>
             <button
               type="button"
               className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                sortBy === 'price'
+                sortBy === 'price-asc'
                   ? 'bg-[#2E6A77] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
-              onClick={() => {
-                setSortBy('price');
-                if (priceSortOrder === 'none') {
-                  setPriceSortOrder('asc');
-                }
-              }}
+              onClick={() => setSortBy('price-asc')}
             >
-              {t.catalog.sortByPrice}
+              {t.catalog.sortPriceAsc}
+            </button>
+            <button
+              type="button"
+              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                sortBy === 'price-desc'
+                  ? 'bg-[#2E6A77] text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+              onClick={() => setSortBy('price-desc')}
+            >
+              {t.catalog.sortPriceDesc}
             </button>
           </div>
         </div>
-        
-        {sortBy === 'price' && (
-          <div className="flex items-center gap-3">
-            <div className="flex gap-2">
-              <button
-                type="button"
-                className={`text-sm font-medium transition-colors ${
-                  priceSortOrder === 'asc' ? 'text-[#2E6A77] underline' : 'text-gray-400 hover:text-black'
-                }`}
-                onClick={() => setPriceSortOrder('asc')}
-              >
-                {t.catalog.sortPriceLowHigh}
-              </button>
-              <span className="text-gray-300">|</span>
-              <button
-                type="button"
-                className={`text-sm font-medium transition-colors ${
-                  priceSortOrder === 'desc' ? 'text-[#2E6A77] underline' : 'text-gray-400 hover:text-black'
-                }`}
-                onClick={() => setPriceSortOrder('desc')}
-              >
-                {t.catalog.sortPriceHighLow}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {globalDiscount?.active && globalDiscount.percent > 0 && (
@@ -339,7 +317,6 @@ export default function CatalogView() {
         catalogState={{
           selectedCategory,
           searchQuery,
-          priceSortOrder,
           sortBy,
         }}
       />

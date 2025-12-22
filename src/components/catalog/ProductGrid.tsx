@@ -13,8 +13,7 @@ interface ProductGridProps {
   catalogState?: {
     selectedCategory: ProductCategory | 'all';
     searchQuery: string;
-    priceSortOrder: 'none' | 'asc' | 'desc';
-    sortBy: 'none' | 'price' | 'popularity';
+    sortBy: 'none' | 'price-asc' | 'price-desc' | 'popularity';
   };
 }
 
@@ -32,7 +31,9 @@ export default function ProductGrid({
   const handleProductClick = () => {
     if (catalogState) {
       saveCatalogState({
-        ...catalogState,
+        selectedCategory: catalogState.selectedCategory || 'all',
+        searchQuery: catalogState.searchQuery || '',
+        sortBy: catalogState.sortBy || 'none',
         scrollPosition: window.scrollY,
       });
     }

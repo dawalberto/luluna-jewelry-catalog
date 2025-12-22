@@ -5,10 +5,11 @@ const CATALOG_STATE_KEY = 'luluna_catalog_state';
 export interface CatalogState {
   selectedCategory: ProductCategory | 'all';
   searchQuery: string;
-  priceSortOrder: 'none' | 'asc' | 'desc';
-  sortBy: 'none' | 'price' | 'popularity';
+  sortBy: 'none' | 'price-asc' | 'price-desc' | 'popularity';
   scrollPosition: number;
   timestamp: number;
+  // Legacy fields for backward compatibility
+  priceSortOrder?: 'none' | 'asc' | 'desc';
 }
 
 const STATE_EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
@@ -43,6 +44,11 @@ export const loadCatalogState = (): CatalogState | null => {
     if (Date.now() - state.timestamp > STATE_EXPIRY_MS) {
       clearCatalogState();
       return null;
+    }
+
+    // Ensure selectedCategory is valid (default to 'all' if undefined or null)
+    if (!state.selectedCategory) {
+      state.selectedCategory = 'all';
     }
 
     return state;

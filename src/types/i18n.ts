@@ -67,9 +67,8 @@ export interface Translations {
     sortBy: string;
     sortDefault: string;
     sortPopularity: string;
-    sortByPrice: string;
-    sortPriceLowHigh: string;
-    sortPriceHighLow: string;
+    sortPriceAsc: string;
+    sortPriceDesc: string;
     noProducts: string;
     noResults: string;
     searchPlaceholder: string;

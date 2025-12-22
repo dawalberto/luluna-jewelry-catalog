@@ -59,9 +59,8 @@
     "sortBy": "Sort by:",
     "sortDefault": "Default",
     "sortPopularity": "Popularity",
-    "sortByPrice": "Price",
-    "sortPriceLowHigh": "Low to high",
-    "sortPriceHighLow": "High to low",
+    "sortPriceAsc": "Price ↑",
+    "sortPriceDesc": "Price ↓",
     "noProducts": "No products available",
     "noResults": "No products found",
     "searchPlaceholder": "Search products..."

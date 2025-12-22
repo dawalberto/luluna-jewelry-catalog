@@ -59,9 +59,8 @@
     "sortBy": "Ordenar por:",
     "sortDefault": "Por defecto",
     "sortPopularity": "Popularidad",
-    "sortByPrice": "Precio",
-    "sortPriceLowHigh": "Menor a mayor",
-    "sortPriceHighLow": "Mayor a menor",
+    "sortPriceAsc": "Precio ↑",
+    "sortPriceDesc": "Precio ↓",
     "noProducts": "No hay productos disponibles",
     "noResults": "No se encontraron productos",
     "searchPlaceholder": "Buscar productos..."
