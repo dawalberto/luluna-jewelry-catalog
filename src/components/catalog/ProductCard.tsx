@@ -176,11 +176,10 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
 
   return (
     <div
-      className="group relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 transition-shadow duration-300 hover:shadow-md cursor-pointer"
-      onClick={onClick}
+      className="group relative overflow-hidden border-3 border-black bg-white shadow-[2px_2px_0px_0px_#000000]"
     >
       {/* Image */}
-      <div className="relative aspect-3/4 overflow-hidden bg-gray-100">
+      <div className="relative aspect-3/4 overflow-hidden bg-gray-100 border-b-3 border-black">
         {transition ? (
           <>
             <img
@@ -223,16 +222,16 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
               type="button"
               aria-label="Previous image"
               onClick={goPrev}
-              className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 p-2 text-gray-800 backdrop-blur transition-colors hover:bg-white pointer-events-auto"
+              className="absolute left-2 top-1/2 z-20 -translate-y-1/2 border-2 border-black bg-white p-2 text-black transition-transform hover:scale-110 active:scale-95 pointer-events-auto shadow-[2px_2px_0px_0px_#000000]"
             >
               <svg
                 className="h-5 w-5"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeWidth="3"
+                strokeLinecap="square"
+                strokeLinejoin="miter"
               >
                 <path d="M15 18l-6-6 6-6" />
               </svg>
@@ -242,16 +241,16 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
               type="button"
               aria-label="Next image"
               onClick={goNext}
-              className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/80 p-2 text-gray-800 backdrop-blur transition-colors hover:bg-white pointer-events-auto"
+              className="absolute right-2 top-1/2 z-20 -translate-y-1/2 border-2 border-black bg-white p-2 text-black transition-transform hover:scale-110 active:scale-95 pointer-events-auto shadow-[2px_2px_0px_0px_#000000]"
             >
               <svg
                 className="h-5 w-5"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeWidth="3"
+                strokeLinecap="square"
+                strokeLinejoin="miter"
               >
                 <path d="M9 18l6-6-6-6" />
               </svg>
@@ -262,40 +261,40 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
         <div className="pointer-events-none absolute inset-0 z-10 bg-linear-to-t from-black/35 via-black/0 to-black/0" />
 
         {!!categoryLabel && (
-          <div className="absolute left-3 top-3 z-20 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-700 backdrop-blur">
+          <div className="absolute left-3 top-3 z-20 border-2 border-black bg-white px-3 py-1 text-[11px] font-black uppercase tracking-wide text-black shadow-[2px_2px_0px_0px_#000000]">
             {categoryLabel}
           </div>
         )}
 
         {product.isNew && (
-          <div className="absolute right-3 top-3 z-20 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-700 backdrop-blur">
+          <div className="absolute right-3 top-3 z-20 border-2 border-black bg-[#2E6A77] px-3 py-1 text-[11px] font-black uppercase tracking-wide text-white shadow-[2px_2px_0px_0px_#000000]">
             {t.admin.isNew}
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-4">
-        <h3 className="text-base font-semibold leading-snug text-gray-900 line-clamp-2">
+      <div className="p-4 bg-white">
+        <h3 className="text-lg font-black leading-tight text-black uppercase line-clamp-2">
           {product.title[locale]}
         </h3>
 
-        <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+        <p className="mt-2 text-sm font-medium text-gray-800 line-clamp-2 border-l-2 border-black pl-2">
           {product.description[locale]}
         </p>
 
         <div className="mt-4 flex items-end justify-between gap-4">
           {finalPrice == null ? (
-            <span className="text-lg font-semibold leading-none text-gray-700">-</span>
+            <span className="text-lg font-bold leading-none text-black">-</span>
           ) : effectiveDiscountPercent > 0 && basePrice != null && finalPrice !== basePrice ? (
             <div className="flex flex-col items-start">
-              <span className="text-xs text-gray-500 line-through">{formatPrice(basePrice)}</span>
-              <span className="text-3xl font-bold leading-none text-(--color-primary)">
+              <span className="text-xs font-bold text-red-600 line-through decoration-2">{formatPrice(basePrice)}</span>
+              <span className="text-2xl font-black leading-none text-black bg-[#2E6A77] text-white px-2 py-1 -rotate-2">
                 {formatPrice(finalPrice)}
               </span>
             </div>
           ) : (
-            <span className="text-3xl font-bold leading-none text-(--color-primary)">
+            <span className="text-2xl font-black leading-none text-black">
               {formatPrice(finalPrice)}
             </span>
           )}

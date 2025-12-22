@@ -24,47 +24,28 @@ export default function HeaderSimple({ locale = 'es' }: HeaderSimpleProps) {
     }
   }, []);
 
-  const catalogHref = `/catalog?lang=${currentLocale}`;
-
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <a href={catalogHref} className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-[#2E6A77] rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-xl">L</span>
-            </div>
-            <span className="text-2xl font-bold text-gray-900" style={{ fontFamily: 'Playfair Display, serif' }}>
-              LuLuna
-            </span>
-          </a>
-
-          {/* Language Switcher */}
-          <div className="flex gap-2">
-            <a
-              href="?lang=es"
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                currentLocale === 'es'
-                  ? 'bg-[#2E6A77] text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              ES
-            </a>
-            <a
-              href="?lang=en"
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                currentLocale === 'en'
-                  ? 'bg-[#2E6A77] text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              EN
-            </a>
-          </div>
-        </div>
-      </div>
-    </header>
+    <div className="absolute top-4 right-4 z-50 flex gap-2">
+      <a
+        href="?lang=es"
+        className={`px-3 py-1 border-2 border-black text-sm font-bold uppercase transition-all ${
+          currentLocale === 'es'
+            ? 'bg-[#2E6A77] text-white shadow-[2px_2px_0px_0px_#000000] -translate-y-0.5 -translate-x-0.5'
+            : 'bg-white text-black hover:bg-gray-100 hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[2px_2px_0px_0px_#000000]'
+        }`}
+      >
+        ES
+      </a>
+      <a
+        href="?lang=en"
+        className={`px-3 py-1 border-2 border-black text-sm font-bold uppercase transition-all ${
+          currentLocale === 'en'
+            ? 'bg-[#2E6A77] text-white shadow-[2px_2px_0px_0px_#000000] -translate-y-0.5 -translate-x-0.5'
+            : 'bg-white text-black hover:bg-gray-100 hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[2px_2px_0px_0px_#000000]'
+        }`}
+      >
+        EN
+      </a>
+    </div>
   );
 }

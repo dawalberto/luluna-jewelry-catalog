@@ -134,14 +134,14 @@ export default function CatalogView() {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">{t.catalog.title}</h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">{t.catalog.subtitle}</p>
+    <div className="container mx-auto px-4 py-6 md:py-12">
+      <div className="text-center mb-8 md:mb-16">
+        <h1 className="text-4xl md:text-7xl font-black text-black mb-6 uppercase tracking-tighter">{t.catalog.title}</h1>
+        <p className="text-xl font-bold text-black max-w-2xl mx-auto border-2 border-black p-4 shadow-[2px_2px_0px_0px_#000000] bg-white">{t.catalog.subtitle}</p>
       </div>
 
       {/* Search Bar */}
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center mb-10">
         <SearchBar onSearch={setSearchQuery} />
       </div>
 
@@ -152,8 +152,8 @@ export default function CatalogView() {
       />
 
       {/* Sort */}
-      <div className="mb-6 mt-6 flex items-center justify-end gap-2">
-        <span className="text-sm text-gray-600">{t.catalog.sortByPrice}</span>
+      <div className="mb-8 mt-8 flex items-center justify-end gap-3">
+        <span className="text-sm font-bold text-black uppercase tracking-wide">{t.catalog.sortByPrice}</span>
         <Button
           type="button"
           size="sm"
@@ -173,9 +173,9 @@ export default function CatalogView() {
       </div>
 
       {globalDiscount?.active && globalDiscount.percent > 0 && (
-        <div className="mb-6 rounded-xl bg-white px-4 py-4 shadow-sm ring-1 ring-gray-100">
-          <div className="text-sm font-semibold text-gray-900">{t.catalog.promoTitle}</div>
-          <div className="mt-1 text-sm text-gray-700">
+        <div className="mb-10 border-3 border-black bg-[#FFFDF5] px-6 py-6 shadow-[2px_2px_0px_0px_#000000]">
+          <div className="text-lg font-black text-black uppercase tracking-wide mb-2">{t.catalog.promoTitle}</div>
+          <div className="text-base font-bold text-black">
             {(() => {
               const localizedTitle =
                 globalDiscount.title?.[locale] ??
@@ -185,12 +185,12 @@ export default function CatalogView() {
 
               return (
                 <>
-                  <span className="font-medium">{localizedTitle}</span>
+                  <span className="font-black bg-[#2E6A77] text-white px-2 py-0.5">{localizedTitle}</span>
                   {localizedTitle ? ' — ' : ''}
                 </>
               );
             })()}
-            {globalDiscount.percent}%
+            <span className="ml-2 text-2xl font-black">{globalDiscount.percent}% OFF</span>
           </div>
           {(() => {
             const localizedDescription =
@@ -200,9 +200,9 @@ export default function CatalogView() {
               '';
 
             return localizedDescription ? (
-              <div className="mt-1 text-sm text-gray-600">{localizedDescription}</div>
+              <div className="mt-2 text-sm font-medium text-black border-l-4 border-black pl-3">{localizedDescription}</div>
             ) : (
-              <div className="mt-1 text-sm text-gray-600">{t.catalog.promoDescription}</div>
+              <div className="mt-2 text-sm font-medium text-black border-l-4 border-black pl-3">{t.catalog.promoDescription}</div>
             );
           })()}
         </div>
