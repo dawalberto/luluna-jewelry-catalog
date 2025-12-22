@@ -3,7 +3,6 @@ import { useI18n } from '../../i18n';
 import { GlobalDiscountService, PricingService } from '../../services';
 import type { GlobalDiscount, PricingConfig, ProductCategory } from '../../types';
 import { useProducts } from '../../utils/hooks';
-import { Button } from '../ui';
 import CategoryFilter from './CategoryFilter';
 import ProductGrid from './ProductGrid';
 import SearchBar from './SearchBar';
