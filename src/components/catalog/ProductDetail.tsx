@@ -124,7 +124,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
           {/* Image Gallery */}
           <div className="space-y-6">
             {/* Main Image */}
-            <div className="relative aspect-square bg-white rounded-sm overflow-hidden shadow-sm border border-gray-100 group">
+            <div className="relative aspect-square bg-white rounded-squircle overflow-hidden shadow-sm border border-gray-100 group">
               <img
                 src={images[activeImageIndex]}
                 alt={product.title[locale] || product.title.es}
@@ -139,7 +139,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
                 <>
                   <button
                     onClick={handlePrevious}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm hover:bg-white text-(--color-primary) p-3 rounded-full shadow-sm transition-all opacity-0 group-hover:opacity-100 border border-gray-100"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm hover:bg-white text-(--color-primary) p-3 rounded-squircle shadow-sm transition-all opacity-0 group-hover:opacity-100 border border-gray-100"
                     aria-label={t.common.previous}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,7 +148,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
                   </button>
                   <button
                     onClick={handleNext}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm hover:bg-white text-(--color-primary) p-3 rounded-full shadow-sm transition-all opacity-0 group-hover:opacity-100 border border-gray-100"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm hover:bg-white text-(--color-primary) p-3 rounded-squircle shadow-sm transition-all opacity-0 group-hover:opacity-100 border border-gray-100"
                     aria-label={t.common.next}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,7 +160,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
 
               {/* Image Counter */}
               {images.length > 1 && (
-                <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-md text-(--color-text) px-3 py-1 rounded-full text-xs font-body tracking-widest uppercase border border-gray-100">
+                <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-md text-(--color-text) px-3 py-1 rounded-squircle text-xs font-body tracking-widest uppercase border border-gray-100">
                   {activeImageIndex + 1} / {images.length}
                 </div>
               )}
@@ -187,7 +187,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
                   <button
                     key={index}
                     onClick={() => handleThumbnailClick(index)}
-                    className={`aspect-square bg-white rounded-sm overflow-hidden transition-all duration-300 ${
+                    className={`aspect-square bg-white rounded-squircle overflow-hidden transition-all duration-300 ${
                       index === activeImageIndex
                         ? 'ring-1 ring-(--color-primary) opacity-100'
                         : 'opacity-60 hover:opacity-100 hover:ring-1 hover:ring-gray-200'
@@ -279,6 +279,24 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
 
             {/* Contact CTA */}
             <div className="mt-auto space-y-6">
+              <h3 className="font-heading text-lg font-medium text-(--color-text) mb-4 text-center uppercase tracking-widest">
+                {t.productDetail.shopViaDM}
+              </h3>
+              
+              <a
+                href="https://www.instagram.com/lulunajoyas/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-heading text-lg font-medium py-5 px-6 transition-all shadow-sm hover:shadow-md text-center tracking-wide"
+              >
+                <div className="flex items-center justify-center gap-3">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                  <span>{t.productDetail.contactInstagram}</span>
+                </div>
+              </a>
+
               <a
                 href={`https://wa.me/1234567890?text=${encodeURIComponent(
                   `${t.productDetail.whatsappMessage} ${product.title[locale] || product.title.es}`
@@ -294,13 +312,6 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
                   <span>{t.productDetail.contactWhatsApp}</span>
                 </div>
               </a>
-
-              <div className="flex items-center justify-center gap-2 text-xs text-gray-500 font-body uppercase tracking-wider">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <span>{t.productDetail.secureCheckout}</span>
-              </div>
             </div>
 
             {/* Product Features */}
@@ -335,7 +346,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
                   {tagNames.map((tagName, index) => (
                     <span
                       key={index}
-                      className="text-xs text-gray-400 bg-gray-50 px-3 py-1 rounded-full font-light tracking-wide"
+                      className="text-xs text-gray-400 bg-gray-50 px-3 py-1 rounded-squircle font-light tracking-wide"
                     >
                       {tagName}
                     </span>

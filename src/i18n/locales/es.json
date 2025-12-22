@@ -43,13 +43,14 @@
     "new": "Nuevo",
     "save": "Ahorra",
     "description": "Descripción",
+    "shopViaDM": "Compra a través de DM",
+    "contactInstagram": "Consultar por Instagram",
     "contactWhatsApp": "Consultar por WhatsApp",
     "whatsappMessage": "Hola, me interesa este producto:",
-    "secureCheckout": "Compra segura y protegida",
     "features": "Características",
-    "feature1": "Joyería artesanal de alta calidad",
-    "feature2": "Diseño único y elegante",
-    "feature3": "Materiales premium seleccionados",
+    "feature1": "Joyería artesanal totalmente hecha a mano",
+    "feature2": "Arcilla polimérica de alta calidad",
+    "feature3": "Diseño único y elegante",
     "feature4": "Garantía de satisfacción"
   },
   "catalog": {

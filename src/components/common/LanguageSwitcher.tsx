@@ -9,7 +9,7 @@ export default function LanguageSwitcher() {
         <button
           key={lang}
           onClick={() => setLocale(lang)}
-          className={`px-2 py-1 text-xs font-medium uppercase tracking-widest transition-all duration-300 ${
+          className={`no-radius px-2 py-1 text-xs font-medium uppercase tracking-widest transition-all duration-300 ${
             locale === lang
               ? 'text-[#2E6A77] border-b border-[#2E6A77]'
               : 'text-gray-400 hover:text-black border-b border-transparent'

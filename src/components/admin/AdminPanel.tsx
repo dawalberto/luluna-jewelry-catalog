@@ -505,7 +505,7 @@ function AdminPanelContent() {
       {activeTab === 'products' && (
         <>
           {showForm && (
-            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div className="bg-white rounded-squircle shadow-md p-6 mb-8">
               <h2 className="text-2xl font-semibold mb-6">
                 {editingProduct ? 'Editar Producto' : t.admin.addProduct}
               </h2>
@@ -525,7 +525,7 @@ function AdminPanelContent() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+          <div className="bg-white rounded-squircle shadow-md overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -586,7 +586,7 @@ function AdminPanelContent() {
                             <img
                               src={product.images[0]}
                               alt={product.title[locale]}
-                              className="w-12 h-12 rounded object-cover mr-3 shrink-0"
+                              className="w-12 h-12 rounded-squircle object-cover mr-3 shrink-0"
                             />
                           )}
                           <div className="text-sm font-medium text-gray-900">
@@ -607,7 +607,7 @@ function AdminPanelContent() {
                           {product.tags?.map((tag, idx) => (
                             <span
                               key={idx}
-                              className="inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded"
+                              className="inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-squircle"
                             >
                               {tag}
                             </span>
@@ -623,7 +623,7 @@ function AdminPanelContent() {
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
                         {product.discount?.enabled ? (
-                          <span className="inline-block px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
+                          <span className="inline-block px-2 py-1 text-xs bg-red-100 text-red-800 rounded-squircle">
                             {product.discount.percent}%
                           </span>
                         ) : (
@@ -632,7 +632,7 @@ function AdminPanelContent() {
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
                         {product.isNew ? (
-                          <span className="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded">
+                          <span className="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded-squircle">
                             Nuevo
                           </span>
                         ) : (
@@ -648,7 +648,7 @@ function AdminPanelContent() {
                       <td className="px-4 py-4 whitespace-nowrap">
                         <button
                           onClick={() => handleTogglePublished(product)}
-                          className={`px-2 py-1 text-xs rounded-full ${
+                          className={`px-2 py-1 text-xs rounded-squircle ${
                             product.published
                               ? 'bg-green-100 text-green-800'
                               : 'bg-gray-100 text-gray-800'
@@ -684,7 +684,7 @@ function AdminPanelContent() {
       )}
 
       {activeTab === 'pricing' && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white rounded-squircle shadow-md p-6 mb-8">
           <h2 className="text-2xl font-semibold mb-2">{t.admin.pricingTitle}</h2>
           <p className="text-sm text-gray-600 mb-4">{t.admin.pricingSizes}</p>
 
@@ -727,7 +727,7 @@ function AdminPanelContent() {
       )}
 
       {activeTab === 'discount' && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white rounded-squircle shadow-md p-6 mb-8">
           <h2 className="text-2xl font-semibold mb-2">{t.admin.globalDiscountTitle}</h2>
           <p className="text-sm text-gray-600 mb-4">{t.admin.globalDiscountHelp}</p>
 
@@ -740,7 +740,7 @@ function AdminPanelContent() {
                 setGlobalDiscount((prev) => ({ ...prev, active: e.target.checked }))
               }
               disabled={globalDiscountLoading || globalDiscountSaving}
-              className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+              className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
             />
             <label htmlFor="globalDiscountActive" className="ml-2 text-sm text-gray-700">
               {t.admin.globalDiscountActive}
@@ -793,7 +793,7 @@ function AdminPanelContent() {
                   {t.admin.globalDiscountDescription} (ES)
                 </label>
                 <textarea
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
                   rows={3}
                   value={globalDiscount.description?.es ?? ''}
                   onChange={(e) =>
@@ -814,7 +814,7 @@ function AdminPanelContent() {
                   {t.admin.globalDiscountDescription} (EN)
                 </label>
                 <textarea
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
                   rows={3}
                   value={globalDiscount.description?.en ?? ''}
                   onChange={(e) =>
@@ -844,7 +844,7 @@ function AdminPanelContent() {
       )}
 
       {activeTab === 'categories' && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white rounded-squircle shadow-md p-6 mb-8">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-2xl font-semibold">{t.admin.categoriesTitle}</h2>
             <Button
@@ -866,7 +866,7 @@ function AdminPanelContent() {
           <p className="text-sm text-gray-600 mb-4">{t.admin.categoriesHelp}</p>
 
           {showCategoryForm && (
-            <div className="border border-gray-200 rounded-lg p-4 mb-6">
+            <div className="border border-gray-200 rounded-squircle p-4 mb-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   type="text"
@@ -913,7 +913,7 @@ function AdminPanelContent() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+          <div className="bg-white rounded-squircle shadow-md overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -970,7 +970,7 @@ function AdminPanelContent() {
       )}
 
       {activeTab === 'tags' && (
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white rounded-squircle shadow-md p-6 mb-8">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-2xl font-semibold">{(t.admin as any).tagsTitle || 'Etiquetas'}</h2>
             <Button
@@ -992,7 +992,7 @@ function AdminPanelContent() {
           <p className="text-sm text-gray-600 mb-4">{(t.admin as any).tagsHelp || 'Administra las etiquetas disponibles.'}</p>
 
           {showTagForm && (
-            <div className="border border-gray-200 rounded-lg p-4 mb-6">
+            <div className="border border-gray-200 rounded-squircle p-4 mb-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   type="text"
@@ -1039,7 +1039,7 @@ function AdminPanelContent() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+          <div className="bg-white rounded-squircle shadow-md overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>

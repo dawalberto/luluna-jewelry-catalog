@@ -232,7 +232,7 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
               type="button"
               aria-label="Previous image"
               onClick={goPrev}
-              className="absolute left-2 top-1/2 z-20 -translate-y-1/2 bg-white/80 backdrop-blur-md p-2 text-black transition-all hover:bg-white hover:scale-105 active:scale-95 pointer-events-auto rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300"
+              className="absolute left-2 top-1/2 z-20 -translate-y-1/2 bg-white/80 backdrop-blur-md p-2 text-black transition-all hover:bg-white hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300"
             >
               <svg
                 className="h-4 w-4"
@@ -251,7 +251,7 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
               type="button"
               aria-label="Next image"
               onClick={goNext}
-              className="absolute right-2 top-1/2 z-20 -translate-y-1/2 bg-white/80 backdrop-blur-md p-2 text-black transition-all hover:bg-white hover:scale-105 active:scale-95 pointer-events-auto rounded-full opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300"
+              className="absolute right-2 top-1/2 z-20 -translate-y-1/2 bg-white/80 backdrop-blur-md p-2 text-black transition-all hover:bg-white hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300"
             >
               <svg
                 className="h-4 w-4"
@@ -284,7 +284,7 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
       </div>
 
       {/* Content */}
-      <div className="p-5 bg-white text-center">
+      <div className="p-5 bg-white text-center no-radius">
         <h3 className="text-lg font-heading font-medium leading-tight text-(--color-text) line-clamp-2">
           {product.title[locale]}
         </h3>

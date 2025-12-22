@@ -1,10 +1,10 @@
 import {
-    isSignInWithEmailLink,
-    onAuthStateChanged,
-    sendSignInLinkToEmail,
-    signInWithEmailLink,
-    signOut,
-    type User,
+  isSignInWithEmailLink,
+  onAuthStateChanged,
+  sendSignInLinkToEmail,
+  signInWithEmailLink,
+  signOut,
+  type User,
 } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useMemo, useState } from 'react';
@@ -141,19 +141,19 @@ function AdminAuthGate() {
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+        <div className="max-w-md mx-auto bg-white rounded-squircle shadow-md p-6">
           <h1 className="text-2xl font-semibold text-gray-900 mb-6">{t.admin.loginTitle}</h1>
 
           <p className="text-sm text-gray-600 mb-4">{t.admin.emailLinkHelp}</p>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-squircle mb-4">
               {error}
             </div>
           )}
 
           {linkSent && !error && (
-            <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded mb-4">
+            <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-squircle mb-4">
               {t.admin.linkSent}
             </div>
           )}
@@ -191,12 +191,12 @@ function AdminAuthGate() {
   if (!isAdmin) {
     return (
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+        <div className="max-w-md mx-auto bg-white rounded-squircle shadow-md p-6">
           <h1 className="text-2xl font-semibold text-gray-900 mb-4">{t.admin.title}</h1>
           <p className="text-gray-700 mb-6">{t.admin.notAuthorized}</p>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-squircle mb-4">
               {error}
             </div>
           )}

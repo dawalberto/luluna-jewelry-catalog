@@ -43,13 +43,14 @@
     "new": "New",
     "save": "Save",
     "description": "Description",
+    "shopViaDM": "Shop via DM",
+    "contactInstagram": "Contact via Instagram",
     "contactWhatsApp": "Contact via WhatsApp",
     "whatsappMessage": "Hello, I'm interested in this product:",
-    "secureCheckout": "Secure and protected checkout",
     "features": "Features",
-    "feature1": "High quality handcrafted jewelry",
-    "feature2": "Unique and elegant design",
-    "feature3": "Premium selected materials",
+    "feature1": "Artisanal jewelry completely handmade",
+    "feature2": "High quality polymer clay",
+    "feature3": "Unique and elegant design",
     "feature4": "Satisfaction guarantee"
   },
   "catalog": {

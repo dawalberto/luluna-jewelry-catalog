@@ -248,7 +248,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-squircle">
           {error}
         </div>
       )}
@@ -278,7 +278,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           {t.admin.productDescription}
         </label>
         <textarea
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+          className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
           rows={3}
           placeholder="Español"
           value={formData.description.es}
@@ -286,7 +286,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           required
         />
         <textarea
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+          className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
           rows={3}
           placeholder="English"
           value={formData.description.en}
@@ -312,7 +312,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                   type="checkbox"
                   checked={formData.categories.includes(id)}
                   onChange={() => toggleCategory(id)}
-                  className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+                  className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
                 />
                 {label}
               </label>
@@ -338,7 +338,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                   type="checkbox"
                   checked={formData.tags?.includes(id) || false}
                   onChange={() => toggleTag(id)}
-                  className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+                  className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
                 />
                 {label}
               </label>
@@ -354,7 +354,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.priceType}</label>
           <select
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+            className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
             value={formData.pricing.type}
             onChange={(e) => setPriceType(e.target.value as ProductPriceType)}
           >
@@ -400,7 +400,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                 },
               }))
             }
-            className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+            className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
           />
           <label htmlFor="discountEnabled" className="ml-2 text-sm text-gray-700">
             {t.admin.discountEnabled}
@@ -454,7 +454,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           id="isNew"
           checked={!!formData.isNew}
           onChange={(e) => handleInputChange('isNew', e.target.checked)}
-          className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+          className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
         />
         <label htmlFor="isNew" className="ml-2 text-sm text-gray-700">
           {t.admin.isNew}
@@ -486,7 +486,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
             multiple
             onChange={handleImageUpload}
             disabled={uploading}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#2E6A77] file:text-white hover:file:bg-[#245560]"
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-squircle file:border-0 file:text-sm file:font-semibold file:bg-[#2E6A77] file:text-white hover:file:bg-[#245560]"
           />
           {uploading && <p className="text-sm text-gray-500">Uploading...</p>}
           
@@ -497,12 +497,12 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                   <img
                     src={url}
                     alt={`Product ${index + 1}`}
-                    className="w-full h-24 object-cover rounded-lg"
+                    className="w-full h-24 object-cover rounded-squircle"
                   />
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-squircle w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     ×
                   </button>
@@ -520,7 +520,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           id="published"
           checked={formData.published}
           onChange={(e) => handleInputChange('published', e.target.checked)}
-          className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded focus:ring-[#2E6A77]"
+          className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
         />
         <label htmlFor="published" className="ml-2 text-sm text-gray-700">
           {t.admin.published}

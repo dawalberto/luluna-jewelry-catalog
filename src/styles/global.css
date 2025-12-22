@@ -55,8 +55,14 @@ h1, h2, h3, h4, h5, h6 {
   overflow: hidden;
 }
 
-/* Unified border radius with squircle shape */
-* {
+/* Utility classes for unified border radius with squircle shape */
+.rounded-squircle {
+  border-radius: var(--border-radius);
+  corner-shape: squircle;
+}
+
+/* Override Tailwind rounded classes to use squircle */
+.rounded, .rounded-sm, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl {
   border-radius: var(--border-radius);
   corner-shape: squircle;
 }
