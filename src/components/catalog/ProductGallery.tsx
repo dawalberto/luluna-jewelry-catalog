@@ -24,7 +24,7 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
   return (
     <div className="space-y-4">
       {/* Main Image */}
-      <div className="aspect-[4/5] rounded-squircle overflow-hidden bg-gray-100">
+      <div className="aspect-[4/5] rounded-squircle overflow-hidden bg-(--color-surface)">
         <img
           src={mainImageUrl}
           alt={`${alt} - Image ${selectedIndex + 1}`}
@@ -50,7 +50,7 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
                 onClick={() => setSelectedIndex(index)}
                 className={`aspect-[4/5] rounded-squircle overflow-hidden transition-all ${
                   selectedIndex === index
-                    ? 'ring-2 ring-[#2E6A77] scale-95'
+                    ? 'ring-2 ring-(--color-primary) scale-95'
                     : 'hover:scale-95 opacity-70 hover:opacity-100'
                 }`}
               >

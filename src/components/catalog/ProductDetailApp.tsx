@@ -83,12 +83,12 @@ function ProductDetailAppContent({ productId }: ProductDetailAppProps) {
         <HeaderSimple />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            <h1 className="text-2xl font-semibold text-(--color-text) mb-4 font-heading">
               {error || t.catalog.productNotFound || 'Producto no encontrado'}
             </h1>
             <a
               href="/luluna-jewelry-catalog/catalog"
-              className="text-indigo-600 hover:text-indigo-700 font-medium"
+              className="text-(--color-primary) hover:brightness-95 font-medium"
             >
               {t.catalog.backToCatalog || t.common.back || 'Volver al catálogo'}
             </a>

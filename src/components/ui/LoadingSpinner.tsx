@@ -14,7 +14,7 @@ export default function LoadingSpinner({ size = 'md', className = '' }: LoadingS
   return (
     <div className={`flex items-center justify-center ${className}`}>
       <div
-        className={`${sizeClasses[size]} border-gray-200 border-t-[#2E6A77] rounded-squircle animate-spin`}
+        className={`${sizeClasses[size]} border-(--color-border) border-t-(--color-primary) rounded-squircle animate-spin`}
       ></div>
     </div>
   );

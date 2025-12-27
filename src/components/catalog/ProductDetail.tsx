@@ -126,7 +126,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
           {/* Image Gallery */}
           <div className="space-y-6">
             {/* Main Image */}
-            <div className="relative aspect-square bg-white rounded-squircle overflow-hidden shadow-sm border border-gray-100 group">
+            <div className="relative aspect-square bg-(--color-surface) rounded-squircle overflow-hidden border border-(--color-border) group">
               <img
                 src={images[activeImageIndex]}
                 alt={product.title[locale] || product.title.es}
@@ -141,7 +141,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
                 <>
                   <button
                     onClick={handlePrevious}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm hover:bg-white text-(--color-primary) p-3 rounded-squircle shadow-sm transition-all opacity-0 group-hover:opacity-100 border border-gray-100"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-(--color-surface-2) backdrop-blur-sm hover:bg-(--color-surface-2) text-(--color-primary) p-3 rounded-squircle transition-all opacity-0 group-hover:opacity-100 border border-(--color-border)"
                     aria-label={t.common.previous}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,7 +150,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
                   </button>
                   <button
                     onClick={handleNext}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm hover:bg-white text-(--color-primary) p-3 rounded-squircle shadow-sm transition-all opacity-0 group-hover:opacity-100 border border-gray-100"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-(--color-surface-2) backdrop-blur-sm hover:bg-(--color-surface-2) text-(--color-primary) p-3 rounded-squircle transition-all opacity-0 group-hover:opacity-100 border border-(--color-border)"
                     aria-label={t.common.next}
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,7 +162,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
 
               {/* Image Counter */}
               {images.length > 1 && (
-                <div className="absolute bottom-4 right-4 bg-white/80 backdrop-blur-md text-(--color-text) px-3 py-1 rounded-squircle text-xs font-body tracking-widest uppercase border border-gray-100">
+                <div className="absolute bottom-4 right-4 bg-(--color-surface-2) backdrop-blur-md text-(--color-text) px-3 py-1 rounded-squircle text-xs font-body tracking-[0.22em] uppercase border border-(--color-border)">
                   {activeImageIndex + 1} / {images.length}
                 </div>
               )}
@@ -189,10 +189,10 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
                   <button
                     key={index}
                     onClick={() => handleThumbnailClick(index)}
-                    className={`aspect-square bg-white rounded-squircle overflow-hidden transition-all duration-300 ${
+                    className={`aspect-square bg-(--color-surface) rounded-squircle overflow-hidden transition-all duration-300 border border-(--color-border) ${
                       index === activeImageIndex
                         ? 'ring-1 ring-(--color-primary) opacity-100'
-                        : 'opacity-60 hover:opacity-100 hover:ring-1 hover:ring-gray-200'
+                        : 'opacity-60 hover:opacity-100 hover:ring-1 hover:ring-(--color-border-strong)'
                     }`}
                   >
                     <img
@@ -214,7 +214,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
                 {categoryNames.map((name, index) => (
                   <span
                     key={index}
-                    className="text-[10px] font-medium uppercase tracking-[0.2em] text-(--color-primary) border border-(--color-primary)/20 px-3 py-1"
+                    className="text-[10px] font-medium uppercase tracking-[0.22em] text-(--color-primary) border border-(--color-border-strong) px-3 py-1 rounded-squircle bg-(--color-surface)"
                   >
                     {name}
                   </span>
@@ -228,21 +228,21 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
             </h1>
 
             {/* Price */}
-            <div className="mb-8 pb-8 border-b border-gray-100">
+            <div className="mb-8 pb-8 border-b border-(--color-border)">
               {hasDiscount ? (
                 <div className="flex items-baseline gap-4 flex-wrap">
-                  <span className="font-heading text-3xl md:text-4xl font-medium text-(--color-primary)">
+                  <span className="font-accent italic text-3xl md:text-4xl font-semibold text-(--color-primary)">
                     {formatPrice(finalPrice)}
                   </span>
-                  <span className="font-body text-xl text-gray-400 line-through font-light">
+                  <span className="font-accent italic text-xl text-(--color-muted) opacity-70 line-through font-light">
                     {formatPrice(basePrice)}
                   </span>
-                  <span className="text-red-700 text-xs font-medium px-2 py-1 bg-red-50 uppercase tracking-wider">
+                  <span className="text-(--color-primary) text-[11px] font-medium px-3 py-1 bg-(--color-surface) border border-(--color-border-strong) rounded-squircle uppercase tracking-[0.18em]">
                     {t.productDetail.save} {formatPrice(basePrice - finalPrice)}
                   </span>
                 </div>
               ) : (
-                <span className="font-heading text-3xl md:text-4xl font-medium text-(--color-text)">
+                <span className="font-accent italic text-3xl md:text-4xl font-semibold text-(--color-text)">
                   {formatPrice(finalPrice)}
                 </span>
               )}
@@ -250,19 +250,19 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
 
             {/* Discount Description */}
             {hasDiscount && product.discount?.description && (
-              <div className="mb-8 p-6 bg-red-50/50 border border-red-100">
-                <p className="text-sm text-red-800 font-body leading-relaxed">{product.discount.description}</p>
+              <div className="mb-8 p-6 bg-(--color-surface) border border-(--color-border) rounded-squircle">
+                <p className="text-sm text-(--color-muted) font-body leading-relaxed">{product.discount.description}</p>
               </div>
             )}
 
             {/* Global Discount Banner */}
             {hasDiscount && !product.discount?.enabled && globalDiscount?.active && (
-              <div className="mb-8 p-6 bg-(--color-primary)/5 border border-(--color-primary)/10">
+              <div className="mb-8 p-6 bg-(--color-surface) border border-(--color-border-strong) rounded-squircle">
                 <p className="font-heading text-lg font-medium text-(--color-primary) mb-2">
                   {globalDiscount.title[locale] || globalDiscount.title.es}
                 </p>
                 {globalDiscount.description && (
-                  <p className="text-sm text-gray-600 font-body font-light leading-relaxed">
+                  <p className="text-sm text-(--color-muted) font-body font-light leading-relaxed">
                     {globalDiscount.description[locale] || globalDiscount.description.es}
                   </p>
                 )}
@@ -271,7 +271,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
 
             {/* Description */}
             <div className="mb-12">
-              <p className="font-body text-base md:text-lg text-gray-600 leading-relaxed whitespace-pre-line font-light">
+              <p className="font-body text-base md:text-lg text-(--color-muted) leading-relaxed whitespace-pre-line font-light">
                 {product.description[locale] || product.description.es}
               </p>
             </div>
@@ -286,7 +286,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
                 href="https://www.instagram.com/lulunajoyas/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block rounded-squircle w-full bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-heading text-lg font-medium py-5 px-6 transition-all shadow-sm hover:shadow-md text-center tracking-wide"
+                className="block rounded-squircle w-full bg-(--color-surface) hover:bg-(--color-surface-2) text-(--color-text) border border-(--color-border-strong) font-body text-base md:text-lg font-medium py-5 px-6 transition-all text-center tracking-wide"
               >
                 <div className="flex items-center justify-center gap-3">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -302,7 +302,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block rounded-squircle w-full bg-(--color-primary) hover:bg-[#1a4d58] text-white font-heading text-lg font-medium py-5 px-6 transition-all shadow-sm hover:shadow-md text-center tracking-wide"
+                className="block rounded-squircle w-full bg-(--color-primary) hover:brightness-95 text-white font-body text-base md:text-lg font-medium py-5 px-6 transition-all text-center tracking-wide"
               >
                 <div className="flex items-center justify-center gap-3">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -318,7 +318,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
               <h3 className="font-heading text-xs font-medium text-(--color-text) mb-6 uppercase tracking-widest">
                 {t.productDetail.features || 'Características'}
               </h3>
-              <ul className="space-y-4 font-body text-gray-600 font-light">
+              <ul className="space-y-4 font-body text-(--color-muted) font-light">
                 <li className="flex items-start gap-3">
                   <span className="text-(--color-gold) mt-1">•</span>
                   <span>{t.productDetail.feature1}</span>
@@ -340,12 +340,12 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
 
             {/* Tags - Subtle display */}
             {tagNames.length > 0 && (
-              <div className="mt-8 pt-6 border-t border-gray-50">
+              <div className="mt-8 pt-6 border-t border-(--color-border)">
                 <div className="flex flex-wrap gap-2">
                   {tagNames.map((tagName, index) => (
                     <span
                       key={index}
-                      className="text-xs text-gray-400 bg-gray-50 px-3 py-1 rounded-squircle font-light tracking-wide"
+                      className="text-xs text-(--color-muted) bg-(--color-surface) px-3 py-1 rounded-squircle font-light tracking-wide border border-(--color-border)"
                     >
                       {tagName}
                     </span>
@@ -356,7 +356,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
 
             {/* Shipping Options */}
             {shippings.length > 0 && (
-              <div className="mt-10 pt-8 border-t border-gray-100">
+              <div className="mt-10 pt-8 border-t border-(--color-border)">
                 <h3 className="font-heading text-xs font-medium text-(--color-text) mb-6 uppercase tracking-widest">
                   {(t.productDetail as any).shippingOptions || 'Opciones de envío'}
                 </h3>
@@ -364,18 +364,18 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
                   {shippings.map((shipping) => (
                     <div
                       key={shipping.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-squircle border border-gray-100"
+                      className="flex items-center justify-between p-4 bg-(--color-surface) rounded-squircle border border-(--color-border)"
                     >
                       <div className="flex-1">
                         <p className="font-body text-sm font-medium text-(--color-text) mb-1">
                           {shipping.description?.[locale] ?? shipping.description?.es}
                         </p>
-                        <p className="font-body text-xs text-gray-500">
+                        <p className="font-body text-xs text-(--color-muted)">
                           {shipping.deliveryTime?.[locale] ?? shipping.deliveryTime?.es}
                         </p>
                       </div>
                       <div className="ml-4">
-                        <span className="font-heading text-lg font-medium text-(--color-primary)">
+                        <span className="font-accent italic text-lg font-semibold text-(--color-primary)">
                           {formatPrice(shipping.price)}
                         </span>
                       </div>

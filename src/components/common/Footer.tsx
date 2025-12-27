@@ -8,13 +8,13 @@ export default function Footer() {
   const { t } = useI18n();
 
   return (
-    <footer className="bg-white border-t border-gray-100 mt-20">
+    <footer className="bg-(--color-surface) border-t border-(--color-border) mt-20">
       <div className="container mx-auto px-6 py-12">
         <div className="flex flex-col items-center gap-6">
           {/* Language Switcher */}
           <LanguageSwitcher />
           
-          <div className="text-center text-gray-500 font-body space-y-2">
+          <div className="text-center text-(--color-muted) font-body space-y-2">
             <p className="text-sm">
               © {yearDisplay} LuLuna Jewelry. {t.footer.copyright}
             </p>

@@ -39,10 +39,10 @@ export default function CategoryFilter({
           <button
             key={category}
             onClick={() => onCategoryChange(category)}
-            className={`px-5 py-2 text-sm font-medium uppercase tracking-widest transition-all duration-300 border ${
+            className={`px-4 py-2 text-[11px] font-medium uppercase tracking-[0.18em] transition-all duration-300 rounded-squircle border ${
               isSelected
-                ? 'bg-[#2E6A77] text-white border-[#2E6A77]'
-                : 'bg-transparent text-gray-500 border-transparent hover:text-black hover:border-black'
+                ? 'bg-(--color-primary) text-white border-(--color-primary)'
+                : 'bg-(--color-surface) text-(--color-muted) border-(--color-border) hover:border-(--color-border-strong) hover:text-(--color-text)'
             }`}
           >
             {labelFor(category)}

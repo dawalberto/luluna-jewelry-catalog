@@ -313,10 +313,10 @@ export default function CatalogView() {
   }, []);
 
   return (
-    <div className="container mx-auto px-2 py-4 md:px-4 md:py-12">
-      <div className="text-center mb-4 md:mb-12">
+    <div className="container mx-auto px-3 py-4 md:px-4 md:py-12">
+      <div className="text-center mb-6 md:mb-12">
         <div className="relative inline-block">
-          <h1 className="text-3xl md:text-6xl font-black text-black mb-3 md:mb-6 tracking-tighter relative z-10">
+          <h1 className="text-3xl md:text-6xl font-heading font-semibold text-(--color-text) mb-3 md:mb-6 tracking-tight relative z-10">
             {siteContent?.catalogTitle?.[locale] || t.catalog.title}
           </h1>
           {/* Pincelada acrílica/acuarela */}
@@ -329,13 +329,11 @@ export default function CatalogView() {
             <defs>
               {/* Gradiente para simular variaciones de acuarela */}
               <linearGradient id="watercolorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style={{ stopColor: '#2F6B80', stopOpacity: 0.7 }} />
-                <stop offset="15%" style={{ stopColor: '#2F6B80', stopOpacity: 0.85 }} />
-                <stop offset="30%" style={{ stopColor: '#3A7A91', stopOpacity: 0.75 }} />
-                <stop offset="50%" style={{ stopColor: '#2F6B80', stopOpacity: 0.9 }} />
-                <stop offset="70%" style={{ stopColor: '#25586B', stopOpacity: 0.8 }} />
-                <stop offset="85%" style={{ stopColor: '#2F6B80', stopOpacity: 0.85 }} />
-                <stop offset="100%" style={{ stopColor: '#2F6B80', stopOpacity: 0.65 }} />
+                <stop offset="0%" style={{ stopColor: 'var(--color-primary)', stopOpacity: 0.65 }} />
+                <stop offset="20%" style={{ stopColor: 'var(--color-primary)', stopOpacity: 0.85 }} />
+                <stop offset="50%" style={{ stopColor: 'var(--color-primary)', stopOpacity: 0.9 }} />
+                <stop offset="80%" style={{ stopColor: 'var(--color-primary)', stopOpacity: 0.85 }} />
+                <stop offset="100%" style={{ stopColor: 'var(--color-primary)', stopOpacity: 0.65 }} />
               </linearGradient>
             </defs>
             
@@ -349,7 +347,7 @@ export default function CatalogView() {
             <path
               d="M 10,11 Q 25,9 45,10 T 85,9 Q 110,12 135,9 T 175,11 Q 205,8 235,12 T 270,10 Q 285,11 290,9"
               fill="none"
-              stroke="#2F6B80"
+              stroke="var(--color-primary)"
               strokeWidth="2.5"
               strokeLinecap="round"
               opacity="0.4"
@@ -359,7 +357,7 @@ export default function CatalogView() {
             <path
               d="M 50,13 Q 70,11 90,13"
               fill="none"
-              stroke="#25586B"
+              stroke="var(--color-primary)"
               strokeWidth="1.5"
               strokeLinecap="round"
               opacity="0.5"
@@ -367,14 +365,14 @@ export default function CatalogView() {
             <path
               d="M 150,12 Q 170,10 190,12"
               fill="none"
-              stroke="#3A7A91"
+              stroke="var(--color-primary)"
               strokeWidth="1.8"
               strokeLinecap="round"
               opacity="0.45"
             />
           </svg>
         </div>
-        <p className="text-base text-pretty text-left md:text-lg font-body text-gray-600 max-w-2xl mx-auto mt-4 md:mt-6">
+        <p className="text-base text-pretty text-left md:text-center md:text-lg font-body text-(--color-muted) max-w-2xl mx-auto mt-4 md:mt-6 leading-relaxed">
           {siteContent?.catalogSubtitle?.[locale] || t.catalog.subtitle}
         </p>
       </div>
@@ -382,12 +380,12 @@ export default function CatalogView() {
       {/* Compact Filter Bar - Collapsed by default */}
       <div className="mb-4 md:mb-8">
         {/* Top Bar: Filters Toggle and Sort */}
-        <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4 flex items-center justify-between gap-4">
+        <div className="bg-(--color-surface) border border-(--color-border) rounded-squircle p-3 md:p-4 flex items-center justify-between gap-4">
           {/* Left: Filters Toggle Button */}
           <button
             type="button"
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 text-gray-700 hover:text-[#2E6A77] transition-colors"
+            className="flex items-center gap-2 text-(--color-text) hover:text-(--color-primary) transition-colors"
           >
             <svg 
               className="w-5 h-5" 
@@ -404,7 +402,7 @@ export default function CatalogView() {
             </svg>
             <span className="text-sm md:text-base font-medium">{t.catalog.filters}</span>
             {(selectedCategories.length > 0 || selectedTags.length > 0 || searchQuery) && (
-              <span className="bg-[#2E6A77] text-white text-xs rounded-full px-2 py-0.5">
+              <span className="bg-(--color-primary) text-white text-xs rounded-full px-2 py-0.5">
                 {selectedCategories.length + selectedTags.length + (searchQuery ? 1 : 0)}
               </span>
             )}
@@ -412,11 +410,11 @@ export default function CatalogView() {
 
           {/* Right: Sort Selector */}
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-600 hidden md:inline">{t.catalog.order}:</span>
+            <span className="text-sm font-medium text-(--color-muted) hidden md:inline">{t.catalog.order}:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortBy)}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2E6A77] focus:border-transparent"
+              className="px-3 py-2 text-sm border border-(--color-border) rounded-squircle bg-(--color-surface-2) text-(--color-text) focus:outline-none focus:ring-2 focus:ring-(--color-border-strong)"
             >
               <option value="date-desc">{t.catalog.sortDateDesc}</option>
               <option value="date-asc">{t.catalog.sortDateAsc}</option>
@@ -429,17 +427,17 @@ export default function CatalogView() {
 
         {/* Filters Panel - Collapsible */}
         {showFilters && (
-          <div className="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-3 md:p-6 space-y-3 md:space-y-4 animate-[slideDown_0.2s_ease-out]">
+          <div className="mt-3 bg-(--color-surface) border border-(--color-border) rounded-squircle p-3 md:p-6 space-y-3 md:space-y-4 animate-[slideDown_0.2s_ease-out]">
             {/* Search Bar */}
-            <div className="border-b border-gray-200 pb-3 md:pb-4">
+            <div className="border-b border-(--color-border) pb-3 md:pb-4">
               <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
             </div>
 
             {/* Category Filter */}
-            <div className="border-b border-gray-200 pb-3 md:pb-4">
+            <div className="border-b border-(--color-border) pb-3 md:pb-4">
               <div className="flex items-start gap-3">
                 <div className="flex items-center gap-2 whitespace-nowrap pt-1">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <span className="text-xs font-medium text-(--color-muted) uppercase tracking-[0.18em]">
                     {t.categories.title || 'Categoría'}:
                   </span>
                   {selectedCategories.length > 0 && (
@@ -455,7 +453,7 @@ export default function CatalogView() {
                           scrollPosition: 0,
                         });
                       }}
-                      className="text-xs text-gray-400 hover:text-[#2E6A77] underline"
+                      className="text-xs text-(--color-muted) hover:text-(--color-primary) underline"
                       title={t.common.clear || 'Limpiar'}
                     >
                       ({selectedCategories.length})
@@ -490,10 +488,10 @@ export default function CatalogView() {
                         key={category}
                         type="button"
                         onClick={() => toggleCategory(category)}
-                        className={`px-3 py-1.5 text-xs font-medium uppercase tracking-wider rounded transition-all ${
+                        className={`px-3 py-2 text-[11px] font-medium uppercase tracking-[0.18em] rounded-squircle transition-all border ${
                           isSelected
-                            ? 'bg-[#2E6A77] text-white shadow-sm'
-                            : 'bg-white text-gray-600 border border-gray-300 hover:border-[#2E6A77] hover:text-[#2E6A77]'
+                            ? 'bg-(--color-primary) text-white border-(--color-primary)'
+                            : 'bg-(--color-surface-2) text-(--color-muted) border-(--color-border) hover:border-(--color-border-strong) hover:text-(--color-text)'
                         }`}
                       >
                         {labelFor(category)}
@@ -509,7 +507,7 @@ export default function CatalogView() {
               <div>
                 <div className="flex items-start gap-3">
                   <div className="flex items-center gap-2 whitespace-nowrap pt-1">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <span className="text-xs font-medium text-(--color-muted) uppercase tracking-[0.18em]">
                       {(t.catalog as any).filterByTags || 'Etiquetas'}:
                     </span>
                     {selectedTags.length > 0 && (
@@ -525,7 +523,7 @@ export default function CatalogView() {
                             scrollPosition: 0,
                           });
                         }}
-                        className="text-xs text-gray-400 hover:text-[#2E6A77] underline"
+                        className="text-xs text-(--color-muted) hover:text-(--color-primary) underline"
                         title={t.common.clear || 'Limpiar'}
                       >
                         ({selectedTags.length})
@@ -538,10 +536,10 @@ export default function CatalogView() {
                         key={id}
                         type="button"
                         onClick={() => toggleTag(id)}
-                        className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
+                        className={`px-3 py-2 text-[11px] font-medium rounded-full transition-all border uppercase tracking-[0.12em] ${
                           selectedTags.includes(id)
-                            ? 'bg-[#2E6A77] text-white shadow-sm'
-                            : 'bg-white text-gray-600 border border-gray-300 hover:border-[#2E6A77] hover:text-[#2E6A77]'
+                            ? 'bg-(--color-primary) text-white border-(--color-primary)'
+                            : 'bg-(--color-surface-2) text-(--color-muted) border-(--color-border) hover:border-(--color-border-strong) hover:text-(--color-text)'
                         }`}
                       >
                         {label}
@@ -556,8 +554,8 @@ export default function CatalogView() {
       </div>
 
       {globalDiscount?.active && globalDiscount.percent > 0 && (
-        <div className="mb-6 md:mb-12 bg-[#2E6A77]/5 border border-[#2E6A77]/20 px-4 py-4 md:px-8 md:py-8 text-center">
-          <div className="text-xs md:text-sm font-medium text-[#2E6A77] uppercase tracking-widest mb-2">{t.catalog.promoTitle}</div>
+        <div className="mb-6 md:mb-12 bg-(--color-surface) border border-(--color-border-strong) px-4 py-4 md:px-8 md:py-8 text-center rounded-squircle">
+          <div className="text-xs md:text-sm font-medium text-(--color-primary) uppercase tracking-[0.22em] mb-2">{t.catalog.promoTitle}</div>
           <div className="text-xl md:text-2xl font-heading font-medium text-black mb-2 md:mb-4">
             {(() => {
               const localizedTitle =
@@ -573,7 +571,7 @@ export default function CatalogView() {
                 </>
               );
             })()}
-            <span className="ml-2 text-[#2E6A77]">{globalDiscount.percent}% OFF</span>
+            <span className="ml-2 text-(--color-primary)">{globalDiscount.percent}% OFF</span>
           </div>
           {(() => {
             const localizedDescription =
@@ -583,9 +581,9 @@ export default function CatalogView() {
               '';
 
             return localizedDescription ? (
-              <div className="text-sm text-gray-500 max-w-2xl mx-auto">{localizedDescription}</div>
+              <div className="text-sm text-(--color-muted) max-w-2xl mx-auto">{localizedDescription}</div>
             ) : (
-              <div className="text-sm text-gray-500 max-w-2xl mx-auto">{t.catalog.promoDescription}</div>
+              <div className="text-sm text-(--color-muted) max-w-2xl mx-auto">{t.catalog.promoDescription}</div>
             );
           })()}
         </div>

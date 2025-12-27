@@ -303,7 +303,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           {t.admin.productDescription}
         </label>
         <textarea
-          className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+          className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-(--color-border-strong)"
           rows={3}
           placeholder="Español"
           value={formData.description.es}
@@ -311,7 +311,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           required
         />
         <textarea
-          className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+          className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-(--color-border-strong)"
           rows={3}
           placeholder="English"
           value={formData.description.en}
@@ -337,7 +337,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                   type="checkbox"
                   checked={formData.categories.includes(id)}
                   onChange={() => toggleCategory(id)}
-                  className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
+                  className="w-4 h-4 text-(--color-primary) border-gray-300 rounded-squircle focus:ring-(--color-border-strong)"
                 />
                 {label}
               </label>
@@ -363,7 +363,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                   type="checkbox"
                   checked={formData.tags?.includes(id) || false}
                   onChange={() => toggleTag(id)}
-                  className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
+                  className="w-4 h-4 text-(--color-primary) border-gray-300 rounded-squircle focus:ring-(--color-border-strong)"
                 />
                 {label}
               </label>
@@ -379,7 +379,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.priceType}</label>
           <select
-            className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+            className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-(--color-border-strong)"
             value={formData.pricing.type}
             onChange={(e) => setPriceType(e.target.value as ProductPriceType)}
           >
@@ -434,7 +434,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                 },
               }))
             }
-            className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
+            className="w-4 h-4 text-(--color-primary) border-gray-300 rounded-squircle focus:ring-(--color-border-strong)"
           />
           <label htmlFor="discountEnabled" className="ml-2 text-sm text-gray-700">
             {t.admin.discountEnabled}
@@ -488,7 +488,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           id="isNew"
           checked={!!formData.isNew}
           onChange={(e) => handleInputChange('isNew', e.target.checked)}
-          className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
+          className="w-4 h-4 text-(--color-primary) border-gray-300 rounded-squircle focus:ring-(--color-border-strong)"
         />
         <label htmlFor="isNew" className="ml-2 text-sm text-gray-700">
           {t.admin.isNew}
@@ -520,7 +520,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
             multiple
             onChange={handleImageUpload}
             disabled={uploading}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-squircle file:border-0 file:text-sm file:font-semibold file:bg-[#2E6A77] file:text-white hover:file:bg-[#245560]"
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-squircle file:border-0 file:text-sm file:font-semibold file:bg-(--color-primary) file:text-white hover:file:brightness-95"
           />
           {uploading && <p className="text-sm text-gray-500">Uploading...</p>}
           
@@ -554,7 +554,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           id="published"
           checked={formData.published}
           onChange={(e) => handleInputChange('published', e.target.checked)}
-          className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
+          className="w-4 h-4 text-(--color-primary) border-gray-300 rounded-squircle focus:ring-(--color-border-strong)"
         />
         <label htmlFor="published" className="ml-2 text-sm text-gray-700">
           {t.admin.published}

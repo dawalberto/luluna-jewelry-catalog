@@ -54,7 +54,7 @@ export default function ProductGrid({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center p-8">
         <svg
-          className="w-16 h-16 text-gray-300 mb-4"
+          className="w-16 h-16 text-(--color-muted) opacity-40 mb-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -66,13 +66,13 @@ export default function ProductGrid({
             d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
           />
         </svg>
-        <p className="text-lg font-medium text-gray-500 font-heading">{t.catalog.noProducts}</p>
+        <p className="text-lg font-medium text-(--color-muted) font-heading">{t.catalog.noProducts}</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-10">
       {products.map((product) => (
         <div key={product.id} onClick={handleProductClick}>
           <ProductCard

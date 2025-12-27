@@ -70,7 +70,7 @@ export default function GlobalDiscountPanel() {
             setGlobalDiscount((prev) => ({ ...prev, active: e.target.checked }))
           }
           disabled={globalDiscountLoading || globalDiscountSaving}
-          className="w-4 h-4 text-[#2E6A77] border-gray-300 rounded-squircle focus:ring-[#2E6A77]"
+          className="w-4 h-4 text-(--color-primary) border-gray-300 rounded-squircle focus:ring-(--color-border-strong)"
         />
         <label htmlFor="globalDiscountActive" className="ml-2 text-sm text-gray-700">
           {t.admin.globalDiscountActive}
@@ -123,7 +123,7 @@ export default function GlobalDiscountPanel() {
               {t.admin.globalDiscountDescription} (ES)
             </label>
             <textarea
-              className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+              className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-(--color-border-strong)"
               rows={3}
               value={globalDiscount.description?.es ?? ''}
               onChange={(e) =>
@@ -144,7 +144,7 @@ export default function GlobalDiscountPanel() {
               {t.admin.globalDiscountDescription} (EN)
             </label>
             <textarea
-              className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-[#2E6A77]"
+              className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-(--color-border-strong)"
               rows={3}
               value={globalDiscount.description?.en ?? ''}
               onChange={(e) =>

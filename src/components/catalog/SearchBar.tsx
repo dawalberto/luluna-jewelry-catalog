@@ -35,7 +35,7 @@ export default function SearchBar({
 
   return (
     <div className="relative max-w-md w-full">
-      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10">
+      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-muted) z-10">
         <svg
           className="w-5 h-5"
           fill="none"
@@ -62,7 +62,7 @@ export default function SearchBar({
       {query && (
         <button
           onClick={() => setQuery('')}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-black hover:scale-110 transition-transform"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-(--color-text) hover:scale-110 transition-transform"
         >
           <svg
             className="w-5 h-5"
