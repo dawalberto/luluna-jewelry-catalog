@@ -4,13 +4,16 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
+// Detect if we're running in development mode
+const isDev = process.argv.includes('dev') || process.env.npm_lifecycle_event === 'dev';
+
 // https://astro.build/config
 export default defineConfig({
   // Configure for GitHub Pages deployment
   site: 'https://dawalberto.github.io',
   // Only use base path in production (for GitHub Pages)
   // In development, access the site at http://localhost:4321/
-  base: process.env.NODE_ENV === 'production' ? '/luluna-jewelry-catalog' : '/',
+  base: isDev ? '/' : '/luluna-jewelry-catalog',
   
   integrations: [react()],
 
