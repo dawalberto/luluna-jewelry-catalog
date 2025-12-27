@@ -21,6 +21,7 @@ export default function CatalogView() {
   type SortBy = 'none' | 'price-asc' | 'price-desc' | 'popularity';
   const [sortBy, setSortBy] = useState<SortBy>('none');
   const [scrollToRestore, setScrollToRestore] = useState<number | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const { categories: dbCategories } = useCategories();
 
@@ -273,16 +274,40 @@ export default function CatalogView() {
         <p className="text-base md:text-lg font-body text-gray-600 max-w-2xl mx-auto mt-2 md:mt-4">{t.catalog.subtitle}</p>
       </div>
 
-      {/* Compact Filters Bar */}
-      <div className="mb-4 md:mb-8 bg-gray-50 border border-gray-200 rounded-lg p-3 md:p-6 space-y-3 md:space-y-4">
-        {/* Row 1: Search and Sort */}
-        <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:items-center md:justify-between">
-          <div className="flex-1 max-w-md">
-            <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
-          </div>
-          
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">{t.catalog.sortBy}:</span>
+      {/* Compact Filter Bar - Collapsed by default */}
+      <div className="mb-4 md:mb-8">
+        {/* Top Bar: Filters Toggle and Sort */}
+        <div className="bg-white border border-gray-200 rounded-lg p-3 md:p-4 flex items-center justify-between gap-4">
+          {/* Left: Filters Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 text-gray-700 hover:text-[#2E6A77] transition-colors"
+          >
+            <svg 
+              className="w-5 h-5" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" 
+              />
+            </svg>
+            <span className="text-sm md:text-base font-medium">{t.catalog.filters}</span>
+            {(selectedCategories.length > 0 || selectedTags.length > 0 || searchQuery) && (
+              <span className="bg-[#2E6A77] text-white text-xs rounded-full px-2 py-0.5">
+                {selectedCategories.length + selectedTags.length + (searchQuery ? 1 : 0)}
+              </span>
+            )}
+          </button>
+
+          {/* Right: Sort Selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-600 hidden md:inline">{t.catalog.order}:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortBy)}
@@ -296,122 +321,130 @@ export default function CatalogView() {
           </div>
         </div>
 
-        {/* Row 2: Category Filter */}
-        <div className="border-t border-gray-200 pt-3 md:pt-4">
-          <div className="flex items-start gap-3">
-            <div className="flex items-center gap-2 whitespace-nowrap pt-1">
-              <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                {t.categories.title || 'Categoría'}:
-              </span>
-              {selectedCategories.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedCategories([]);
-                    // Guardar inmediatamente para evitar que se recargue el estado antiguo
-                    saveCatalogState({
-                      selectedCategories: [],
-                      selectedTags,
-                      searchQuery,
-                      sortBy,
-                      scrollPosition: 0,
-                    });
-                  }}
-                  className="text-xs text-gray-400 hover:text-[#2E6A77] underline"
-                  title={t.common.clear || 'Limpiar'}
-                >
-                  ({selectedCategories.length})
-                </button>
-              )}
+        {/* Filters Panel - Collapsible */}
+        {showFilters && (
+          <div className="mt-3 bg-gray-50 border border-gray-200 rounded-lg p-3 md:p-6 space-y-3 md:space-y-4 animate-[slideDown_0.2s_ease-out]">
+            {/* Search Bar */}
+            <div className="border-b border-gray-200 pb-3 md:pb-4">
+              <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
             </div>
-            <div className="flex flex-wrap gap-2 flex-1">
-              {(dbCategories.length > 0
-                ? dbCategories.map((c) => c.id)
-                : Object.keys((t as any)?.categories ?? {}).filter((k) => k !== 'all')
-              ).map((category) => {
-                const isSelected = selectedCategories.includes(category);
-                const labelFor = (id: ProductCategory) => {
-                  const fromDb = dbCategories.find((c) => c.id === id)?.title?.[locale];
-                  if (typeof fromDb === 'string' && fromDb.length > 0) return fromDb;
-                  const legacy = (t as any)?.categories?.[id];
-                  if (typeof legacy === 'string') return legacy;
-                  return id;
-                };
-                
-                const toggleCategory = (cat: ProductCategory) => {
-                  setSelectedCategories((prev) => {
-                    if (prev.includes(cat)) {
-                      return prev.filter((c) => c !== cat);
-                    }
-                    return [...prev, cat];
-                  });
-                };
-                
-                return (
-                  <button
-                    key={category}
-                    type="button"
-                    onClick={() => toggleCategory(category)}
-                    className={`px-3 py-1.5 text-xs font-medium uppercase tracking-wider rounded transition-all ${
-                      isSelected
-                        ? 'bg-[#2E6A77] text-white shadow-sm'
-                        : 'bg-white text-gray-600 border border-gray-300 hover:border-[#2E6A77] hover:text-[#2E6A77]'
-                    }`}
-                  >
-                    {labelFor(category)}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
 
-        {/* Row 3: Tags Filter */}
-        {availableTags.length > 0 && (
-          <div className="border-t border-gray-200 pt-3 md:pt-4">
-            <div className="flex items-start gap-3">
-              <div className="flex items-center gap-2 whitespace-nowrap pt-1">
-                <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {(t.catalog as any).filterByTags || 'Etiquetas'}:
-                </span>
-                {selectedTags.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedTags([]);
-                      // Guardar inmediatamente para evitar que se recargue el estado antiguo
-                      saveCatalogState({
-                        selectedCategories,
-                        selectedTags: [],
-                        searchQuery,
-                        sortBy,
-                        scrollPosition: 0,
+            {/* Category Filter */}
+            <div className="border-b border-gray-200 pb-3 md:pb-4">
+              <div className="flex items-start gap-3">
+                <div className="flex items-center gap-2 whitespace-nowrap pt-1">
+                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {t.categories.title || 'Categoría'}:
+                  </span>
+                  {selectedCategories.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategories([]);
+                        saveCatalogState({
+                          selectedCategories: [],
+                          selectedTags,
+                          searchQuery,
+                          sortBy,
+                          scrollPosition: 0,
+                        });
+                      }}
+                      className="text-xs text-gray-400 hover:text-[#2E6A77] underline"
+                      title={t.common.clear || 'Limpiar'}
+                    >
+                      ({selectedCategories.length})
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2 flex-1">
+                  {(dbCategories.length > 0
+                    ? dbCategories.map((c) => c.id)
+                    : Object.keys((t as any)?.categories ?? {}).filter((k) => k !== 'all')
+                  ).map((category) => {
+                    const isSelected = selectedCategories.includes(category);
+                    const labelFor = (id: ProductCategory) => {
+                      const fromDb = dbCategories.find((c) => c.id === id)?.title?.[locale];
+                      if (typeof fromDb === 'string' && fromDb.length > 0) return fromDb;
+                      const legacy = (t as any)?.categories?.[id];
+                      if (typeof legacy === 'string') return legacy;
+                      return id;
+                    };
+                    
+                    const toggleCategory = (cat: ProductCategory) => {
+                      setSelectedCategories((prev) => {
+                        if (prev.includes(cat)) {
+                          return prev.filter((c) => c !== cat);
+                        }
+                        return [...prev, cat];
                       });
-                    }}
-                    className="text-xs text-gray-400 hover:text-[#2E6A77] underline"
-                    title={t.common.clear || 'Limpiar'}
-                  >
-                    ({selectedTags.length})
-                  </button>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2 flex-1">
-                {availableTags.map(({ id, label }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => toggleTag(id)}
-                    className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
-                      selectedTags.includes(id)
-                        ? 'bg-[#2E6A77] text-white shadow-sm'
-                        : 'bg-white text-gray-600 border border-gray-300 hover:border-[#2E6A77] hover:text-[#2E6A77]'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+                    };
+                    
+                    return (
+                      <button
+                        key={category}
+                        type="button"
+                        onClick={() => toggleCategory(category)}
+                        className={`px-3 py-1.5 text-xs font-medium uppercase tracking-wider rounded transition-all ${
+                          isSelected
+                            ? 'bg-[#2E6A77] text-white shadow-sm'
+                            : 'bg-white text-gray-600 border border-gray-300 hover:border-[#2E6A77] hover:text-[#2E6A77]'
+                        }`}
+                      >
+                        {labelFor(category)}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
+
+            {/* Tags Filter */}
+            {availableTags.length > 0 && (
+              <div>
+                <div className="flex items-start gap-3">
+                  <div className="flex items-center gap-2 whitespace-nowrap pt-1">
+                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {(t.catalog as any).filterByTags || 'Etiquetas'}:
+                    </span>
+                    {selectedTags.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedTags([]);
+                          saveCatalogState({
+                            selectedCategories,
+                            selectedTags: [],
+                            searchQuery,
+                            sortBy,
+                            scrollPosition: 0,
+                          });
+                        }}
+                        className="text-xs text-gray-400 hover:text-[#2E6A77] underline"
+                        title={t.common.clear || 'Limpiar'}
+                      >
+                        ({selectedTags.length})
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 flex-1">
+                    {availableTags.map(({ id, label }) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => toggleTag(id)}
+                        className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${
+                          selectedTags.includes(id)
+                            ? 'bg-[#2E6A77] text-white shadow-sm'
+                            : 'bg-white text-gray-600 border border-gray-300 hover:border-[#2E6A77] hover:text-[#2E6A77]'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
