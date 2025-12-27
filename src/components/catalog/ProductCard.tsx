@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useI18n } from '../../i18n';
 import type { GlobalDiscount, PricingConfig, Product, ProductCategory } from '../../types';
 import { formatPrice } from '../../utils';
@@ -19,76 +19,140 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
   const hasMultipleImages = images.length > 1;
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [transition, setTransition] = useState<null | {
-    fromIndex: number;
-    toIndex: number;
-    direction: 'left' | 'right';
-    animate: boolean;
-  }>(null);
+  const imageContainerRef = useRef<HTMLDivElement | null>(null);
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const suppressClickRef = useRef(false);
+  const pointerDragRef = useRef<{
+    pointerId: number | null;
+    startX: number;
+    startScrollLeft: number;
+    isDragging: boolean;
+  }>({ pointerId: null, startX: 0, startScrollLeft: 0, isDragging: false });
+  const scrollRafRef = useRef<number | null>(null);
 
   // Reset carousel when product changes
   useEffect(() => {
     setActiveImageIndex(0);
     setIsAutoPlaying(true);
-    setTransition(null);
+    suppressClickRef.current = false;
+
+    const scroller = scrollerRef.current;
+    if (scroller) {
+      scroller.scrollLeft = 0;
+    }
   }, [product.id]);
 
-  const requestImageChange = (nextIndex: number, direction: 'left' | 'right') => {
-    if (!hasMultipleImages) return;
-    if (transition) return;
-    if (nextIndex === activeImageIndex) return;
-
-    setTransition({
-      fromIndex: activeImageIndex,
-      toIndex: nextIndex,
-      direction,
-      animate: false,
-    });
+  const stopAutoplay = () => {
+    setIsAutoPlaying(false);
   };
 
-  useEffect(() => {
-    if (!transition) return;
-
-    const rafId = transition.animate
-      ? 0
-      : window.requestAnimationFrame(() => {
-          setTransition((prev) => {
-            if (!prev) return prev;
-            if (prev.animate) return prev;
-            return { ...prev, animate: true };
-          });
-        });
-
-    const timeoutId = window.setTimeout(() => {
-      setActiveImageIndex(transition.toIndex);
-      setTransition(null);
-    }, 520);
-
-    return () => {
-      if (rafId) window.cancelAnimationFrame(rafId);
-      window.clearTimeout(timeoutId);
-    };
-  }, [transition]);
+  const scrollToIndex = (index: number, behavior: ScrollBehavior = 'smooth') => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const width = scroller.getBoundingClientRect().width;
+    if (!width || !Number.isFinite(width)) return;
+    scroller.scrollTo({ left: index * width, behavior });
+  };
 
   // Auto-advance images unless user interacts
   useEffect(() => {
     if (!hasMultipleImages) return;
     if (!isAutoPlaying) return;
-    if (transition) return;
+
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
 
     const intervalId = window.setInterval(() => {
       const nextIndex = (activeImageIndex + 1) % images.length;
-      // Moving forward should pan-left (new image comes from right)
-      requestImageChange(nextIndex, 'left');
+      scrollToIndex(nextIndex, 'smooth');
+      setActiveImageIndex(nextIndex);
     }, 3000);
 
     return () => window.clearInterval(intervalId);
-  }, [activeImageIndex, hasMultipleImages, images.length, isAutoPlaying, transition]);
+  }, [activeImageIndex, hasMultipleImages, images.length, isAutoPlaying]);
 
   const imageUrl = images[activeImageIndex] || images[0];
 
-  const stopAutoplay = () => {
-    setIsAutoPlaying(false);
+  const handleImageContainerClickCapture = (e: React.MouseEvent) => {
+    if (!hasMultipleImages) return;
+    if (!suppressClickRef.current) return;
+    e.preventDefault();
+    e.stopPropagation();
+    suppressClickRef.current = false;
+  };
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (!hasMultipleImages) return;
+    const target = e.target as HTMLElement | null;
+    if (target?.closest('button')) return;
+
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+
+    stopAutoplay();
+
+    pointerDragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startScrollLeft: scroller.scrollLeft,
+      isDragging: true,
+    };
+
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {
+      // Ignore
+    }
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!hasMultipleImages) return;
+    const state = pointerDragRef.current;
+    if (!state.isDragging) return;
+    if (state.pointerId !== e.pointerId) return;
+
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+
+    const deltaX = e.clientX - state.startX;
+    if (Math.abs(deltaX) > 8) suppressClickRef.current = true;
+
+    scroller.scrollLeft = state.startScrollLeft - deltaX;
+  };
+
+  const snapToNearest = () => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const width = scroller.getBoundingClientRect().width;
+    if (!width || !Number.isFinite(width)) return;
+    const nextIndex = Math.max(0, Math.min(images.length - 1, Math.round(scroller.scrollLeft / width)));
+    setActiveImageIndex(nextIndex);
+    scrollToIndex(nextIndex, 'smooth');
+  };
+
+  const onPointerUpOrCancel = (e: React.PointerEvent) => {
+    const state = pointerDragRef.current;
+    if (!state.isDragging) return;
+    if (state.pointerId !== e.pointerId) return;
+    state.isDragging = false;
+    state.pointerId = null;
+    snapToNearest();
+  };
+
+  const onScrollerScroll = () => {
+    if (!hasMultipleImages) return;
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+
+    if (scrollRafRef.current != null) {
+      window.cancelAnimationFrame(scrollRafRef.current);
+    }
+    scrollRafRef.current = window.requestAnimationFrame(() => {
+      const width = scroller.getBoundingClientRect().width;
+      if (!width || !Number.isFinite(width)) return;
+      const idx = Math.max(0, Math.min(images.length - 1, Math.round(scroller.scrollLeft / width)));
+      setActiveImageIndex((prev) => (prev === idx ? prev : idx));
+    });
   };
 
   const goPrev = (e: React.MouseEvent) => {
@@ -97,8 +161,8 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
     if (!hasMultipleImages) return;
     const nextIndex = (activeImageIndex - 1 + images.length) % images.length;
     stopAutoplay();
-    // Moving backward should pan-right (new image comes from left)
-    requestImageChange(nextIndex, 'right');
+    setActiveImageIndex(nextIndex);
+    scrollToIndex(nextIndex, 'smooth');
   };
 
   const goNext = (e: React.MouseEvent) => {
@@ -107,8 +171,8 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
     if (!hasMultipleImages) return;
     const nextIndex = (activeImageIndex + 1) % images.length;
     stopAutoplay();
-    // Moving forward should pan-left (new image comes from right)
-    requestImageChange(nextIndex, 'left');
+    setActiveImageIndex(nextIndex);
+    scrollToIndex(nextIndex, 'smooth');
   };
 
   const categories = useMemo(() => {
@@ -184,47 +248,46 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
   const cardContent = (
     <>
       {/* Image */}
-      <div className="relative aspect-3/4 overflow-hidden bg-[#F5F5F5]">
-        {transition ? (
-          <>
-            {/* Outgoing image */}
-            <img
-              key={`out-${transition.fromIndex}`}
-              src={images[transition.fromIndex]}
-              alt={product.title[locale]}
-              loading="lazy"
-              className={`absolute inset-0 z-[1] h-full w-full object-cover transition-transform duration-500 ease-out ${
-                transition.animate
-                  ? transition.direction === 'left'
-                    ? '-translate-x-full'
-                    : 'translate-x-full'
-                  : 'translate-x-0'
-              }`}
-              style={{ willChange: transition.animate ? 'transform' : 'auto' }}
-            />
-            {/* Incoming image */}
-            <img
-              key={`in-${transition.toIndex}`}
-              src={images[transition.toIndex]}
-              alt={product.title[locale]}
-              loading="lazy"
-              className={`absolute inset-0 z-[2] h-full w-full object-cover transition-transform duration-500 ease-out ${
-                transition.animate
-                  ? 'translate-x-0'
-                  : transition.direction === 'left'
-                    ? 'translate-x-full'
-                    : '-translate-x-full'
-              }`}
-              style={{ willChange: transition.animate ? 'transform' : 'auto' }}
-            />
-          </>
+      <div
+        ref={imageContainerRef}
+        className="relative aspect-3/4 overflow-hidden bg-[#F5F5F5]"
+        style={{ touchAction: 'pan-y' }}
+        onClickCapture={handleImageContainerClickCapture}
+      >
+        {hasMultipleImages ? (
+          <div
+            ref={scrollerRef}
+            className="absolute inset-0 z-0 flex w-full h-full overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUpOrCancel}
+            onPointerCancel={onPointerUpOrCancel}
+            onScroll={onScrollerScroll}
+          >
+            {images.map((src, idx) => (
+              <div key={src || idx} className="h-full w-full shrink-0 snap-start">
+                <img
+                  src={src}
+                  alt={`${product.title[locale]} - ${idx + 1}`}
+                  loading={idx === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  className="h-full w-full object-cover select-none"
+                  draggable={false}
+                  style={{ pointerEvents: 'none' }}
+                />
+              </div>
+            ))}
+          </div>
         ) : (
           <img
             key={`static-${activeImageIndex}`}
             src={imageUrl}
             alt={product.title[locale]}
             loading="lazy"
+            decoding="async"
             className="absolute inset-0 z-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            draggable={false}
           />
         )}
 

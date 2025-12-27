@@ -374,7 +374,7 @@ export default function CatalogView() {
             />
           </svg>
         </div>
-        <p className="text-base text-pretty text-left md:text-lg font-body text-gray-600 max-w-2xl mx-auto mt-2 md:mt-4">
+        <p className="text-base text-pretty text-left md:text-lg font-body text-gray-600 max-w-2xl mx-auto mt-4 md:mt-6">
           {siteContent?.catalogSubtitle?.[locale] || t.catalog.subtitle}
         </p>
       </div>

@@ -15,7 +15,7 @@ interface ProductGridProps {
     selectedCategories?: ProductCategory[]; // New: multiple categories
     selectedTags?: string[];
     searchQuery: string;
-    sortBy: 'none' | 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
+    sortBy: 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
   };
 }
 
@@ -36,7 +36,7 @@ export default function ProductGrid({
         selectedCategories: catalogState.selectedCategories || [],
         selectedTags: catalogState.selectedTags || [],
         searchQuery: catalogState.searchQuery || '',
-        sortBy: catalogState.sortBy || 'none',
+        sortBy: catalogState.sortBy || 'date-desc',
         scrollPosition: window.scrollY,
       });
     }
