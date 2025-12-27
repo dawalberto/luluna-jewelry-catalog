@@ -76,3 +76,43 @@ export function getPlaceholderUrl(publicId: string): string {
     format: 'auto',
   });
 }
+
+/**
+ * Delete image from Cloudinary
+ * Note: This requires backend implementation with API Secret
+ * Cloudinary Admin API cannot be called from client-side for security
+ * This function returns a promise that resolves when deletion should be handled
+ */
+export async function deleteCloudinaryImage(url: string): Promise<void> {
+  const publicId = extractPublicId(url);
+  
+  console.warn(
+    '⚠️ Cloudinary deletion requires backend implementation.',
+    '\nPublic ID to delete:', publicId,
+    '\nFor now, you need to manually delete from Cloudinary dashboard or implement a backend endpoint.'
+  );
+  
+  // In a production app, you would call your backend endpoint here:
+  // await fetch('/api/cloudinary/delete', {
+  //   method: 'DELETE',
+  //   body: JSON.stringify({ publicId }),
+  // });
+  
+  // For now, we just log the warning
+  return Promise.resolve();
+}
+
+/**
+ * Delete multiple images from Cloudinary
+ */
+export async function deleteCloudinaryImages(urls: string[]): Promise<void> {
+  const publicIds = urls.map(url => extractPublicId(url));
+  
+  console.warn(
+    '⚠️ Cloudinary deletion requires backend implementation.',
+    '\nPublic IDs to delete:', publicIds,
+    '\nFor now, you need to manually delete from Cloudinary dashboard or implement a backend endpoint.'
+  );
+  
+  return Promise.resolve();
+}

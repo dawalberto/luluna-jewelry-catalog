@@ -10,6 +10,7 @@ import type {
     ProductFilters,
     UpdateProductInput,
 } from '../types';
+import { deleteCloudinaryImages } from '../utils/cloudinary';
 
 /**
  * Zod schemas for runtime validation
@@ -186,6 +187,21 @@ export class ProductService {
       throw new Error('Product not found');
     }
 
+    // If images are being updated, delete old images from Cloudinary
+    if (validatedInput.images && existing.images) {
+      const oldImages = existing.images;
+      const newImages = validatedInput.images;
+      const imagesToDelete = oldImages.filter(img => !newImages.includes(img));
+      
+      if (imagesToDelete.length > 0) {
+        console.log('🗑️ Deleting old images from Cloudinary:', imagesToDelete);
+        await deleteCloudinaryImages(imagesToDelete).catch(err => {
+          console.error('Failed to delete images from Cloudinary:', err);
+          // Don't throw - continue with product update even if image deletion fails
+        });
+      }
+    }
+
     try {
       return await this.repository.update(validatedInput);
     } catch (error) {
@@ -206,6 +222,15 @@ export class ProductService {
     const existing = await this.repository.getById(id);
     if (!existing) {
       throw new Error('Product not found');
+    }
+
+    // Delete product images from Cloudinary
+    if (existing.images && existing.images.length > 0) {
+      console.log('🗑️ Deleting product images from Cloudinary:', existing.images);
+      await deleteCloudinaryImages(existing.images).catch(err => {
+        console.error('Failed to delete images from Cloudinary:', err);
+        // Don't throw - continue with product deletion even if image deletion fails
+      });
     }
 
     try {
