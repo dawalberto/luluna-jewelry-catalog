@@ -7,7 +7,7 @@ export interface CatalogState {
   selectedCategories?: ProductCategory[]; // New: multiple categories
   selectedTags?: string[];
   searchQuery: string;
-  sortBy: 'none' | 'price-asc' | 'price-desc' | 'popularity';
+  sortBy: 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
   scrollPosition: number;
   timestamp: number;
   // Legacy fields for backward compatibility

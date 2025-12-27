@@ -18,8 +18,8 @@ export default function CatalogView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | undefined>(undefined);
   const [globalDiscount, setGlobalDiscount] = useState<GlobalDiscount | undefined>(undefined);
-  type SortBy = 'none' | 'price-asc' | 'price-desc' | 'popularity';
-  const [sortBy, setSortBy] = useState<SortBy>('none');
+  type SortBy = 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
+  const [sortBy, setSortBy] = useState<SortBy>('date-desc');
   const [scrollToRestore, setScrollToRestore] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -45,7 +45,7 @@ export default function CatalogView() {
       if (legacyState.sortBy === 'price' && legacyState.priceSortOrder) {
         setSortBy(legacyState.priceSortOrder === 'asc' ? 'price-asc' : 'price-desc');
       } else {
-        setSortBy(savedState.sortBy || 'none');
+        setSortBy(savedState.sortBy || 'date-desc');
       }
       
       // Store scroll position to restore after products load
@@ -136,6 +136,33 @@ export default function CatalogView() {
   }, [isLoading, scrollToRestore]);
 
   const sortedProducts = useMemo(() => {
+    // Sort by date if selected
+    if (sortBy === 'date-desc' || sortBy === 'date-asc') {
+      const withMeta = tagFilteredProducts.map((product, index) => {
+        const createdAt = product.createdAt?.toMillis?.() ?? 0;
+        const title =
+          product.title?.[locale] ??
+          product.title?.es ??
+          product.title?.en ??
+          '';
+        return { product, index, createdAt, title };
+      });
+
+      withMeta.sort((a, b) => {
+        const diff = sortBy === 'date-desc' 
+          ? b.createdAt - a.createdAt  // Más reciente primero
+          : a.createdAt - b.createdAt; // Más antiguo primero
+        
+        if (diff !== 0) return diff;
+
+        // Si tienen la misma fecha, ordenar por título
+        const byTitle = a.title.localeCompare(b.title);
+        return byTitle !== 0 ? byTitle : a.index - b.index;
+      });
+
+      return withMeta.map((x) => x.product);
+    }
+
     // Sort by popularity if selected
     if (sortBy === 'popularity') {
       const withMeta = tagFilteredProducts.map((product, index) => {
@@ -313,7 +340,8 @@ export default function CatalogView() {
               onChange={(e) => setSortBy(e.target.value as SortBy)}
               className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#2E6A77] focus:border-transparent"
             >
-              <option value="none">{t.catalog.sortDefault}</option>
+              <option value="date-desc">{t.catalog.sortDateDesc}</option>
+              <option value="date-asc">{t.catalog.sortDateAsc}</option>
               <option value="popularity">{t.catalog.sortPopularity}</option>
               <option value="price-asc">{t.catalog.sortPriceAsc}</option>
               <option value="price-desc">{t.catalog.sortPriceDesc}</option>

@@ -2,12 +2,13 @@ import imageCompression from 'browser-image-compression';
 import React, { useEffect, useMemo, useState } from 'react';
 import { cloudinaryConfig } from '../../config/env';
 import { useI18n } from '../../i18n';
-import { ProductService } from '../../services';
-import type { CreateProductInput, MultilingualText, ProductCategory, ProductPriceType } from '../../types';
+import { PricingService, ProductService } from '../../services';
+import type { CreateProductInput, MultilingualText, PricingConfig, ProductCategory, ProductPriceType } from '../../types';
 import { useCategories, useTags } from '../../utils/hooks';
 import { Button, Input } from '../ui';
 
 const productService = new ProductService();
+const pricingService = new PricingService();
 
 interface ProductFormProps {
   product?: any; // Producto existente para edición
@@ -20,6 +21,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
   const { categories: dbCategories, isLoading: categoriesLoading } = useCategories();
   const { tags: dbTags, isLoading: tagsLoading } = useTags();
   const isEditing = !!product;
+  const [pricingConfig, setPricingConfig] = useState<PricingConfig | null>(null);
 
   const categories = useMemo(() => {
     // Fallback to legacy i18n categories if Firestore has none yet.
@@ -113,6 +115,11 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
     if (categories.length === 0) return;
     setFormData((prev) => ({ ...prev, categories: [categories[0].id] }));
   }, [categories, formData.categories.length]);
+
+  useEffect(() => {
+    // Load pricing config
+    pricingService.getPricingConfig().then(setPricingConfig).catch(console.error);
+  }, []);
 
   const setPriceType = (type: ProductPriceType) => {
     setFormData((prev) => {
@@ -376,9 +383,18 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
             value={formData.pricing.type}
             onChange={(e) => setPriceType(e.target.value as ProductPriceType)}
           >
-            <option value="S">{t.admin.priceTypeS}</option>
-            <option value="M">{t.admin.priceTypeM}</option>
-            <option value="L">{t.admin.priceTypeL}</option>
+            <option value="S">
+              {t.admin.priceTypeS}
+              {pricingConfig && ` - ${pricingConfig.S}€`}
+            </option>
+            <option value="M">
+              {t.admin.priceTypeM}
+              {pricingConfig && ` - ${pricingConfig.M}€`}
+            </option>
+            <option value="L">
+              {t.admin.priceTypeL}
+              {pricingConfig && ` - ${pricingConfig.L}€`}
+            </option>
             <option value="custom">{t.admin.priceTypeCustom}</option>
           </select>
         </div>

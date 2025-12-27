@@ -38,30 +38,6 @@ export default function HeaderSimple() {
 
   return (
     <>
-      {/* Selector de idioma */}
-      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-50 flex gap-2">
-        <button
-          onClick={() => setLocale('es')}
-          className={`px-2 py-1 text-xs font-medium uppercase tracking-widest transition-all duration-300 ${
-            locale === 'es'
-              ? 'text-[#2E6A77] border-b border-[#2E6A77]'
-              : 'text-gray-400 hover:text-black border-b border-transparent'
-          }`}
-        >
-          ES
-        </button>
-        <button
-          onClick={() => setLocale('en')}
-          className={`px-2 py-1 text-xs font-medium uppercase tracking-widest transition-all duration-300 ${
-            locale === 'en'
-              ? 'text-[#2E6A77] border-b border-[#2E6A77]'
-              : 'text-gray-400 hover:text-black border-b border-transparent'
-          }`}
-        >
-          EN
-        </button>
-      </div>
-
       {/* Botón de navegación fijo para administradores */}
       {isAdmin && (
         <a

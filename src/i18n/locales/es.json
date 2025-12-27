@@ -63,7 +63,9 @@
     "filters": "Filtros",
     "order": "Orden",
     "sortBy": "Ordenar por",
-    "sortDefault": "Por defecto",
+    "sortDefault": "Sin ordenar",
+    "sortDateDesc": "Más recientes",
+    "sortDateAsc": "Más antiguos",
     "sortPopularity": "Popularidad",
     "sortPriceAsc": "Precio ↑",
     "sortPriceDesc": "Precio ↓",
@@ -195,5 +197,9 @@
     "storageOpenDashboard": "Abrir dashboard",
     "storageNote": "Nota",
     "storageNoteText": "Para obtener estadísticas en tiempo real de Cloudinary, necesitas implementar un endpoint backend con tu API Secret (no debe exponerse en el cliente)."
+  },
+  "footer": {
+    "copyright": "Todos los derechos reservados.",
+    "madeWith": "Hecho con 💛 por Alberto García Sola"
   }
 }

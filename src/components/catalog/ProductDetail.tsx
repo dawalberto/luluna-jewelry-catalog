@@ -270,9 +270,6 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
 
             {/* Description */}
             <div className="mb-12">
-              <h2 className="font-heading text-xs font-medium text-(--color-text) mb-4 uppercase tracking-widest">
-                {t.productDetail.description}
-              </h2>
               <p className="font-body text-base md:text-lg text-gray-600 leading-relaxed whitespace-pre-line font-light">
                 {product.description[locale] || product.description.es}
               </p>
