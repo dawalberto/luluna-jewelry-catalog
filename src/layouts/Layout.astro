@@ -11,6 +11,9 @@ interface Props {
 const { title, description, lang = "es" } = Astro.props
 const siteTitle = "LuLuna Jewelry"
 const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle
+
+const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID
+const enableGoogleAnalytics = Boolean(gaMeasurementId) && import.meta.env.PROD
 ---
 
 <!doctype html>
@@ -27,6 +30,20 @@ const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle
     <link rel="manifest" href="/favicon_io/site.webmanifest" />
     <meta name="theme-color" content="#ffffff" />
     <title>{fullTitle}</title>
+
+    {
+      enableGoogleAnalytics && (
+        <>
+          <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`} />
+          <script is:inline>
+            {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${gaMeasurementId}', { anonymize_ip: true });`}
+          </script>
+        </>
+      )
+    }
   </head>
   <body class="min-h-screen">
     <slot />

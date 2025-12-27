@@ -16,7 +16,7 @@
   --font-heading: 'Cinzel', serif;
   --font-body: 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-accent: 'Playfair Display', serif;
-  --border-radius: 4px; /* Unified border radius */
+  --border-radius: 0px; /* Unified border radius */
 }
 
 body {

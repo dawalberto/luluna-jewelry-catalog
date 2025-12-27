@@ -166,6 +166,10 @@ PUBLIC_CLOUDINARY_UPLOAD_PRESET=your-unsigned-preset
 # Site
 PUBLIC_SITE_URL=https://your-username.github.io/luluna-jewelry-catalog
 PUBLIC_DEFAULT_LOCALE=es
+
+# Google Analytics (GA4)
+# Measurement ID format: G-XXXXXXXXXX
+PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 ## 🏗️ Arquitectura

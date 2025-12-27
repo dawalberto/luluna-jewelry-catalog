@@ -4,6 +4,7 @@ import { GlobalDiscountService, PricingService, SiteContentService } from '../..
 import type { GlobalDiscount, PricingConfig, ProductCategory, SiteContent } from '../../types';
 import { loadCatalogState, saveCatalogState } from '../../utils';
 import { useCategories, useProducts, useTags } from '../../utils/hooks';
+import { Button } from '../ui';
 import ProductGrid from './ProductGrid';
 import SearchBar from './SearchBar';
 
@@ -13,6 +14,8 @@ const siteContentService = new SiteContentService();
 
 export default function CatalogView() {
   const { t, locale } = useI18n();
+
+  const mobileGridStorageKey = 'luluna:catalog:mobileGridColumns';
   
   const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -24,6 +27,7 @@ export default function CatalogView() {
   const [sortBy, setSortBy] = useState<SortBy>('date-desc');
   const [scrollToRestore, setScrollToRestore] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [mobileGridColumns, setMobileGridColumns] = useState<1 | 2>(1);
 
   const { categories: dbCategories } = useCategories();
 
@@ -56,6 +60,26 @@ export default function CatalogView() {
       }
     }
   }, []);
+
+  // Load persisted mobile grid setting
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(mobileGridStorageKey);
+      if (raw === '2') setMobileGridColumns(2);
+      if (raw === '1') setMobileGridColumns(1);
+    } catch {
+      // Ignore storage errors (private mode, blocked, etc.)
+    }
+  }, []);
+
+  // Persist mobile grid setting
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(mobileGridStorageKey, String(mobileGridColumns));
+    } catch {
+      // Ignore storage errors
+    }
+  }, [mobileGridColumns]);
 
   // Save catalog state whenever filters change
   useEffect(() => {
@@ -410,6 +434,32 @@ export default function CatalogView() {
 
           {/* Right: Sort Selector */}
           <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => setMobileGridColumns((prev) => (prev === 1 ? 2 : 1))}
+              aria-pressed={mobileGridColumns === 2}
+              aria-label="Cambiar columnas del catálogo"
+              title="Cambiar columnas"
+              className="sm:hidden px-3"
+            >
+              <span className="sr-only">Cambiar columnas</span>
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="3" width="8" height="8" rx="1" />
+                <rect x="13" y="3" width="8" height="8" rx="1" />
+                <rect x="3" y="13" width="8" height="8" rx="1" />
+                <rect x="13" y="13" width="8" height="8" rx="1" />
+              </svg>
+            </Button>
             <span className="text-sm font-medium text-(--color-muted) hidden md:inline">{t.catalog.order}:</span>
             <select
               value={sortBy}
@@ -595,6 +645,7 @@ export default function CatalogView() {
         isLoading={isLoading}
         pricingConfig={pricingConfig}
         globalDiscount={globalDiscount}
+        mobileColumns={mobileGridColumns}
         catalogState={{
           selectedCategories,
           selectedTags,

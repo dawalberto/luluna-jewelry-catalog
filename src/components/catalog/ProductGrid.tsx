@@ -10,6 +10,7 @@ interface ProductGridProps {
   onProductClick?: (product: Product) => void;
   pricingConfig?: PricingConfig;
   globalDiscount?: GlobalDiscount;
+  mobileColumns?: 1 | 2;
   catalogState?: {
     selectedCategory?: ProductCategory | 'all'; // Legacy: deprecated
     selectedCategories?: ProductCategory[]; // New: multiple categories
@@ -25,9 +26,12 @@ export default function ProductGrid({
   onProductClick,
   pricingConfig,
   globalDiscount,
+  mobileColumns = 1,
   catalogState,
 }: ProductGridProps) {
   const { t } = useI18n();
+
+  const mobileColsClass = mobileColumns === 2 ? 'grid-cols-2' : 'grid-cols-1';
 
   // Handle product click to save catalog state before navigation
   const handleProductClick = () => {
@@ -72,7 +76,9 @@ export default function ProductGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 md:gap-x-10 gap-y-10 md:gap-y-12">
+    <div
+      className={`grid ${mobileColsClass} sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 md:gap-x-10 gap-y-10 md:gap-y-12`}
+    >
       {products.map((product) => (
         <div key={product.id} onClick={handleProductClick}>
           <ProductCard
