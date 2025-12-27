@@ -170,11 +170,7 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
     return basePrice;
   }, [basePrice, effectiveDiscountPercent]);
 
-  const formatPrice = (value: number) =>
-    new Intl.NumberFormat(locale === 'es' ? 'es-ES' : 'en-US', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(value);
+  const formatPrice = (value: number) => `${value.toFixed(2)}€`;
 
   const baseUrl = import.meta.env.BASE_URL || '/';
   const productHref = `${baseUrl.replace(/\/$/, '')}/product/${product.id}`;

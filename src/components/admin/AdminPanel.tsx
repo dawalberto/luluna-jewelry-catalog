@@ -5,6 +5,8 @@ import type { CreateCategoryInput, CreateTagInput, GlobalDiscount, PricingConfig
 import { useCategories, useProducts, useTags } from '../../utils/hooks';
 import { Button, Input } from '../ui';
 import ProductForm from './ProductForm';
+import ShippingPanel from './ShippingPanel';
+import StoragePanel from './StoragePanel';
 
 const productService = new ProductService();
 const pricingService = new PricingService();
@@ -93,7 +95,7 @@ function getProductFinalPrice(product: Product, pricing: PricingConfig): number 
 
 function AdminPanelContent() {
   const { t, locale } = useI18n();
-  type AdminTab = 'products' | 'pricing' | 'discount' | 'categories' | 'tags';
+  type AdminTab = 'products' | 'pricing' | 'discount' | 'categories' | 'tags' | 'shippings' | 'storage';
   const [activeTab, setActiveTab] = useState<AdminTab>('products');
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -500,6 +502,24 @@ function AdminPanelContent() {
         >
           {(t.admin as any).tagsTitle || 'Etiquetas'}
         </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={activeTab === 'shippings' ? 'outline' : 'ghost'}
+          onClick={() => handleTabChange('shippings')}
+          aria-current={activeTab === 'shippings' ? 'page' : undefined}
+        >
+          {(t.admin as any).shippingsTitle || 'Envíos'}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={activeTab === 'storage' ? 'outline' : 'ghost'}
+          onClick={() => handleTabChange('storage')}
+          aria-current={activeTab === 'storage' ? 'page' : undefined}
+        >
+          {(t.admin as any).storageTitle || 'Almacenamiento'}
+        </Button>
       </div>
 
       {activeTab === 'products' && (
@@ -618,7 +638,7 @@ function AdminPanelContent() {
                         {(() => {
                           const finalPrice = getProductFinalPrice(product, pricing);
                           if (finalPrice == null) return '-';
-                          return `€${finalPrice.toFixed(2)}`;
+                          return `${finalPrice.toFixed(2)}€`;
                         })()}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
@@ -1094,6 +1114,10 @@ function AdminPanelContent() {
           </div>
         </div>
       )}
+
+      {activeTab === 'shippings' && <ShippingPanel />}
+
+      {activeTab === 'storage' && <StoragePanel />}
     </div>
   );
 }

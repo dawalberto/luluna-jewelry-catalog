@@ -51,7 +51,8 @@
     "feature1": "Artisanal jewelry completely handmade",
     "feature2": "High quality polymer clay",
     "feature3": "Unique and elegant design",
-    "feature4": "Satisfaction guarantee"
+    "feature4": "Satisfaction guarantee",
+    "shippingOptions": "Shipping options"
   },
   "catalog": {
     "title": "Our Catalog",
@@ -131,6 +132,23 @@
     "tagDeleted": "Tag deleted",
     "tagDeleteError": "Error deleting tag",
     "productTags": "Tags",
+
+    "shippingsTitle": "Shipping",
+    "shippingsHelp": "Manage available shipping options.",
+    "addShipping": "Add shipping",
+    "createShipping": "Create",
+    "updateShipping": "Update",
+    "shippingDescription": "Description",
+    "shippingDeliveryTime": "Delivery time",
+    "shippingPrice": "Price",
+    "noShippings": "No shipping options yet.",
+    "shippingCreated": "Shipping created",
+    "shippingSaved": "Shipping updated",
+    "shippingSaveError": "Error saving shipping",
+    "shippingDeleteConfirm": "Are you sure you want to delete this shipping?",
+    "shippingDeleted": "Shipping deleted",
+    "shippingDeleteError": "Error deleting shipping",
+
     "globalDiscountTitle": "Global discount",
     "globalDiscountHelp": "Applies to all catalog products when active.",
     "globalDiscountActive": "Active",
@@ -157,6 +175,19 @@
     "saveSuccess": "Product saved successfully",
     "saveError": "Error saving product",
     "deleteSuccess": "Product deleted successfully",
-    "deleteError": "Error deleting product"
+    "deleteError": "Error deleting product",
+
+    "storageTitle": "Storage",
+    "storageSubtitle": "Monitor resource usage for Cloudinary and Firebase",
+    "storageSpace": "Storage space",
+    "storageBandwidth": "Bandwidth (monthly)",
+    "storageTransformations": "Transformations (monthly)",
+    "storageFileCount": "File count",
+    "storageErrorTitle": "Information unavailable",
+    "storageCloudinaryManual": "To view real Cloudinary usage, access your dashboard. The statistics shown are free tier limits.",
+    "storageFirebaseManual": "Firebase Storage is not in use. Images are stored in Cloudinary. Firebase is used for Firestore (database) and Authentication.",
+    "storageOpenDashboard": "Open dashboard",
+    "storageNote": "Note",
+    "storageNoteText": "To get real-time Cloudinary statistics, you need to implement a backend endpoint with your API Secret (should not be exposed in the client)."
   }
 }

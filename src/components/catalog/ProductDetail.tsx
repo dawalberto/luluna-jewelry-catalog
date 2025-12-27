@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { I18nProvider, useI18n } from '../../i18n';
 import type { GlobalDiscount, PricingConfig, Product } from '../../types';
-import { useCategories, useTags } from '../../utils/hooks';
+import { useCategories, useShippings, useTags } from '../../utils/hooks';
 
 interface ProductDetailProps {
   product: Product;
@@ -13,6 +13,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
   const { locale, t } = useI18n();
   const { categories: dbCategories } = useCategories();
   const { tags: dbTags } = useTags();
+  const { shippings } = useShippings();
 
   const baseUrl = import.meta.env.BASE_URL || '/';
   const withBase = (path: string) => `${baseUrl.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
@@ -230,18 +231,18 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
               {hasDiscount ? (
                 <div className="flex items-baseline gap-4 flex-wrap">
                   <span className="font-heading text-3xl md:text-4xl font-medium text-(--color-primary)">
-                    €{finalPrice.toFixed(2)}
+                    {finalPrice.toFixed(2)}€
                   </span>
                   <span className="font-body text-xl text-gray-400 line-through font-light">
-                    €{basePrice.toFixed(2)}
+                    {basePrice.toFixed(2)}€
                   </span>
                   <span className="text-red-700 text-xs font-medium px-2 py-1 bg-red-50 uppercase tracking-wider">
-                    {t.productDetail.save} €{(basePrice - finalPrice).toFixed(2)}
+                    {t.productDetail.save} {(basePrice - finalPrice).toFixed(2)}€
                   </span>
                 </div>
               ) : (
                 <span className="font-heading text-3xl md:text-4xl font-medium text-(--color-text)">
-                  €{finalPrice.toFixed(2)}
+                  {finalPrice.toFixed(2)}€
                 </span>
               )}
             </div>
@@ -287,7 +288,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
                 href="https://www.instagram.com/lulunajoyas/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-heading text-lg font-medium py-5 px-6 transition-all shadow-sm hover:shadow-md text-center tracking-wide"
+                className="block rounded-squircle w-full bg-linear-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white font-heading text-lg font-medium py-5 px-6 transition-all shadow-sm hover:shadow-md text-center tracking-wide"
               >
                 <div className="flex items-center justify-center gap-3">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -303,7 +304,7 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full bg-(--color-primary) hover:bg-[#1a4d58] text-white font-heading text-lg font-medium py-5 px-6 transition-all shadow-sm hover:shadow-md text-center tracking-wide"
+                className="block rounded-squircle w-full bg-(--color-primary) hover:bg-[#1a4d58] text-white font-heading text-lg font-medium py-5 px-6 transition-all shadow-sm hover:shadow-md text-center tracking-wide"
               >
                 <div className="flex items-center justify-center gap-3">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -354,6 +355,38 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
                 </div>
               </div>
             )}
+
+            {/* Shipping Options */}
+            {shippings.length > 0 && (
+              <div className="mt-10 pt-8 border-t border-gray-100">
+                <h3 className="font-heading text-xs font-medium text-(--color-text) mb-6 uppercase tracking-widest">
+                  {(t.productDetail as any).shippingOptions || 'Opciones de envío'}
+                </h3>
+                <div className="space-y-4">
+                  {shippings.map((shipping) => (
+                    <div
+                      key={shipping.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-squircle border border-gray-100"
+                    >
+                      <div className="flex-1">
+                        <p className="font-body text-sm font-medium text-(--color-text) mb-1">
+                          {shipping.description?.[locale] ?? shipping.description?.es}
+                        </p>
+                        <p className="font-body text-xs text-gray-500">
+                          {shipping.deliveryTime?.[locale] ?? shipping.deliveryTime?.es}
+                        </p>
+                      </div>
+                      <div className="ml-4">
+                        <span className="font-heading text-lg font-medium text-(--color-primary)">
+                          {shipping.price.toFixed(2)}€
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       </div>

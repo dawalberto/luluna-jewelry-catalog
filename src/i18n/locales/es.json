@@ -51,7 +51,8 @@
     "feature1": "Joyería artesanal totalmente hecha a mano",
     "feature2": "Arcilla polimérica de alta calidad",
     "feature3": "Diseño único y elegante",
-    "feature4": "Garantía de satisfacción"
+    "feature4": "Garantía de satisfacción",
+    "shippingOptions": "Opciones de envío"
   },
   "catalog": {
     "title": "Nuestro Catálogo",
@@ -133,6 +134,22 @@
     "tagDeleteError": "Error eliminando etiqueta",
     "productTags": "Etiquetas",
 
+    "shippingsTitle": "Envíos",
+    "shippingsHelp": "Administra las opciones de envío disponibles.",
+    "addShipping": "Agregar envío",
+    "createShipping": "Crear",
+    "updateShipping": "Actualizar",
+    "shippingDescription": "Descripción",
+    "shippingDeliveryTime": "Tiempo de envío",
+    "shippingPrice": "Precio",
+    "noShippings": "Aún no hay opciones de envío.",
+    "shippingCreated": "Envío creado",
+    "shippingSaved": "Envío actualizado",
+    "shippingSaveError": "Error guardando envío",
+    "shippingDeleteConfirm": "¿Estás seguro de eliminar este envío?",
+    "shippingDeleted": "Envío eliminado",
+    "shippingDeleteError": "Error eliminando envío",
+
     "globalDiscountTitle": "Descuento global",
     "globalDiscountHelp": "Se aplica a todos los productos del catálogo cuando está activo.",
     "globalDiscountActive": "Activo",
@@ -159,6 +176,19 @@
     "saveSuccess": "Producto guardado exitosamente",
     "saveError": "Error al guardar el producto",
     "deleteSuccess": "Producto eliminado exitosamente",
-    "deleteError": "Error al eliminar el producto"
+    "deleteError": "Error al eliminar el producto",
+
+    "storageTitle": "Almacenamiento",
+    "storageSubtitle": "Monitorea el uso de recursos de Cloudinary y Firebase",
+    "storageSpace": "Espacio de almacenamiento",
+    "storageBandwidth": "Ancho de banda (mensual)",
+    "storageTransformations": "Transformaciones (mensual)",
+    "storageFileCount": "Número de archivos",
+    "storageErrorTitle": "Información no disponible",
+    "storageCloudinaryManual": "Para ver el uso real de Cloudinary, accede a tu dashboard. Las estadísticas mostradas son los límites del plan gratuito.",
+    "storageFirebaseManual": "Firebase Storage no está en uso. Las imágenes se almacenan en Cloudinary. Firebase se usa para Firestore (base de datos) y Authentication.",
+    "storageOpenDashboard": "Abrir dashboard",
+    "storageNote": "Nota",
+    "storageNoteText": "Para obtener estadísticas en tiempo real de Cloudinary, necesitas implementar un endpoint backend con tu API Secret (no debe exponerse en el cliente)."
   }
 }
