@@ -8,7 +8,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   // Configure for GitHub Pages deployment
   site: 'https://dawalberto.github.io',
-  base: '/luluna-jewelry-catalog',
+  // Only use base path in production (for GitHub Pages)
+  // In development, access the site at http://localhost:4321/
+  base: process.env.NODE_ENV === 'production' ? '/luluna-jewelry-catalog' : '/',
   
   integrations: [react()],
 
