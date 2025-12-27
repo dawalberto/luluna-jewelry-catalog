@@ -56,6 +56,18 @@ jobs:
           PUBLIC_SITE_URL: ${{ steps.pages.outputs.base_url }}
           PUBLIC_DEFAULT_LOCALE: es
       
+      - name: Setup SPA fallback for dynamic routes
+        run: |
+          # Copy one of the product pages as 404.html for GitHub Pages SPA support
+          if [ -d "dist/product" ]; then
+            FIRST_PRODUCT=$(find dist/product -name "index.html" -type f | head -n 1)
+            if [ -n "$FIRST_PRODUCT" ]; then
+              cp "$FIRST_PRODUCT" dist/404.html
+              echo "✅ Created 404.html from product template"
+            fi
+          fi
+        working-directory: ${{ env.BUILD_PATH }}
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
