@@ -187,37 +187,44 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
       <div className="relative aspect-3/4 overflow-hidden bg-[#F5F5F5]">
         {transition ? (
           <>
+            {/* Outgoing image */}
             <img
+              key={`out-${transition.fromIndex}`}
               src={images[transition.fromIndex]}
               alt={product.title[locale]}
               loading="lazy"
-              className={`absolute inset-0 z-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] ${
+              className={`absolute inset-0 z-[1] h-full w-full object-cover transition-transform duration-500 ease-out ${
                 transition.animate
                   ? transition.direction === 'left'
                     ? '-translate-x-full'
                     : 'translate-x-full'
                   : 'translate-x-0'
               }`}
+              style={{ willChange: transition.animate ? 'transform' : 'auto' }}
             />
+            {/* Incoming image */}
             <img
+              key={`in-${transition.toIndex}`}
               src={images[transition.toIndex]}
               alt={product.title[locale]}
               loading="lazy"
-              className={`absolute inset-0 z-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] ${
+              className={`absolute inset-0 z-[2] h-full w-full object-cover transition-transform duration-500 ease-out ${
                 transition.animate
                   ? 'translate-x-0'
                   : transition.direction === 'left'
                     ? 'translate-x-full'
                     : '-translate-x-full'
               }`}
+              style={{ willChange: transition.animate ? 'transform' : 'auto' }}
             />
           </>
         ) : (
           <img
+            key={`static-${activeImageIndex}`}
             src={imageUrl}
             alt={product.title[locale]}
             loading="lazy"
-            className="z-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            className="absolute inset-0 z-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
           />
         )}
 
