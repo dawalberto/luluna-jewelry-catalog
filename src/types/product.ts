@@ -114,8 +114,10 @@ export interface UpdateProductInput {
 export interface ProductFilters {
   category?: ProductCategory; // Legacy: single category (deprecated)
   categories?: ProductCategory[]; // New: multiple categories filter
+  tags?: string[]; // Filter by tags
   search?: string;
   publishedOnly?: boolean;
+  sortBy?: 'none' | 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
 }
 
 /**

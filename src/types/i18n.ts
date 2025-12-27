@@ -22,6 +22,7 @@ export interface Translations {
     next: string;
     previous: string;
     close: string;
+    view: string;
   };
   nav: {
     home: string;
@@ -68,8 +69,12 @@ export interface Translations {
     subtitle: string;
     promoTitle: string;
     promoDescription: string;
+    filters: string;
+    order: string;
     sortBy: string;
     sortDefault: string;
+    sortDateDesc: string;
+    sortDateAsc: string;
     sortPopularity: string;
     sortPriceAsc: string;
     sortPriceDesc: string;
@@ -115,6 +120,23 @@ export interface Translations {
     tagDeleted: string;
     tagDeleteError: string;
     productTags: string;
+
+    // Shippings
+    shippingsTitle: string;
+    shippingsHelp: string;
+    addShipping: string;
+    createShipping: string;
+    updateShipping: string;
+    shippingDescription: string;
+    shippingDeliveryTime: string;
+    shippingPrice: string;
+    noShippings: string;
+    shippingCreated: string;
+    shippingSaved: string;
+    shippingSaveError: string;
+    shippingDeleteConfirm: string;
+    shippingDeleted: string;
+    shippingDeleteError: string;
 
     // Auth / access control
     loginTitle: string;
@@ -177,5 +199,23 @@ export interface Translations {
     saveError: string;
     deleteSuccess: string;
     deleteError: string;
+
+    // Storage
+    storageTitle: string;
+    storageSubtitle: string;
+    storageSpace: string;
+    storageBandwidth: string;
+    storageTransformations: string;
+    storageFileCount: string;
+    storageErrorTitle: string;
+    storageCloudinaryManual: string;
+    storageFirebaseManual: string;
+    storageOpenDashboard: string;
+    storageNote: string;
+    storageNoteText: string;
+  };
+  footer: {
+    copyright: string;
+    madeWith: string;
   };
 }
