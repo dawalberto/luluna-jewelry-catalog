@@ -13,7 +13,8 @@
     "back": "Volver",
     "next": "Siguiente",
     "previous": "Anterior",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "view": "Ver"
   },
   "nav": {
     "home": "Inicio",
@@ -67,7 +68,9 @@
     "noProducts": "No hay productos disponibles",
     "noResults": "No se encontraron productos",
     "searchPlaceholder": "Buscar productos...",
-    "filterByTags": "Filtrar por etiquetas"
+    "filterByTags": "Filtrar por etiquetas",
+    "productNotFound": "Producto no encontrado",
+    "backToCatalog": "Volver al catálogo"
   },
   "admin": {
     "title": "Administración",
@@ -95,7 +98,7 @@
     "productCategories": "Categorías",
     "productPopularity": "Popularidad",
     "productPopularityHelp": "Número que indica la popularidad del producto (mayor = más popular)",
-    "pricingTitle": "Precio",
+    "pricingTitle": "Precios",
     "pricingSizes": "Precios por talla",
     "pricingS": "S",
     "pricingM": "M",

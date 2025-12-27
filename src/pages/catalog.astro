@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro"
 import { Footer } from "../components/common"
-import HeaderSimple from "../components/common/HeaderSimple"
 import { CatalogApp } from "../components/catalog"
 import { defaultLocale } from "../i18n/config"
 
@@ -14,9 +13,8 @@ const description =
 ---
 
 <Layout title={title} description={description} lang={locale}>
-  <HeaderSimple client:only="react" />
-  <main class="min-h-screen bg-gray-50 py-8">
-    <div class="container mx-auto px-4">
+  <main class="min-h-screen bg-gray-50 py-4 md:py-8">
+    <div class="container mx-auto px-2 md:px-4">
       <CatalogApp client:load initialLocale={locale} />
     </div>
   </main>

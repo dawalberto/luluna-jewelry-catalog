@@ -61,6 +61,7 @@ export interface Translations {
     feature2: string;
     feature3: string;
     feature4: string;
+    shippingOptions: string;
   };
   catalog: {
     title: string;
@@ -75,6 +76,9 @@ export interface Translations {
     noProducts: string;
     noResults: string;
     searchPlaceholder: string;
+    filterByTags: string;
+    productNotFound: string;
+    backToCatalog: string;
   };
   admin: {
     title: string;

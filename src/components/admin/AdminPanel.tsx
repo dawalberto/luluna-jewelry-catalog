@@ -478,15 +478,6 @@ function AdminPanelContent() {
         <Button
           type="button"
           size="sm"
-          variant={activeTab === 'discount' ? 'outline' : 'ghost'}
-          onClick={() => handleTabChange('discount')}
-          aria-current={activeTab === 'discount' ? 'page' : undefined}
-        >
-          {t.admin.globalDiscountTitle}
-        </Button>
-        <Button
-          type="button"
-          size="sm"
           variant={activeTab === 'categories' ? 'outline' : 'ghost'}
           onClick={() => handleTabChange('categories')}
           aria-current={activeTab === 'categories' ? 'page' : undefined}
@@ -510,6 +501,15 @@ function AdminPanelContent() {
           aria-current={activeTab === 'shippings' ? 'page' : undefined}
         >
           {(t.admin as any).shippingsTitle || 'Envíos'}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={activeTab === 'discount' ? 'outline' : 'ghost'}
+          onClick={() => handleTabChange('discount')}
+          aria-current={activeTab === 'discount' ? 'page' : undefined}
+        >
+          {t.admin.globalDiscountTitle}
         </Button>
         <Button
           type="button"
@@ -678,6 +678,15 @@ function AdminPanelContent() {
                         </button>
                       </td>
                       <td className="px-4 py-4 text-right text-sm font-medium whitespace-nowrap">
+                        <a
+                          href={`/product/${product.id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-900"
+                        >
+                          {t.common.view}
+                        </a>
+                        <span className='px-2'>|</span>
                         <button
                           onClick={() => {
                             setEditingProduct(product);
@@ -687,9 +696,10 @@ function AdminPanelContent() {
                         >
                           {t.common.edit}
                         </button>
+                        <span className='px-2'>|</span>
                         <button
                           onClick={() => handleDelete(product.id)}
-                          className="text-red-600 hover:text-red-900 ml-4"
+                          className="text-red-600 hover:text-red-900"
                         >
                           {t.common.delete}
                         </button>

@@ -228,10 +228,10 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
               type="button"
               aria-label="Previous image"
               onClick={goPrev}
-              className="absolute left-2 top-1/2 z-20 -translate-y-1/2 bg-white/80 backdrop-blur-md p-2 text-black transition-all hover:bg-white hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300"
+              className="absolute left-1 md:left-2 top-1/2 z-20 -translate-y-1/2 bg-white/80 backdrop-blur-md p-1.5 md:p-2 text-black transition-all hover:bg-white hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300"
             >
               <svg
-                className="h-4 w-4"
+                className="h-3 w-3 md:h-4 md:w-4"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -247,10 +247,10 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
               type="button"
               aria-label="Next image"
               onClick={goNext}
-              className="absolute right-2 top-1/2 z-20 -translate-y-1/2 bg-white/80 backdrop-blur-md p-2 text-black transition-all hover:bg-white hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300"
+              className="absolute right-1 md:right-2 top-1/2 z-20 -translate-y-1/2 bg-white/80 backdrop-blur-md p-1.5 md:p-2 text-black transition-all hover:bg-white hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300"
             >
               <svg
-                className="h-4 w-4"
+                className="h-3 w-3 md:h-4 md:w-4"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -267,40 +267,40 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
         <div className="pointer-events-none absolute inset-0 z-10 bg-linear-to-t from-black/35 via-black/0 to-black/0" />
 
         {!!categoryLabel && (
-          <div className="absolute left-3 top-3 z-20 bg-white/90 backdrop-blur-sm px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-black">
+          <div className="absolute left-2 top-2 md:left-3 md:top-3 z-20 bg-white/90 backdrop-blur-sm px-2 py-0.5 md:px-3 md:py-1 text-[9px] md:text-[10px] font-medium uppercase tracking-widest text-black">
             {categoryLabel}
           </div>
         )}
 
         {product.isNew && (
-          <div className="absolute right-3 top-3 z-20 bg-(--color-primary) px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-white">
+          <div className="absolute right-2 top-2 md:right-3 md:top-3 z-20 bg-(--color-primary) px-2 py-0.5 md:px-3 md:py-1 text-[9px] md:text-[10px] font-medium uppercase tracking-widest text-white">
             {t.admin.isNew}
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-5 bg-white text-center no-radius">
-        <h3 className="text-lg font-heading font-medium leading-tight text-(--color-text) line-clamp-2">
+      <div className="p-3 md:p-5 bg-white text-center no-radius">
+        <h3 className="text-sm md:text-lg font-heading font-medium leading-tight text-(--color-text) line-clamp-2">
           {product.title[locale]}
         </h3>
 
-        <p className="mt-2 text-sm font-body text-gray-500 line-clamp-2 font-light">
+        <p className="mt-1 md:mt-2 text-xs md:text-sm font-body text-gray-500 line-clamp-2 font-light">
           {product.description[locale]}
         </p>
 
-        <div className="mt-4 flex items-center justify-center gap-2">
+        <div className="mt-2 md:mt-4 flex items-center justify-center gap-1 md:gap-2">
           {finalPrice == null ? (
-            <span className="text-lg font-medium text-gray-400">-</span>
+            <span className="text-base md:text-lg font-medium text-gray-400">-</span>
           ) : effectiveDiscountPercent > 0 && basePrice != null && finalPrice !== basePrice ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400 line-through font-light">{formatPrice(basePrice)}</span>
-              <span className="text-lg font-medium text-(--color-primary)">
+            <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-0">
+              <span className="text-xs md:text-sm text-gray-400 line-through font-light">{formatPrice(basePrice)}</span>
+              <span className="text-base md:text-lg font-medium text-(--color-primary)">
                 {formatPrice(finalPrice)}
               </span>
             </div>
           ) : (
-            <span className="text-lg font-medium text-(--color-text)">
+            <span className="text-base md:text-lg font-medium text-(--color-text)">
               {formatPrice(finalPrice)}
             </span>
           )}

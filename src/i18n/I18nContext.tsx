@@ -16,12 +16,36 @@ interface I18nProviderProps {
 }
 
 export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
-  const [locale, setLocaleState] = useState<Locale>(
-    initialLocale || defaultLocale
-  );
+  // Initialize locale synchronously from browser storage
+  const getInitialLocale = (): Locale => {
+    if (typeof window === 'undefined') {
+      return initialLocale || defaultLocale;
+    }
 
-  // Initialize locale in the browser.
-  // Priority: ?lang= -> localStorage -> browser detection (only if no initialLocale)
+    // Priority: ?lang= -> localStorage -> initialLocale -> browser detection
+    const params = new URLSearchParams(window.location.search);
+    const langParam = params.get('lang');
+
+    if (langParam === 'es' || langParam === 'en') {
+      localStorage.setItem('locale', langParam);
+      return langParam;
+    }
+
+    const stored = localStorage.getItem('locale');
+    if (stored && (stored === 'es' || stored === 'en')) {
+      return stored;
+    }
+
+    if (initialLocale) {
+      return initialLocale;
+    }
+
+    return detectBrowserLocale();
+  };
+
+  const [locale, setLocaleState] = useState<Locale>(getInitialLocale);
+
+  // Update URL parameter when it changes
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -29,22 +53,12 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     const langParam = params.get('lang');
 
     if (langParam === 'es' || langParam === 'en') {
-      setLocaleState(langParam);
-      localStorage.setItem('locale', langParam);
-      return;
+      if (langParam !== locale) {
+        setLocaleState(langParam);
+        localStorage.setItem('locale', langParam);
+      }
     }
-
-    const stored = localStorage.getItem('locale');
-    if (stored && (stored === 'es' || stored === 'en')) {
-      setLocaleState(stored);
-      return;
-    }
-
-    if (!initialLocale) {
-      const detected = detectBrowserLocale();
-      setLocaleState(detected);
-    }
-  }, [initialLocale]);
+  }, [locale]);
 
   // Persist locale to localStorage
   const setLocale = (newLocale: Locale) => {

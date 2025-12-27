@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
-import ProductDetail from './ProductDetail';
+import { I18nProvider, useI18n } from '../../i18n';
+import { GlobalDiscountService } from '../../services/GlobalDiscountService';
+import { PricingService } from '../../services/PricingService';
+import { ProductService } from '../../services/ProductService';
+import type { GlobalDiscount, PricingConfig, Product } from '../../types';
 import Footer from '../common/Footer';
 import HeaderSimple from '../common/HeaderSimple';
 import LoadingSpinner from '../ui/LoadingSpinner';
-import { ProductService } from '../../services/ProductService';
-import { PricingService } from '../../services/PricingService';
-import { GlobalDiscountService } from '../../services/GlobalDiscountService';
-import type { Product } from '../../types/product';
-import type { PricingConfig } from '../../services/PricingService';
-import type { GlobalDiscount } from '../../services/GlobalDiscountService';
+import ProductDetail from './ProductDetail';
 
 interface ProductDetailAppProps {
   productId: string;
 }
 
-export default function ProductDetailApp({ productId }: ProductDetailAppProps) {
+function ProductDetailAppContent({ productId }: ProductDetailAppProps) {
+  const { t } = useI18n();
   const [product, setProduct] = useState<Product | null>(null);
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | null>(null);
   const [globalDiscount, setGlobalDiscount] = useState<GlobalDiscount | null>(null);
@@ -84,13 +84,13 @@ export default function ProductDetailApp({ productId }: ProductDetailAppProps) {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              {error || 'Producto no encontrado'}
+              {error || t.catalog.productNotFound || 'Producto no encontrado'}
             </h1>
             <a
               href="/luluna-jewelry-catalog/catalog"
               className="text-indigo-600 hover:text-indigo-700 font-medium"
             >
-              Volver al catálogo
+              {t.catalog.backToCatalog || t.common.back || 'Volver al catálogo'}
             </a>
           </div>
         </main>
@@ -106,10 +106,18 @@ export default function ProductDetailApp({ productId }: ProductDetailAppProps) {
         <ProductDetail
           product={product}
           pricingConfig={pricingConfig}
-          globalDiscount={globalDiscount}
+          globalDiscount={globalDiscount || undefined}
         />
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function ProductDetailApp({ productId }: ProductDetailAppProps) {
+  return (
+    <I18nProvider>
+      <ProductDetailAppContent productId={productId} />
+    </I18nProvider>
   );
 }

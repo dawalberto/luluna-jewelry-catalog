@@ -1,10 +1,10 @@
 import {
-  isSignInWithEmailLink,
-  onAuthStateChanged,
-  sendSignInLinkToEmail,
-  signInWithEmailLink,
-  signOut,
-  type User,
+    isSignInWithEmailLink,
+    onAuthStateChanged,
+    sendSignInLinkToEmail,
+    signInWithEmailLink,
+    signOut,
+    type User,
 } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useMemo, useState } from 'react';
@@ -12,6 +12,7 @@ import { siteConfig } from '../../config/env';
 import { I18nProvider, useI18n } from '../../i18n';
 import FirebaseClient from '../../services/FirebaseClient';
 import type { Locale } from '../../types/i18n';
+import HeaderSimple from '../common/HeaderSimple';
 import { Button, Input } from '../ui';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import AdminPanel from './AdminPanel';
@@ -23,6 +24,7 @@ interface AdminAppProps {
 export default function AdminApp({ initialLocale }: AdminAppProps) {
   return (
     <I18nProvider initialLocale={initialLocale}>
+      <HeaderSimple />
       <AdminAuthGate />
     </I18nProvider>
   );

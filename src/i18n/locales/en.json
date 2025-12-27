@@ -13,7 +13,8 @@
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
-    "close": "Close"
+    "close": "Close",
+    "view": "View"
   },
   "nav": {
     "home": "Home",
@@ -67,7 +68,9 @@
     "noProducts": "No products available",
     "noResults": "No products found",
     "searchPlaceholder": "Search products...",
-    "filterByTags": "Filter by tags"
+    "filterByTags": "Filter by tags",
+    "productNotFound": "Product not found",
+    "backToCatalog": "Back to catalog"
   },
   "admin": {
     "title": "Administration",

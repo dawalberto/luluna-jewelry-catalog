@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { I18nProvider, useI18n } from '../../i18n';
+import { useI18n } from '../../i18n';
 import type { GlobalDiscount, PricingConfig, Product } from '../../types';
 import { useCategories, useShippings, useTags } from '../../utils/hooks';
 
@@ -9,7 +9,7 @@ interface ProductDetailProps {
   globalDiscount?: GlobalDiscount;
 }
 
-function ProductDetailContent({ product, pricingConfig, globalDiscount }: ProductDetailProps) {
+export default function ProductDetail({ product, pricingConfig, globalDiscount }: ProductDetailProps) {
   const { locale, t } = useI18n();
   const { categories: dbCategories } = useCategories();
   const { tags: dbTags } = useTags();
@@ -391,13 +391,5 @@ function ProductDetailContent({ product, pricingConfig, globalDiscount }: Produc
         </div>
       </div>
     </div>
-  );
-}
-
-export default function ProductDetail(props: ProductDetailProps) {
-  return (
-    <I18nProvider>
-      <ProductDetailContent {...props} />
-    </I18nProvider>
   );
 }

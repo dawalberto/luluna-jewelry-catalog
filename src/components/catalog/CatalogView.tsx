@@ -267,16 +267,16 @@ export default function CatalogView() {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-6 md:py-12">
-      <div className="text-center mb-8 md:mb-12">
-        <h1 className="text-4xl md:text-7xl font-black text-black mb-6 uppercase tracking-tighter">{t.catalog.title}</h1>
-        <p className="text-lg font-body text-gray-600 max-w-2xl mx-auto mt-4">{t.catalog.subtitle}</p>
+    <div className="container mx-auto px-2 py-4 md:px-4 md:py-12">
+      <div className="text-center mb-4 md:mb-12">
+        <h1 className="text-3xl md:text-7xl font-black text-black mb-3 md:mb-6 uppercase tracking-tighter">{t.catalog.title}</h1>
+        <p className="text-base md:text-lg font-body text-gray-600 max-w-2xl mx-auto mt-2 md:mt-4">{t.catalog.subtitle}</p>
       </div>
 
       {/* Compact Filters Bar */}
-      <div className="mb-8 bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6 space-y-4">
+      <div className="mb-4 md:mb-8 bg-gray-50 border border-gray-200 rounded-lg p-3 md:p-6 space-y-3 md:space-y-4">
         {/* Row 1: Search and Sort */}
-        <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:items-center md:justify-between">
           <div className="flex-1 max-w-md">
             <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
           </div>
@@ -297,7 +297,7 @@ export default function CatalogView() {
         </div>
 
         {/* Row 2: Category Filter */}
-        <div className="border-t border-gray-200 pt-4">
+        <div className="border-t border-gray-200 pt-3 md:pt-4">
           <div className="flex items-start gap-3">
             <div className="flex items-center gap-2 whitespace-nowrap pt-1">
               <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -368,7 +368,7 @@ export default function CatalogView() {
 
         {/* Row 3: Tags Filter */}
         {availableTags.length > 0 && (
-          <div className="border-t border-gray-200 pt-4">
+          <div className="border-t border-gray-200 pt-3 md:pt-4">
             <div className="flex items-start gap-3">
               <div className="flex items-center gap-2 whitespace-nowrap pt-1">
                 <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -417,9 +417,9 @@ export default function CatalogView() {
       </div>
 
       {globalDiscount?.active && globalDiscount.percent > 0 && (
-        <div className="mb-12 bg-[#2E6A77]/5 border border-[#2E6A77]/20 px-8 py-8 text-center">
-          <div className="text-sm font-medium text-[#2E6A77] uppercase tracking-widest mb-2">{t.catalog.promoTitle}</div>
-          <div className="text-2xl font-heading font-medium text-black mb-4">
+        <div className="mb-6 md:mb-12 bg-[#2E6A77]/5 border border-[#2E6A77]/20 px-4 py-4 md:px-8 md:py-8 text-center">
+          <div className="text-xs md:text-sm font-medium text-[#2E6A77] uppercase tracking-widest mb-2">{t.catalog.promoTitle}</div>
+          <div className="text-xl md:text-2xl font-heading font-medium text-black mb-2 md:mb-4">
             {(() => {
               const localizedTitle =
                 globalDiscount.title?.[locale] ??
