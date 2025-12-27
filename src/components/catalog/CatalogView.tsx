@@ -315,9 +315,65 @@ export default function CatalogView() {
   return (
     <div className="container mx-auto px-2 py-4 md:px-4 md:py-12">
       <div className="text-center mb-4 md:mb-12">
-        <h1 className="text-3xl md:text-6xl font-black text-black mb-3 md:mb-6 tracking-tighter">
-          {siteContent?.catalogTitle?.[locale] || t.catalog.title}
-        </h1>
+        <div className="relative inline-block">
+          <h1 className="text-3xl md:text-6xl font-black text-black mb-3 md:mb-6 tracking-tighter relative z-10">
+            {siteContent?.catalogTitle?.[locale] || t.catalog.title}
+          </h1>
+          {/* Pincelada acrílica/acuarela */}
+          <svg 
+            className="absolute left-0 right-0 -bottom-2 md:-bottom-4 w-full h-4 md:h-6 pointer-events-none opacity-90"
+            viewBox="0 0 300 20" 
+            preserveAspectRatio="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              {/* Gradiente para simular variaciones de acuarela */}
+              <linearGradient id="watercolorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style={{ stopColor: '#2F6B80', stopOpacity: 0.7 }} />
+                <stop offset="15%" style={{ stopColor: '#2F6B80', stopOpacity: 0.85 }} />
+                <stop offset="30%" style={{ stopColor: '#3A7A91', stopOpacity: 0.75 }} />
+                <stop offset="50%" style={{ stopColor: '#2F6B80', stopOpacity: 0.9 }} />
+                <stop offset="70%" style={{ stopColor: '#25586B', stopOpacity: 0.8 }} />
+                <stop offset="85%" style={{ stopColor: '#2F6B80', stopOpacity: 0.85 }} />
+                <stop offset="100%" style={{ stopColor: '#2F6B80', stopOpacity: 0.65 }} />
+              </linearGradient>
+            </defs>
+            
+            {/* Capa base de la pincelada con bordes irregulares */}
+            <path
+              d="M 5,12 Q 15,8 30,10 T 60,9 Q 80,11 100,8 T 140,10 Q 170,7 200,11 T 240,9 Q 260,10 280,8 L 295,12 Q 290,15 280,14 Q 260,16 240,13 T 200,15 Q 170,13 140,16 T 100,14 Q 80,17 60,15 T 30,16 Q 15,14 5,12 Z"
+              fill="url(#watercolorGradient)"
+            />
+            
+            {/* Capa adicional para más profundidad */}
+            <path
+              d="M 10,11 Q 25,9 45,10 T 85,9 Q 110,12 135,9 T 175,11 Q 205,8 235,12 T 270,10 Q 285,11 290,9"
+              fill="none"
+              stroke="#2F6B80"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              opacity="0.4"
+            />
+            
+            {/* Trazos sueltos para efecto de pincel */}
+            <path
+              d="M 50,13 Q 70,11 90,13"
+              fill="none"
+              stroke="#25586B"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              opacity="0.5"
+            />
+            <path
+              d="M 150,12 Q 170,10 190,12"
+              fill="none"
+              stroke="#3A7A91"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              opacity="0.45"
+            />
+          </svg>
+        </div>
         <p className="text-base text-pretty text-left md:text-lg font-body text-gray-600 max-w-2xl mx-auto mt-2 md:mt-4">
           {siteContent?.catalogSubtitle?.[locale] || t.catalog.subtitle}
         </p>
