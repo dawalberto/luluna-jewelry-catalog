@@ -250,7 +250,7 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
       {/* Image */}
       <div
         ref={imageContainerRef}
-        className="relative aspect-3/4 overflow-hidden bg-(--color-surface) rounded-squircle"
+        className="relative aspect-square overflow-hidden bg-(--color-surface) rounded-squircle"
         style={{ touchAction: 'pan-y' }}
         onClickCapture={handleImageContainerClickCapture}
       >
@@ -349,27 +349,27 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
       </div>
 
       {/* Content */}
-      <div className="pt-3 md:pt-5 text-center">
-        <h3 className="text-[13px] md:text-lg font-heading font-semibold leading-tight text-(--color-text) line-clamp-2 tracking-tight">
+      <div className="pt-4 text-left">
+        <h3 className="text-lg font-heading leading-tight text-(--color-text) line-clamp-2 tracking-tight">
           {product.title[locale]}
         </h3>
 
-        <p className="mt-1.5 md:mt-2 text-xs md:text-sm font-body text-(--color-muted) line-clamp-2 font-light leading-relaxed">
+        <p className="mt-4 text-sm font-body text-(--color-muted) line-clamp-3 font-light leading-relaxed">
           {product.description[locale]}
         </p>
 
-        <div className="mt-2.5 md:mt-4 flex items-center justify-center gap-1 md:gap-2">
+        <div className="mt-4 flex items-center justify-center gap-1 md:gap-2">
           {finalPrice == null ? (
-            <span className="text-base md:text-lg font-medium text-(--color-muted) opacity-70">-</span>
+            <span className="text-lg font-medium text-(--color-muted) opacity-70">-</span>
           ) : effectiveDiscountPercent > 0 && basePrice != null && finalPrice !== basePrice ? (
             <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-0">
               <span className="text-xs md:text-sm text-(--color-muted) opacity-70 line-through font-accent italic">{formatPrice(basePrice)}</span>
-              <span className="text-base md:text-lg font-semibold text-(--color-primary) font-accent italic">
+              <span className="text-lg font-semibold text-(--color-primary) font-accent italic">
                 {formatPrice(finalPrice)}
               </span>
             </div>
           ) : (
-            <span className="text-base md:text-lg font-semibold text-(--color-text) font-accent italic">
+            <span className="text-lg font-semibold text-(--color-text) font-accent italic">
               {formatPrice(finalPrice)}
             </span>
           )}
