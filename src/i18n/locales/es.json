@@ -56,7 +56,7 @@
     "shippingOptions": "Opciones de envío"
   },
   "catalog": {
-    "title": "Nuestro Catálogo",
+    "title": "Catálogo Luluna",
     "subtitle": "Joyería artesanal única y elegante",
     "promoTitle": "Promoción",
     "promoDescription": "Descuento aplicado automáticamente",
@@ -78,6 +78,7 @@
   },
   "admin": {
     "title": "Administración",
+    "home": "Inicio",
     "products": "Productos",
     "loginTitle": "Acceso de administrador",
     "email": "Email",
@@ -196,7 +197,19 @@
     "storageFirebaseManual": "Firebase Storage no está en uso. Las imágenes se almacenan en Cloudinary. Firebase se usa para Firestore (base de datos) y Authentication.",
     "storageOpenDashboard": "Abrir dashboard",
     "storageNote": "Nota",
-    "storageNoteText": "Para obtener estadísticas en tiempo real de Cloudinary, necesitas implementar un endpoint backend con tu API Secret (no debe exponerse en el cliente)."
+    "storageNoteText": "Para obtener estadísticas en tiempo real de Cloudinary, necesitas implementar un endpoint backend con tu API Secret (no debe exponerse en el cliente).",
+
+    "homeTitle": "Configuración de inicio",
+    "homeHelp": "Personaliza el texto que aparece en la página del catálogo.",
+    "catalogTitle": "Título del catálogo",
+    "catalogTitleEs": "Título (Español)",
+    "catalogTitleEn": "Título (Inglés)",
+    "catalogSubtitle": "Subtítulo del catálogo",
+    "catalogSubtitleEs": "Subtítulo (Español)",
+    "catalogSubtitleEn": "Subtítulo (Inglés)",
+    "homeSave": "Guardar cambios",
+    "homeSaved": "Cambios guardados exitosamente",
+    "homeSaveError": "Error al guardar los cambios"
   },
   "footer": {
     "copyright": "Todos los derechos reservados.",

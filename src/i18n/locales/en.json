@@ -56,7 +56,7 @@
     "shippingOptions": "Shipping options"
   },
   "catalog": {
-    "title": "Our Catalog",
+    "title": "Luluna Catalog",
     "subtitle": "Unique and elegant handcrafted jewelry",
     "promoTitle": "Promotion",
     "promoDescription": "Discount applied automatically",
@@ -78,6 +78,7 @@
   },
   "admin": {
     "title": "Administration",
+    "home": "Home",
     "products": "Products",
     "loginTitle": "Admin access",
     "email": "Email",
@@ -195,7 +196,19 @@
     "storageFirebaseManual": "Firebase Storage is not in use. Images are stored in Cloudinary. Firebase is used for Firestore (database) and Authentication.",
     "storageOpenDashboard": "Open dashboard",
     "storageNote": "Note",
-    "storageNoteText": "To get real-time Cloudinary statistics, you need to implement a backend endpoint with your API Secret (should not be exposed in the client)."
+    "storageNoteText": "To get real-time Cloudinary statistics, you need to implement a backend endpoint with your API Secret (should not be exposed in the client).",
+
+    "homeTitle": "Home settings",
+    "homeHelp": "Customize the text that appears on the catalog page.",
+    "catalogTitle": "Catalog title",
+    "catalogTitleEs": "Title (Spanish)",
+    "catalogTitleEn": "Title (English)",
+    "catalogSubtitle": "Catalog subtitle",
+    "catalogSubtitleEs": "Subtitle (Spanish)",
+    "catalogSubtitleEn": "Subtitle (English)",
+    "homeSave": "Save changes",
+    "homeSaved": "Changes saved successfully",
+    "homeSaveError": "Error saving changes"
   },
   "footer": {
     "copyright": "All rights reserved.",

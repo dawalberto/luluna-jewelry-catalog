@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
 import { ShippingService } from '../../services/ShippingService';
 import type { CreateShippingInput, UpdateShippingInput } from '../../types/shipping';
+import { formatPrice } from '../../utils';
 import { useShippings } from '../../utils/hooks';
 import { Button, Input } from '../ui';
 
@@ -319,7 +320,7 @@ export default function ShippingPanel() {
                       '-'}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                    {shipping.price.toFixed(2)}€
+                    {formatPrice(shipping.price)}
                   </td>
                   <td className="px-6 py-4 text-right text-sm font-medium">
                     <button

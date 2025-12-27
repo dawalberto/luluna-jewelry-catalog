@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
 import type { GlobalDiscount, PricingConfig, Product, ProductCategory } from '../../types';
+import { formatPrice } from '../../utils';
 import { useCategories } from '../../utils/hooks';
 
 interface ProductCardProps {
@@ -169,8 +170,6 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
     }
     return basePrice;
   }, [basePrice, effectiveDiscountPercent]);
-
-  const formatPrice = (value: number) => `${value.toFixed(2)}€`;
 
   const baseUrl = import.meta.env.BASE_URL || '/';
   const productHref = `${baseUrl.replace(/\/$/, '')}/product/${product.id}`;

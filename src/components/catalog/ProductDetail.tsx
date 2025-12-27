@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
 import type { GlobalDiscount, PricingConfig, Product } from '../../types';
+import { formatPrice } from '../../utils';
 import { useCategories, useShippings, useTags } from '../../utils/hooks';
 
 interface ProductDetailProps {
@@ -231,18 +232,18 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
               {hasDiscount ? (
                 <div className="flex items-baseline gap-4 flex-wrap">
                   <span className="font-heading text-3xl md:text-4xl font-medium text-(--color-primary)">
-                    {finalPrice.toFixed(2)}€
+                    {formatPrice(finalPrice)}
                   </span>
                   <span className="font-body text-xl text-gray-400 line-through font-light">
-                    {basePrice.toFixed(2)}€
+                    {formatPrice(basePrice)}
                   </span>
                   <span className="text-red-700 text-xs font-medium px-2 py-1 bg-red-50 uppercase tracking-wider">
-                    {t.productDetail.save} {(basePrice - finalPrice).toFixed(2)}€
+                    {t.productDetail.save} {formatPrice(basePrice - finalPrice)}
                   </span>
                 </div>
               ) : (
                 <span className="font-heading text-3xl md:text-4xl font-medium text-(--color-text)">
-                  {finalPrice.toFixed(2)}€
+                  {formatPrice(finalPrice)}
                 </span>
               )}
             </div>
@@ -375,7 +376,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
                       </div>
                       <div className="ml-4">
                         <span className="font-heading text-lg font-medium text-(--color-primary)">
-                          {shipping.price.toFixed(2)}€
+                          {formatPrice(shipping.price)}
                         </span>
                       </div>
                     </div>

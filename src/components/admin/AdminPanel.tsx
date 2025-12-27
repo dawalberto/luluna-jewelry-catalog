@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
 import { CategoryService, GlobalDiscountService, PricingService, ProductService, TagService } from '../../services';
 import type { CreateCategoryInput, CreateTagInput, GlobalDiscount, PricingConfig, Product, UpdateCategoryInput, UpdateTagInput } from '../../types';
+import { formatPrice } from '../../utils';
 import { useCategories, useProducts, useTags } from '../../utils/hooks';
 import { Button, Input } from '../ui';
+import HomePanel from './HomePanel';
 import ProductForm from './ProductForm';
 import ShippingPanel from './ShippingPanel';
 import StoragePanel from './StoragePanel';
@@ -95,7 +97,7 @@ function getProductFinalPrice(product: Product, pricing: PricingConfig): number 
 
 function AdminPanelContent() {
   const { t, locale } = useI18n();
-  type AdminTab = 'products' | 'pricing' | 'discount' | 'categories' | 'tags' | 'shippings' | 'storage';
+  type AdminTab = 'home' | 'products' | 'pricing' | 'discount' | 'categories' | 'tags' | 'shippings' | 'storage';
   const [activeTab, setActiveTab] = useState<AdminTab>('products');
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -514,6 +516,15 @@ function AdminPanelContent() {
         <Button
           type="button"
           size="sm"
+          variant={activeTab === 'home' ? 'outline' : 'ghost'}
+          onClick={() => handleTabChange('home')}
+          aria-current={activeTab === 'home' ? 'page' : undefined}
+        >
+          {(t.admin as any).home || 'Inicio'}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
           variant={activeTab === 'storage' ? 'outline' : 'ghost'}
           onClick={() => handleTabChange('storage')}
           aria-current={activeTab === 'storage' ? 'page' : undefined}
@@ -521,6 +532,8 @@ function AdminPanelContent() {
           {(t.admin as any).storageTitle || 'Almacenamiento'}
         </Button>
       </div>
+
+      {activeTab === 'home' && <HomePanel />}
 
       {activeTab === 'products' && (
         <>
@@ -638,7 +651,7 @@ function AdminPanelContent() {
                         {(() => {
                           const finalPrice = getProductFinalPrice(product, pricing);
                           if (finalPrice == null) return '-';
-                          return `${finalPrice.toFixed(2)}€`;
+                          return formatPrice(finalPrice);
                         })()}
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">

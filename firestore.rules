@@ -59,8 +59,8 @@ service cloud.firestore {
 
     // App settings (public read where needed; admin-only writes)
     match /settings/{docId} {
-      // Allow the catalog to read pricing + global discount config
-      allow read: if docId == 'pricing' || docId == 'discount';
+      // Allow the catalog to read pricing, global discount, and site content config
+      allow read: if docId == 'pricing' || docId == 'discount' || docId == 'siteContent';
       allow create, update, delete: if isAdmin();
     }
     

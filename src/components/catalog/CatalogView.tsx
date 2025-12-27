@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
-import { GlobalDiscountService, PricingService } from '../../services';
-import type { GlobalDiscount, PricingConfig, ProductCategory } from '../../types';
+import { GlobalDiscountService, PricingService, SiteContentService } from '../../services';
+import type { GlobalDiscount, PricingConfig, ProductCategory, SiteContent } from '../../types';
 import { loadCatalogState, saveCatalogState } from '../../utils';
 import { useCategories, useProducts, useTags } from '../../utils/hooks';
 import ProductGrid from './ProductGrid';
@@ -9,6 +9,7 @@ import SearchBar from './SearchBar';
 
 const pricingService = new PricingService();
 const globalDiscountService = new GlobalDiscountService();
+const siteContentService = new SiteContentService();
 
 export default function CatalogView() {
   const { t, locale } = useI18n();
@@ -18,6 +19,7 @@ export default function CatalogView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | undefined>(undefined);
   const [globalDiscount, setGlobalDiscount] = useState<GlobalDiscount | undefined>(undefined);
+  const [siteContent, setSiteContent] = useState<SiteContent | undefined>(undefined);
   type SortBy = 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
   const [sortBy, setSortBy] = useState<SortBy>('date-desc');
   const [scrollToRestore, setScrollToRestore] = useState<number | null>(null);
@@ -294,11 +296,31 @@ export default function CatalogView() {
     };
   }, []);
 
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const content = await siteContentService.getSiteContent();
+        if (mounted) setSiteContent(content);
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <div className="container mx-auto px-2 py-4 md:px-4 md:py-12">
       <div className="text-center mb-4 md:mb-12">
-        <h1 className="text-3xl md:text-7xl font-black text-black mb-3 md:mb-6 uppercase tracking-tighter">{t.catalog.title}</h1>
-        <p className="text-base md:text-lg font-body text-gray-600 max-w-2xl mx-auto mt-2 md:mt-4">{t.catalog.subtitle}</p>
+        <h1 className="text-3xl md:text-6xl font-black text-black mb-3 md:mb-6 tracking-tighter">
+          {siteContent?.catalogTitle?.[locale] || t.catalog.title}
+        </h1>
+        <p className="text-base text-pretty text-left md:text-lg font-body text-gray-600 max-w-2xl mx-auto mt-2 md:mt-4">
+          {siteContent?.catalogSubtitle?.[locale] || t.catalog.subtitle}
+        </p>
       </div>
 
       {/* Compact Filter Bar - Collapsed by default */}
