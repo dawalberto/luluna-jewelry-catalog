@@ -9,6 +9,8 @@ export default function HeaderSimple() {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [isOnAdminPage, setIsOnAdminPage] = useState<boolean>(false);
   const firebase = useMemo(() => FirebaseClient.getInstance(), []);
+  const baseUrl = import.meta.env.BASE_URL || '/';
+  const withBase = (path: string) => `${baseUrl.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
 
   // Detectar en qué página estamos
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function HeaderSimple() {
       {/* Botón de navegación fijo para administradores */}
       {isAdmin && (
         <a
-          href={isOnAdminPage ? `catalog` : `admin`}
+          href={isOnAdminPage ? withBase('/catalog') : withBase('/admin')}
           className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 px-3 py-2 sm:px-4 sm:py-3 text-lg sm:text-xl bg-(--color-primary) text-white rounded-squircle hover:brightness-95 transition-all duration-300 hover:scale-105"
           title={isOnAdminPage 
             ? (locale === 'es' ? 'Ir al catálogo' : 'Go to catalog') 
