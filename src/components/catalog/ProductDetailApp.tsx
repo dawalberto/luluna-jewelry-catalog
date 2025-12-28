@@ -32,7 +32,9 @@ function ProductDetailAppContent({ productId }: ProductDetailAppProps) {
         const discountService = new GlobalDiscountService();
 
         // Load product
+
         const productData = await productService.getProductById(productId);
+        console.log('[ProductDetailApp] productData:', productData);
 
         if (!productData) {
           setError('Producto no encontrado');
@@ -55,7 +57,7 @@ function ProductDetailAppContent({ productId }: ProductDetailAppProps) {
         setPricingConfig(pricing);
         setGlobalDiscount(discount);
       } catch (err) {
-        console.error('Error loading product:', err);
+        console.error('[ProductDetailApp] Error loading product:', err);
         setError('Error al cargar el producto');
       } finally {
         setLoading(false);

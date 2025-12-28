@@ -41,7 +41,7 @@ export default function HeaderSimple() {
       {/* Botón de navegación fijo para administradores */}
       {isAdmin && (
         <a
-          href={isOnAdminPage ? `/catalog` : `/admin`}
+          href={isOnAdminPage ? `catalog` : `admin`}
           className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 px-3 py-2 sm:px-4 sm:py-3 text-lg sm:text-xl bg-(--color-primary) text-white rounded-squircle hover:brightness-95 transition-all duration-300 hover:scale-105"
           title={isOnAdminPage 
             ? (locale === 'es' ? 'Ir al catálogo' : 'Go to catalog') 
