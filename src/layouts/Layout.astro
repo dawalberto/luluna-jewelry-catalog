@@ -6,11 +6,75 @@ interface Props {
   title: string
   description?: string
   lang?: Locale
+  canonicalUrl?: string
+  image?: string
+  robots?: string
+  ogType?: "website" | "product" | "article"
+  jsonLd?: unknown
 }
 
-const { title, description, lang = "es" } = Astro.props
+const {
+  title,
+  description,
+  lang = "es",
+  canonicalUrl: canonicalUrlProp,
+  image: imageProp,
+  robots: robotsProp,
+  ogType = "website",
+  jsonLd: jsonLdProp,
+} = Astro.props
+
 const siteTitle = "LuLuna Jewelry"
+const artistName = "Dalia López Rubio"
 const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle
+
+const defaultDescription =
+  "Catálogo de joyas de arcilla polimérica hechas a mano por la artista Dalia López Rubio."
+
+const metaDescription = (description && description.trim().length > 0 ? description : defaultDescription).slice(0, 200)
+
+const baseUrl = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`
+
+const runtimeBase = Astro.site ?? Astro.url
+
+const canonicalUrl = canonicalUrlProp
+  ? new URL(canonicalUrlProp, runtimeBase).toString()
+  : new URL(Astro.url.pathname, runtimeBase).toString()
+
+const ogImageUrl = imageProp
+  ? new URL(imageProp, runtimeBase).toString()
+  : new URL(`${baseUrl}favicon_io/android-chrome-512x512.png`, runtimeBase).toString()
+
+const ogLocale = lang === "en" ? "en_US" : "es_ES"
+const ogLocaleAlternate = lang === "en" ? "es_ES" : "en_US"
+
+const robots = robotsProp && robotsProp.trim().length > 0 ? robotsProp : "index,follow"
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: siteTitle,
+  url: new URL(baseUrl, runtimeBase).toString(),
+  description: defaultDescription,
+  founder: artistName,
+  brand: { "@type": "Brand", name: siteTitle },
+  logo: new URL(`${baseUrl}favicon_io/android-chrome-512x512.png`, runtimeBase).toString(),
+}
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteTitle,
+  url: new URL(baseUrl, runtimeBase).toString(),
+}
+
+const jsonLdList: unknown[] = [organizationJsonLd, websiteJsonLd]
+if (jsonLdProp) {
+  if (Array.isArray(jsonLdProp)) jsonLdList.push(...(jsonLdProp as unknown[]))
+  else jsonLdList.push(jsonLdProp)
+}
 
 const gaMeasurementId = import.meta.env.PUBLIC_GA_MEASUREMENT_ID
 const enableGoogleAnalytics = Boolean(gaMeasurementId) && import.meta.env.PROD
@@ -21,15 +85,50 @@ const enableGoogleAnalytics = Boolean(gaMeasurementId) && import.meta.env.PROD
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
+    <meta name="description" content={metaDescription} />
+    <meta name="author" content={artistName} />
+    <meta name="robots" content={robots} />
     <meta name="generator" content={Astro.generator} />
-    <link rel="icon" href="/favicon_io/favicon.ico" sizes="any" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon_io/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png" />
-    <link rel="manifest" href="/favicon_io/site.webmanifest" />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" href={baseUrl + "favicon_io/favicon.ico"} sizes="any" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href={baseUrl + "favicon_io/favicon-32x32.png"}
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href={baseUrl + "favicon_io/favicon-16x16.png"}
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href={baseUrl + "favicon_io/apple-touch-icon.png"}
+    />
+    <link rel="manifest" href={baseUrl + "favicon_io/site.webmanifest"} />
     <meta name="theme-color" content="#ffffff" />
     <title>{fullTitle}</title>
+
+    <meta property="og:site_name" content={siteTitle} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={ogLocaleAlternate} />
+
+    <meta name="twitter:card" content={imageProp ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={metaDescription} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <script type="application/ld+json" is:inline>
+      {JSON.stringify(jsonLdList)}
+    </script>
 
     {
       enableGoogleAnalytics && (

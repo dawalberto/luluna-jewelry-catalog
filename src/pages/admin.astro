@@ -10,7 +10,13 @@ const description =
   locale === "es" ? "Panel de administración de productos" : "Product administration panel"
 ---
 
-<Layout title={title} description={description} lang={locale}>
+<Layout
+  title={title}
+  description={description}
+  lang={locale}
+  robots="noindex,nofollow"
+  ogType="website"
+>
   <main class="min-h-screen bg-gray-50">
     <AdminApp client:load initialLocale={locale} />
   </main>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useI18n } from '../../i18n';
 import type { GlobalDiscount, PricingConfig, Product } from '../../types';
+import { siteConfig } from '../../config/env';
 import { formatPrice } from '../../utils';
 import { useCategories, useShippings, useTags } from '../../utils/hooks';
 
@@ -18,6 +19,11 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
 
   const baseUrl = import.meta.env.BASE_URL || '/';
   const withBase = (path: string) => `${baseUrl.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
+
+  const productLink = useMemo(() => {
+    const relativePath = withBase(`/product/${product.id}`);
+    return new URL(relativePath, siteConfig.url).toString();
+  }, [product.id]);
 
   const images = useMemo(() => (Array.isArray(product.images) ? product.images : []), [product.images]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -298,7 +304,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
 
               <a
                 href={`https://wa.me/659020036?text=${encodeURIComponent(
-                  `${t.productDetail.whatsappMessage} ${product.title[locale] || product.title.es}`
+                  `${t.productDetail.whatsappMessage} ${productLink}`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

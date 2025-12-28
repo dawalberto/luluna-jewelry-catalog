@@ -297,10 +297,10 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
               type="button"
               aria-label="Previous image"
               onClick={goPrev}
-              className="absolute left-1 md:left-2 top-1/2 z-20 -translate-y-1/2 bg-(--color-surface-2) backdrop-blur-md p-1.5 md:p-2 text-(--color-text) transition-all hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300 border border-(--color-border)"
+              className="hidden sm:block absolute left-3 top-1/2 z-20 -translate-y-1/2 bg-transparent backdrop-blur p-3 text-(--color-text) transition-all hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300 border border-(--color-border)"
             >
               <svg
-                className="h-3 w-3 md:h-4 md:w-4"
+                className="size-5"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -316,10 +316,10 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
               type="button"
               aria-label="Next image"
               onClick={goNext}
-              className="absolute right-1 md:right-2 top-1/2 z-20 -translate-y-1/2 bg-(--color-surface-2) backdrop-blur-md p-1.5 md:p-2 text-(--color-text) transition-all hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300 border border-(--color-border)"
+              className="hidden sm:block absolute right-3 top-1/2 z-20 -translate-y-1/2 bg-tr backdrop-blur p-3 text-(--color-text) transition-all hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300 border border-(--color-border)"
             >
               <svg
-                className="h-3 w-3 md:h-4 md:w-4"
+                className="size-5"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"

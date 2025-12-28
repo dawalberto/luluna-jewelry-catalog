@@ -4,15 +4,47 @@ import { Footer } from "../components/common"
 import { CatalogApp } from "../components/catalog"
 import { defaultLocale } from "../i18n/config"
 
+let itemListJsonLd: unknown = null
+const basePath = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`
+
+try {
+  const { ProductService } = await import("../services/ProductService")
+  const productService = new ProductService()
+  const res = await productService.getProducts({ publishedOnly: true }, { limit: 5000 })
+  const products = Array.isArray(res?.data) ? res.data : []
+
+  itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Catálogo de joyería artesanal",
+    itemListElement: products.slice(0, 2000).map((p, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      url: new URL(`${basePath}product/${p.id}`, Astro.site ?? Astro.url).toString(),
+      name: (p?.title?.[defaultLocale] || p?.title?.es || p?.title?.en || "Producto") as string,
+    })),
+  }
+} catch (err) {
+  console.warn("Catalog SEO: unable to build ItemList JSON-LD", err)
+}
+
 const locale = defaultLocale
 const title = locale === "es" ? "Catálogo" : "Catalog"
 const description =
   locale === "es"
-    ? "Explora nuestra colección de joyería artesanal"
-    : "Explore our handcrafted jewelry collection"
+    ? "Explora el catálogo de joyas de arcilla polimérica hechas a mano por la artista Dalia López Rubio."
+    : "Explore handmade polymer clay jewelry by the artist Dalia López Rubio."
 ---
 
-<Layout title={title} description={description} lang={locale}>
+<Layout
+  title={title}
+  description={description}
+  lang={locale}
+  ogType="website"
+  jsonLd={itemListJsonLd ? [itemListJsonLd] : undefined}
+>
   <main class="min-h-screen py-4 md:py-8">
     <div class="container mx-auto px-3 sm:px-4">
       <CatalogApp client:load initialLocale={locale} />

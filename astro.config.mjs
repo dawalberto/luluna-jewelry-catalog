@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 // Detect if we're running in development mode
@@ -15,7 +16,7 @@ export default defineConfig({
   // In development, access the site at http://localhost:4321/
   base: isDev ? '/' : '/luluna-jewelry-catalog',
   
-  integrations: [react()],
+  integrations: [react(), sitemap()],
 
   vite: {
     plugins: [tailwindcss()],

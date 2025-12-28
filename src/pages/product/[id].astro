@@ -7,38 +7,110 @@ import ProductDetailApp from "../../components/catalog/ProductDetailApp"
 // New products will load client-side via the same template
 export async function getStaticPaths() {
   // Import ProductService dynamically to avoid build-time Firebase issues
-  const { ProductService } = await import('../../services/ProductService');
-  const productService = new ProductService();
+  const { ProductService } = await import("../../services/ProductService")
+  const productService = new ProductService()
 
   try {
-    const res = await productService.getProducts({ publishedOnly: true }, { limit: 5000 });
-    
+    const res = await productService.getProducts({ publishedOnly: true }, { limit: 5000 })
+
     // Generate paths for all existing products
-    const paths = res.data.map((product) => ({
-      params: { id: product.id },
-    }));
-    
+    // Pass ONLY serializable SEO props (Firestore Timestamps are not serializable).
+    const paths = res.data.map((product) => {
+      const title =
+        product?.title?.[defaultLocale] || product?.title?.es || product?.title?.en || "Producto"
+      const description =
+        product?.description?.[defaultLocale] ||
+        product?.description?.es ||
+        product?.description?.en ||
+        "Detalles del producto de joyería artesanal"
+      const image =
+        Array.isArray(product?.images) && product.images.length > 0 ? product.images[0] : undefined
+      const category =
+        Array.isArray(product?.categories) && product.categories.length > 0
+          ? product.categories[0]
+          : product?.category
+
+      const pricingType = product?.pricing?.type
+      const customPrice = product?.pricing?.customPrice
+
+      return {
+        params: { id: product.id },
+        props: {
+          seo: {
+            title,
+            description,
+            image,
+            category,
+            pricingType,
+            customPrice,
+          },
+        },
+      }
+    })
+
     // Add a catch-all fallback that will handle new products
     // This ensures the same HTML template is used for all product IDs
-    return paths.length > 0 ? paths : [{ params: { id: 'fallback' } }];
+    return paths.length > 0 ? paths : [{ params: { id: "fallback" } }]
   } catch (error) {
-    console.error("Error generating product static paths:", error);
+    console.error("Error generating product static paths:", error)
     // Return at least one fallback path so the route exists
-    return [{ params: { id: 'fallback' } }];
+    return [{ params: { id: "fallback" } }]
   }
 }
 
 const { id } = Astro.params
 
-if (!id || id === 'fallback') {
+const { seo } = Astro.props as {
+  seo?: {
+    title?: string
+    description?: string
+    image?: string
+    category?: string
+    pricingType?: string
+    customPrice?: number
+  }
+}
+
+const locale = defaultLocale
+const resolvedTitle = seo?.title || "Producto"
+const resolvedDescription = seo?.description || "Detalles del producto de joyería artesanal"
+const resolvedImage = seo?.image
+
+const productJsonLd = seo
+  ? {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: resolvedTitle,
+      description: resolvedDescription,
+      image: resolvedImage ? [resolvedImage] : undefined,
+      brand: { "@type": "Brand", name: "LuLuna Jewelry" },
+      category: seo.category,
+      url: new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString(),
+      offers:
+        seo.pricingType === "custom" && typeof seo.customPrice === "number"
+          ? {
+              "@type": "Offer",
+              priceCurrency: "EUR",
+              price: seo.customPrice,
+              availability: "https://schema.org/InStock",
+              url: new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString(),
+            }
+          : undefined,
+    }
+  : null
+
+if (!id || id === "fallback") {
   // Don't redirect, let the client-side app handle it
 }
 ---
 
-<Layout 
-  title="LuLuna Jewelry - Producto" 
-  description="Detalles del producto de joyería artesanal" 
-  lang={defaultLocale}
+<Layout
+  title={resolvedTitle}
+  description={resolvedDescription}
+  lang={locale}
+  ogType="product"
+  image={resolvedImage}
+  jsonLd={productJsonLd ? [productJsonLd] : undefined}
 >
   <ProductDetailApp client:only="react" productId={id} />
 </Layout>
