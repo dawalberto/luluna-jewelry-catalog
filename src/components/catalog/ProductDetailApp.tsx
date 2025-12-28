@@ -34,7 +34,6 @@ function ProductDetailAppContent({ productId }: ProductDetailAppProps) {
         // Load product
 
         const productData = await productService.getProductById(productId);
-        console.log('[ProductDetailApp] productData:', productData);
 
         if (!productData) {
           setError('Producto no encontrado');
