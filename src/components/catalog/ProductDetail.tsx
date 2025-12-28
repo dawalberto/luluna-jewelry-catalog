@@ -229,7 +229,7 @@ export default function ProductDetail({ product, pricingConfig, globalDiscount }
             )}
 
             {/* Title */}
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-medium text-(--color-text) mb-6 leading-tight tracking-tight">
+            <h1 className="font-heading text-3xl md:text-4xl font-medium text-(--color-text) mb-6 leading-tight tracking-tight">
               {product.title[locale] || product.title.es}
             </h1>
 
