@@ -1,4 +1,4 @@
-# 📦 Resumen del Proyecto: LuLuna Jewelry Catalog
+# 📦 Resumen del Proyecto: Luluna Jewelry Catalog
 
 ## ✅ Estado del Proyecto: COMPLETADO
 
@@ -409,7 +409,7 @@ Para dudas o problemas:
 
 ## 🎉 Conclusión
 
-El proyecto **LuLuna Jewelry Catalog** está **100% completo** y listo para:
+El proyecto **Luluna Jewelry Catalog** está **100% completo** y listo para:
 
 1. ✅ Configuración de credenciales (Firebase + Cloudinary)
 2. ✅ Desarrollo local (tras actualizar Node.js)
@@ -421,4 +421,4 @@ El proyecto **LuLuna Jewelry Catalog** está **100% completo** y listo para:
 
 ---
 
-*Creado con ❤️ para LuLuna - Diciembre 2024*
+*Creado con ❤️ para Luluna - Diciembre 2024*

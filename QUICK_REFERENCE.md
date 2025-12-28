@@ -1,4 +1,4 @@
-# 🚀 LuLuna - Referencia Rápida
+# 🚀 Luluna - Referencia Rápida
 
 ## 📋 Comandos Esenciales
 

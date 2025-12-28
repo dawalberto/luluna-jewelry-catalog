@@ -1,4 +1,4 @@
-# LuLuna Jewelry Catalog - Copilot Instructions
+# Luluna Jewelry Catalog - Copilot Instructions
 
 ## Project Overview
 Headless jewelry catalog built with Astro + React + Firebase for fast, maintainable product display with real-time updates without rebuilds.

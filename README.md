@@ -1,4 +1,4 @@
-# 🌟 LuLuna Jewelry Catalog
+# 🌟 Luluna Jewelry Catalog
 
 > Catálogo headless de joyería artesanal con Astro + React + Firebase
 
@@ -422,4 +422,4 @@ Este proyecto es de código abierto bajo licencia MIT.
 
 ---
 
-Hecho con ❤️ por LuLuna
+Hecho con ❤️ por Luluna

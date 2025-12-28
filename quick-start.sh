@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Inicio Rápido - LuLuna Jewelry Catalog"
+echo "🚀 Inicio Rápido - Luluna Jewelry Catalog"
 echo "=========================================="
 echo ""
 

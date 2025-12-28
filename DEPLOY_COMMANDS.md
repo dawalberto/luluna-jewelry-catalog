@@ -19,7 +19,7 @@ Ve a: https://github.com/new
 git remote add origin https://github.com/TU-USUARIO/luluna-jewelry-catalog.git
 git branch -M main
 git add .
-git commit -m "🎉 Initial commit - LuLuna Jewelry Catalog"
+git commit -m "🎉 Initial commit - Luluna Jewelry Catalog"
 git push -u origin main
 ```
 

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Script para verificar el estado del proyecto LuLuna
+# Script para verificar el estado del proyecto Luluna
 
-echo "🌟 LuLuna Jewelry Catalog - Verificación del Proyecto"
+echo "🌟 Luluna Jewelry Catalog - Verificación del Proyecto"
 echo "======================================================"
 echo ""
 
@@ -119,4 +119,4 @@ echo "   5. Configurar Cloudinary (ver SETUP.md)"
 echo "   6. Ejecutar: npm run dev"
 echo ""
 
-echo "✨ ¡Buena suerte con tu proyecto LuLuna!"
+echo "✨ ¡Buena suerte con tu proyecto Luluna!"

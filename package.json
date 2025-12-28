@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "description": "Headless jewelry catalog with Astro + React + Firebase",
-  "author": "LuLuna",
+  "author": "Luluna",
   "license": "MIT",
   "engines": {
     "node": ">=18.20.8"

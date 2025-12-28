@@ -42,7 +42,7 @@ git add .
 echo -e "${GREEN}✅ Archivos agregados${NC}"
 
 # Hacer el primer commit
-git commit -m "🎉 Initial commit - LuLuna Jewelry Catalog"
+git commit -m "🎉 Initial commit - Luluna Jewelry Catalog"
 echo -e "${GREEN}✅ Commit creado${NC}"
 
 echo ""

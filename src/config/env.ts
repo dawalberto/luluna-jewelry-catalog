@@ -26,8 +26,8 @@ export const siteConfig = {
   url: import.meta.env.PUBLIC_SITE_URL || 'http://localhost:4321',
   defaultLocale: (import.meta.env.PUBLIC_DEFAULT_LOCALE || 'es') as 'es' | 'en',
   title: {
-    es: 'LuLuna Joyería',
-    en: 'LuLuna Jewelry',
+    es: 'Luluna Joyería',
+    en: 'Luluna Jewelry',
   },
   description: {
     es: 'Joyería artesanal única y elegante',

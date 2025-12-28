@@ -15,7 +15,7 @@ export default function Footer() {
           
           <div className="text-center text-(--color-muted) font-body space-y-2">
             <p className="text-sm">
-              © {yearDisplay} LuLuna Jewelry. {t.footer.copyright}
+              © {yearDisplay} Luluna Jewelry. {t.footer.copyright}
             </p>
             <p className="text-xs">
               {t.footer.madeWith}
