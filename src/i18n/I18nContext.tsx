@@ -16,6 +16,7 @@ interface I18nProviderProps {
 }
 
 export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
+
   // Initialize locale synchronously from browser storage
   const getInitialLocale = (): Locale => {
     if (typeof window === 'undefined') {
@@ -68,10 +69,12 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     }
   };
 
+  const tempLocaleEs: Locale = 'es';
+
   const value: I18nContextValue = {
-    locale,
+    locale: tempLocaleEs,
     setLocale,
-    t: getTranslations(locale),
+    t: getTranslations(tempLocaleEs),
   };
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;

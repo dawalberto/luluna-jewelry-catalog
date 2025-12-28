@@ -1,5 +1,4 @@
 import { useI18n } from '../../i18n';
-import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -12,7 +11,7 @@ export default function Footer() {
       <div className="container mx-auto px-6 py-12">
         <div className="flex flex-col items-center gap-6">
           {/* Language Switcher */}
-          <LanguageSwitcher />
+          {/* <LanguageSwitcher /> */}
           
           <div className="text-center text-(--color-muted) font-body space-y-2">
             <p className="text-sm">

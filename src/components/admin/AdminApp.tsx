@@ -1,10 +1,10 @@
 import {
-    isSignInWithEmailLink,
-    onAuthStateChanged,
-    sendSignInLinkToEmail,
-    signInWithEmailLink,
-    signOut,
-    type User,
+  isSignInWithEmailLink,
+  onAuthStateChanged,
+  sendSignInLinkToEmail,
+  signInWithEmailLink,
+  signOut,
+  type User,
 } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useMemo, useState } from 'react';
