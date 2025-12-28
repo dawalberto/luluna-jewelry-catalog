@@ -27,7 +27,7 @@ export default function CatalogView() {
   const [sortBy, setSortBy] = useState<SortBy>('date-desc');
   const [scrollToRestore, setScrollToRestore] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [mobileGridColumns, setMobileGridColumns] = useState<1 | 2>(1);
+  const [mobileGridColumns, setMobileGridColumns] = useState<1 | 2>(2);
 
   const { categories: dbCategories } = useCategories();
 
