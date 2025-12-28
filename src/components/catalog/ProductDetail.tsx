@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
+import { siteConfig } from '../../config/env';
 import { useI18n } from '../../i18n';
 import type { GlobalDiscount, PricingConfig, Product } from '../../types';
-import { siteConfig } from '../../config/env';
 import { formatPrice } from '../../utils';
 import { useCategories, useShippings, useTags } from '../../utils/hooks';
 
