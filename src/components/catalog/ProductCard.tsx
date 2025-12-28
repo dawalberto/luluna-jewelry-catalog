@@ -250,7 +250,7 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
       {/* Image */}
       <div
         ref={imageContainerRef}
-        className="relative aspect-square overflow-hidden bg-(--color-surface) rounded-squircle"
+        className="relative aspect-3/4 overflow-hidden bg-(--color-surface) rounded-squircle"
         style={{ touchAction: 'pan-y' }}
         onClickCapture={handleImageContainerClickCapture}
       >
@@ -336,13 +336,13 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
         <div className="pointer-events-none absolute inset-0 z-10 bg-linear-to-t from-black/35 via-black/0 to-black/0" />
 
         {!!categoryLabel && (
-          <div className="absolute left-2 top-2 md:left-3 md:top-3 z-20 bg-(--color-surface-2) backdrop-blur-sm px-2 py-0.5 md:px-3 md:py-1 text-[9px] md:text-[10px] font-medium uppercase tracking-[0.18em] text-(--color-text) border border-(--color-border)">
+          <div className="absolute left-2 top-2 md:left-3 md:top-3 z-20 bg-(--color-surface-2) backdrop-blur-sm px-2 py-0.5 md:px-3 md:py-1 text-[clamp(0.58rem,0.8vw,0.68rem)] font-medium uppercase tracking-[0.18em] text-(--color-text) border border-(--color-border)">
             {categoryLabel}
           </div>
         )}
 
         {product.isNew && (
-          <div className="absolute right-2 top-2 md:right-3 md:top-3 z-20 bg-(--color-primary) px-2 py-0.5 md:px-3 md:py-1 text-[9px] md:text-[10px] font-medium uppercase tracking-widest text-white">
+          <div className="absolute right-2 top-2 md:right-3 md:top-3 z-20 bg-(--color-primary) px-2 py-0.5 md:px-3 md:py-1 text-[clamp(0.58rem,0.8vw,0.68rem)] font-medium uppercase tracking-widest text-white">
             {t.admin.isNew}
           </div>
         )}
@@ -350,26 +350,26 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
 
       {/* Content */}
       <div className="pt-4 text-left">
-        <h3 className="text-lg font-heading leading-tight text-(--color-text) line-clamp-2 tracking-tight">
+        <h3 className="text-[clamp(1.1rem,2vw,1.5rem)] font-ebgaramond leading-tight text-(--color-text) line-clamp-2 tracking-tight">
           {product.title[locale]}
         </h3>
 
-        <p className="mt-4 text-sm font-body text-(--color-muted) line-clamp-3 font-light leading-relaxed">
+        <p className="mt-4 text-[clamp(0.85rem,1.2vw,1rem)] font-body text-(--color-text) line-clamp-3 font-light leading-relaxed">
           {product.description[locale]}
         </p>
 
-        <div className="mt-4 flex items-center justify-center gap-1 md:gap-2">
+        <div className="mt-4 flex items-end justify-end gap-1 md:gap-2">
           {finalPrice == null ? (
-            <span className="text-lg font-medium text-(--color-muted) opacity-70">-</span>
+            <span className="text-[clamp(1.1rem,2vw,1.3rem)] font-medium text-(--color-muted) opacity-70">-</span>
           ) : effectiveDiscountPercent > 0 && basePrice != null && finalPrice !== basePrice ? (
-            <div className="flex flex-wrap justify-center items-center gap-x-2 gap-y-0">
-              <span className="text-xs md:text-sm text-(--color-muted) opacity-70 line-through font-accent italic">{formatPrice(basePrice)}</span>
-              <span className="text-lg font-semibold text-(--color-primary) font-accent italic">
+            <div className="flex flex-wrap justify-end items-end gap-x-2 gap-y-0">
+              <span className="text-[clamp(0.8rem,1vw,0.95rem)] text-(--color-muted) opacity-70 line-through font-accent italic">{formatPrice(basePrice)}</span>
+              <span className="text-[clamp(1.1rem,2vw,1.3rem)] font-semibold text-(--color-primary) font-accent italic">
                 {formatPrice(finalPrice)}
               </span>
             </div>
           ) : (
-            <span className="text-lg font-semibold text-(--color-text) font-accent italic">
+            <span className="text-[clamp(1.1rem,2vw,1.3rem)] font-semibold text-(--color-text) font-accent italic">
               {formatPrice(finalPrice)}
             </span>
           )}
