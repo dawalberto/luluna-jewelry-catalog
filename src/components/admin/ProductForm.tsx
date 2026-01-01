@@ -119,10 +119,11 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
   };
 
   useEffect(() => {
-    // If nothing selected yet, pick the first available category.
+    // If nothing selected yet, default to "pendientes" if available, else pick the first.
     if (formData.categories.length > 0) return;
     if (categories.length === 0) return;
-    setFormData((prev) => ({ ...prev, categories: [categories[0].id] }));
+    const defaultCategory = categories.find(c => c.id === 'pendientes') || categories[0];
+    setFormData((prev) => ({ ...prev, categories: [defaultCategory.id] }));
   }, [categories, formData.categories.length]);
 
   useEffect(() => {
@@ -392,7 +393,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           <select
             className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-(--color-border-strong)"
             value={formData.collectionId || ''}
-            onChange={(e) => handleInputChange('collectionId', e.target.value || undefined)}
+            onChange={(e) => handleInputChange('collectionId', e.target.value === '' ? undefined : e.target.value)}
           >
             <option value="">{(t.admin as any).noCollection || 'Sin colección'}</option>
             {collections.map(({ id, label }) => (

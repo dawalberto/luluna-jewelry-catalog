@@ -349,8 +349,8 @@ export default function CatalogView() {
   }, []);
 
   return (
-    <div className="container mx-auto px-3 py-4 md:px-4 md:py-12">
-      <div className="text-center mb-10 md:mb-20 pt-8 md:pt-12">
+    <div className="container mx-auto px-3 py-4 md:px-4 md:py-10">
+      <div className="text-center mb-5 md:mb-10">
         <h1 className="text-4xl md:text-7xl font-heading font-medium text-(--color-text) mb-4 md:mb-6 tracking-tight">
           {siteContent?.catalogTitle?.[locale] || t.catalog.title}
         </h1>
@@ -360,7 +360,7 @@ export default function CatalogView() {
       </div>
 
       {/* Compact Filter Bar */}
-      <div className="mb-8 md:mb-12 sticky top-0 z-30 bg-(--color-bg)/95 backdrop-blur-sm py-4 transition-all">
+      <div className="mb-8 md:mb-12 sticky top-0 z-30 bg-(--color-bg) py-4 transition-all">
         <div className="flex items-center justify-between gap-4 border-b border-(--color-border) pb-4">
           {/* Left: Filters Toggle Button */}
           <button
@@ -374,9 +374,9 @@ export default function CatalogView() {
             <span className="text-xs md:text-sm uppercase tracking-[0.15em] font-medium group-hover:opacity-70 transition-opacity">
               {t.catalog.filters}
             </span>
-            {(selectedCategories.length > 0 || selectedTags.length > 0 || searchQuery) && (
+            {(selectedCategories.length > 0 || selectedTags.length > 0 || selectedCollection || searchQuery) && (
               <span className="bg-(--color-primary) text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center">
-                {selectedCategories.length + selectedTags.length + (searchQuery ? 1 : 0)}
+                {selectedCategories.length + selectedTags.length + (selectedCollection ? 1 : 0) + (searchQuery ? 1 : 0)}
               </span>
             )}
           </button>

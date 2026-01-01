@@ -3,7 +3,7 @@ import { useI18n } from '../../i18n';
 import { PricingService, ProductService } from '../../services';
 import type { PricingConfig, Product } from '../../types';
 import { formatPrice } from '../../utils';
-import { useCategories, useProducts } from '../../utils/hooks';
+import { useCategories, useCollections, useProducts } from '../../utils/hooks';
 import { Button } from '../ui';
 import ProductForm from './ProductForm';
 
@@ -48,6 +48,7 @@ export default function ProductsPanel() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { products, isLoading, mutate } = useProducts({ publishedOnly: false }, { limit: 100 });
   const { categories } = useCategories();
+  const { collections } = useCollections();
   const [pricing, setPricing] = useState<PricingConfig>({ S: 0, M: 0, L: 0 });
 
   // Load pricing config
@@ -95,6 +96,13 @@ export default function ProductsPanel() {
         : [];
     if (categoryList.length === 0) return '-';
     return categoryList.map((c) => localize(c)).join(', ');
+  };
+
+  const productCollectionLabel = (product: Product) => {
+    if (!product.collectionId) return '-';
+    const collection = collections.find((c) => c.id === product.collectionId);
+    if (!collection) return product.collectionId;
+    return collection.title?.[locale] ?? collection.title?.es ?? collection.id;
   };
 
   return (
@@ -154,6 +162,9 @@ export default function ProductsPanel() {
                 Tags
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                Colección
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                 {t.admin.productPrice}
               </th>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
@@ -179,13 +190,13 @@ export default function ProductsPanel() {
           <tbody className="bg-white divide-y divide-gray-200">
             {isLoading ? (
               <tr>
-                <td colSpan={11} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={12} className="px-6 py-4 text-center text-gray-500">
                   {t.common.loading}
                 </td>
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={11} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={12} className="px-6 py-4 text-center text-gray-500">
                   {t.catalog.noProducts}
                 </td>
               </tr>
@@ -225,6 +236,9 @@ export default function ProductsPanel() {
                         </span>
                       )) || '-'}
                     </div>
+                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-500 whitespace-nowrap">
+                    {productCollectionLabel(product)}
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
                     {(() => {

@@ -17,9 +17,9 @@ export default function Footer() {
             <p className="text-sm">
               © {yearDisplay} Luluna Jewelry. {t.footer.copyright}
             </p>
-            <p className="text-xs">
+            <a className="text-xs" href='https://thisisalberto.dev/' target='_blank'>
               {t.footer.madeWith}
-            </p>
+            </a>
           </div>
         </div>
       </div>
