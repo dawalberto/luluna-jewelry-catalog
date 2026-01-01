@@ -10,10 +10,10 @@ import LoadingSpinner from '../ui/LoadingSpinner';
 import ProductDetail from './ProductDetail';
 
 interface ProductDetailAppProps {
-  productId: string;
+  productId?: string; // Now optional, will read from URL if not provided
 }
 
-function ProductDetailAppContent({ productId }: ProductDetailAppProps) {
+function ProductDetailAppContent({ productId: propProductId }: ProductDetailAppProps) {
   const { t } = useI18n();
   const [product, setProduct] = useState<Product | null>(null);
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | null>(null);
@@ -21,18 +21,36 @@ function ProductDetailAppContent({ productId }: ProductDetailAppProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Get product ID from URL instead of props to handle dynamic routing
+  const getProductIdFromUrl = () => {
+    if (typeof window === 'undefined') return null;
+    const pathParts = window.location.pathname.split('/');
+    const productIndex = pathParts.indexOf('product');
+    if (productIndex !== -1 && pathParts[productIndex + 1]) {
+      return pathParts[productIndex + 1];
+    }
+    return null;
+  };
+
   useEffect(() => {
     const loadProductData = async () => {
       try {
         setLoading(true);
         setError(null);
 
+        // Use URL-based product ID instead of prop
+        const productId = getProductIdFromUrl() || propProductId;
+
+        if (!productId) {
+          setError('Producto no encontrado');
+          return;
+        }
+
         const productService = new ProductService();
         const pricingService = new PricingService();
         const discountService = new GlobalDiscountService();
 
         // Load product
-
         const productData = await productService.getProductById(productId);
 
         if (!productData) {
@@ -64,7 +82,7 @@ function ProductDetailAppContent({ productId }: ProductDetailAppProps) {
     };
 
     loadProductData();
-  }, [productId]);
+  }, []); // Empty dependency array - will read from URL on mount
 
   if (loading) {
     return (
@@ -115,7 +133,7 @@ function ProductDetailAppContent({ productId }: ProductDetailAppProps) {
   );
 }
 
-export default function ProductDetailApp({ productId }: ProductDetailAppProps) {
+export default function ProductDetailApp({ productId }: ProductDetailAppProps = {}) {
   return (
     <I18nProvider>
       <ProductDetailAppContent productId={productId} />
