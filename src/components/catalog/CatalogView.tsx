@@ -351,7 +351,7 @@ export default function CatalogView() {
   return (
     <div className="container mx-auto px-3 py-4 md:px-4 md:py-10">
       <div className="text-center mb-5 md:mb-10">
-        <h1 className="text-4xl md:text-7xl font-heading font-medium text-(--color-text) mb-4 md:mb-6 tracking-tight">
+        <h1 className="text-4xl md:text-7xl font-dream-avenue font-light text-(--color-text) mb-4 md:mb-6 tracking-tight">
           {siteContent?.catalogTitle?.[locale] || t.catalog.title}
         </h1>
         <p className="text-base md:text-lg font-body text-(--color-muted) max-w-2xl mx-auto leading-relaxed font-light tracking-wide">
@@ -391,11 +391,11 @@ export default function CatalogView() {
               aria-label="Cambiar columnas"
             >
                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  {mobileGridColumns === 1 ? (
+                  {/* {mobileGridColumns === 1 ? ( */}
                     <path d="M4 4h7v7H4V4zm10 0h7v7h-7V4zM4 14h7v7H4v-7zm10 0h7v7h-7v-7z" />
-                  ) : (
-                    <path d="M4 4h16v16H4V4z" />
-                  )}
+                  {/* // ) : (
+                  //   <path d="M4 4h16v16H4V4z" />
+                  // )} */}
                </svg>
             </button>
 
@@ -678,6 +678,20 @@ export default function CatalogView() {
           sortBy,
         }}
       />
+
+      {/* Download PDF Button */}
+      {/* <DownloadPDFButton
+        pdfOptions={{
+          products: sortedProducts,
+          pricingTiers: pricingConfig ?? null,
+          globalDiscount: globalDiscount ?? null,
+          locale,
+          selectedCategories,
+          selectedTags,
+          selectedCollection,
+          searchQuery,
+        }}
+      /> */}
     </div>
   );
 }

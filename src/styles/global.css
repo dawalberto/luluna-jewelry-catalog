@@ -1,6 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=EB+Garamond:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Dream Avenue';
+  src: url('/assets/fonts/Dream Avenue Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --color-primary: #2F6B80;
   --color-bg: #F9F7F2; /* Ivory/Off-white base */
@@ -19,6 +27,7 @@
   --font-accent: 'Cormorant Garamond', serif;
   --font-display: 'Cormorant Garamond', serif;
   --font-ebgaramond: 'EB Garamond', serif;
+  --font-dream-avenue: 'Dream Avenue', cursive;
   --border-radius: 0px;
 }
 
@@ -47,6 +56,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .font-accent {
   font-family: var(--font-accent);
+}
+
+.font-dream-avenue {
+  font-family: var(--font-dream-avenue);
 }
 
 .font-display {
