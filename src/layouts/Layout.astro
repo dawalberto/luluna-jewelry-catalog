@@ -133,13 +133,13 @@ const enableGoogleAnalytics = Boolean(gaMeasurementId) && import.meta.env.PROD
     {
       enableGoogleAnalytics && (
         <>
-          <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`} />
-          <script is:inline>
-            {`window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', '${gaMeasurementId}', { anonymize_ip: true });`}
-          </script>
+          <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}></script>
+          <script is:inline set:html={`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${gaMeasurementId}', { anonymize_ip: true });
+          `} />
         </>
       )
     }
