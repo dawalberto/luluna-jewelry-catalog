@@ -32,6 +32,19 @@ import type { IProductRepository } from './IProductRepository';
  * - Liskov Substitution: Can be replaced with any IProductRepository implementation
  * - Dependency Inversion: Depends on FirebaseClient abstraction
  */
+/**
+ * Remove undefined values from an object (Firestore doesn't allow undefined)
+ */
+function removeUndefinedFields<T extends Record<string, any>>(obj: T): Partial<T> {
+  const cleaned: Record<string, any> = {};
+  for (const key in obj) {
+    if (obj[key] !== undefined) {
+      cleaned[key] = obj[key];
+    }
+  }
+  return cleaned as Partial<T>;
+}
+
 export class ProductRepository implements IProductRepository {
   private readonly collectionName = 'products';
   private readonly db;
@@ -168,9 +181,12 @@ export class ProductRepository implements IProductRepository {
       productData.price = input.pricing.customPrice;
     }
 
+    // Remove undefined fields before saving to Firestore
+    const cleanedData = removeUndefinedFields(productData);
+
     const docRef = await addDoc(
       collection(this.db, this.collectionName),
-      productData
+      cleanedData
     );
 
     const newProduct = await this.getById(docRef.id);
@@ -200,11 +216,14 @@ export class ProductRepository implements IProductRepository {
           : null;
     }
 
-    await updateDoc(docRef, {
+    // Remove undefined fields before saving to Firestore
+    const cleanedData = removeUndefinedFields({
       ...updateData,
       ...legacyPatch,
       updatedAt: serverTimestamp(),
     });
+
+    await updateDoc(docRef, cleanedData);
 
     const updatedProduct = await this.getById(id);
     if (!updatedProduct) {
