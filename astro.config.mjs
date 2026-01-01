@@ -10,11 +10,9 @@ const isDev = process.argv.includes('dev') || process.env.npm_lifecycle_event ==
 
 // https://astro.build/config
 export default defineConfig({
-  // Configure for GitHub Pages deployment
-  site: 'https://dawalberto.github.io',
-  // Only use base path in production (for GitHub Pages)
-  // In development, access the site at http://localhost:4321/
-  base: isDev ? '/' : '/luluna-jewelry-catalog',
+  // Configure for custom domain deployment
+  site: 'https://lulunajoyas.com',
+  base: '/',
   
   integrations: [react(), sitemap()],
 
