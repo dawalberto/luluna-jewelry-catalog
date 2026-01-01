@@ -346,18 +346,20 @@ export default function CatalogView() {
         </p>
       </div>
 
-      {/* Compact Filter Bar - Collapsed by default */}
+      {/* Compact Filter Bar */}
       <div className="mb-8 md:mb-12 sticky top-0 z-30 bg-(--color-bg)/95 backdrop-blur-sm py-4 transition-all">
-        {/* Top Bar: Filters Toggle and Sort */}
         <div className="flex items-center justify-between gap-4 border-b border-(--color-border) pb-4">
           {/* Left: Filters Toggle Button */}
           <button
             type="button"
-            onClick={() => setShowFilters(!showFilters)}
+            onClick={() => setShowFilters(true)}
             className="flex items-center gap-2 text-(--color-text) hover:text-(--color-primary) transition-colors group"
           >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
             <span className="text-xs md:text-sm uppercase tracking-[0.15em] font-medium group-hover:opacity-70 transition-opacity">
-              {showFilters ? (locale === 'es' ? 'Cerrar Filtros' : 'Close Filters') : t.catalog.filters}
+              {t.catalog.filters}
             </span>
             {(selectedCategories.length > 0 || selectedTags.length > 0 || searchQuery) && (
               <span className="bg-(--color-primary) text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center">
@@ -400,133 +402,165 @@ export default function CatalogView() {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Filters Panel - Collapsible */}
-        {showFilters && (
-          <div className="mt-0 bg-white/80 backdrop-blur-md border-b border-(--color-border) p-4 md:p-8 space-y-6 animate-[slideDown_0.2s_ease-out]">
-            {/* Search Bar */}
-            <div className="pb-6 border-b border-(--color-border)">
-              <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
-            </div>
+      {/* Sidebar Overlay */}
+      <div 
+        className={`fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity duration-300 ${
+          showFilters ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setShowFilters(false)}
+      />
 
-            {/* Category Filter */}
-            <div className="pb-6 border-b border-(--color-border)">
-              <div className="flex flex-col md:flex-row md:items-start gap-4">
-                <div className="flex items-center gap-2 whitespace-nowrap pt-1 min-w-[120px]">
-                  <span className="text-xs font-medium text-(--color-muted) uppercase tracking-[0.18em]">
-                    {t.categories.title || 'Categoría'}:
-                  </span>
-                  {selectedCategories.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedCategories([]);
-                        saveCatalogState({
-                          selectedCategories: [],
-                          selectedTags,
-                          searchQuery,
-                          sortBy,
-                          scrollPosition: 0,
-                        });
-                      }}
-                      className="text-xs text-(--color-primary) hover:underline"
-                      title={t.common.clear || 'Limpiar'}
-                    >
-                      ({selectedCategories.length})
-                    </button>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-x-6 gap-y-3 flex-1">
-                  {(dbCategories.length > 0
-                    ? dbCategories.map((c) => c.id)
-                    : Object.keys((t as any)?.categories ?? {}).filter((k) => k !== 'all')
-                  ).map((category) => {
-                    const isSelected = selectedCategories.includes(category);
-                    const labelFor = (id: ProductCategory) => {
-                      const fromDb = dbCategories.find((c) => c.id === id)?.title?.[locale];
-                      if (typeof fromDb === 'string' && fromDb.length > 0) return fromDb;
-                      const legacy = (t as any)?.categories?.[id];
-                      if (typeof legacy === 'string') return legacy;
-                      return id;
-                    };
-                    
-                    const toggleCategory = (cat: ProductCategory) => {
-                      setSelectedCategories((prev) => {
-                        if (prev.includes(cat)) {
-                          return prev.filter((c) => c !== cat);
-                        }
-                        return [...prev, cat];
-                      });
-                    };
-                    
-                    return (
-                      <button
-                        key={category}
-                        type="button"
-                        onClick={() => toggleCategory(category)}
-                        className={`text-sm tracking-wide transition-all ${
-                          isSelected
-                            ? 'text-(--color-primary) font-medium underline decoration-1 underline-offset-4'
-                            : 'text-(--color-text) hover:text-(--color-primary)'
-                        }`}
-                      >
-                        {labelFor(category)}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+      {/* Sidebar Panel */}
+      <div 
+        className={`fixed inset-y-0 left-0 z-50 w-full max-w-[320px] bg-(--color-bg) shadow-2xl transform transition-transform duration-300 ease-out ${
+          showFilters ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+         <div className="flex flex-col h-full">
+           {/* Sidebar Header */}
+           <div className="flex items-center justify-between p-6 border-b border-(--color-border)">
+              <h2 className="text-lg font-heading font-medium text-(--color-text) tracking-wide">{t.catalog.filters}</h2>
+              <button 
+                onClick={() => setShowFilters(false)}
+                className="text-(--color-muted) hover:text-(--color-text) transition-colors p-2 hover:bg-black/5 rounded-full"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+           </div>
 
-            {/* Tags Filter */}
-            {availableTags.length > 0 && (
+           {/* Sidebar Content */}
+           <div className="flex-1 overflow-y-auto p-6 space-y-8">
+              {/* Search */}
               <div>
-                <div className="flex flex-col md:flex-row md:items-start gap-4">
-                  <div className="flex items-center gap-2 whitespace-nowrap pt-1 min-w-[120px]">
+                 <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
+              </div>
+
+              {/* Categories */}
+              <div>
+                 <div className="flex items-center justify-between mb-4">
                     <span className="text-xs font-medium text-(--color-muted) uppercase tracking-[0.18em]">
-                      {(t.catalog as any).filterByTags || 'Etiquetas'}:
+                      {t.categories.title || 'Categoría'}
                     </span>
-                    {selectedTags.length > 0 && (
+                    {selectedCategories.length > 0 && (
                       <button
                         type="button"
                         onClick={() => {
-                          setSelectedTags([]);
+                          setSelectedCategories([]);
                           saveCatalogState({
-                            selectedCategories,
-                            selectedTags: [],
+                            selectedCategories: [],
+                            selectedTags,
                             searchQuery,
                             sortBy,
                             scrollPosition: 0,
                           });
                         }}
                         className="text-xs text-(--color-primary) hover:underline"
-                        title={t.common.clear || 'Limpiar'}
                       >
-                        ({selectedTags.length})
+                        {t.common.clear || 'Limpiar'}
                       </button>
                     )}
-                  </div>
-                  <div className="flex flex-wrap gap-2 flex-1">
-                    {availableTags.map(({ id, label }) => (
-                      <button
-                        key={id}
-                        type="button"
-                        onClick={() => toggleTag(id)}
-                        className={`px-3 py-1 text-[10px] uppercase tracking-widest transition-all border ${
-                          selectedTags.includes(id)
-                            ? 'bg-(--color-primary) text-white border-(--color-primary)'
-                            : 'bg-transparent text-(--color-muted) border-(--color-border) hover:border-(--color-primary) hover:text-(--color-primary)'
-                        }`}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                 </div>
+                 <div className="flex flex-col gap-2">
+                    {(dbCategories.length > 0
+                      ? dbCategories.map((c) => c.id)
+                      : Object.keys((t as any)?.categories ?? {}).filter((k) => k !== 'all')
+                    ).map((category) => {
+                      const isSelected = selectedCategories.includes(category);
+                      const labelFor = (id: ProductCategory) => {
+                        const fromDb = dbCategories.find((c) => c.id === id)?.title?.[locale];
+                        if (typeof fromDb === 'string' && fromDb.length > 0) return fromDb;
+                        const legacy = (t as any)?.categories?.[id];
+                        if (typeof legacy === 'string') return legacy;
+                        return id;
+                      };
+                      
+                      const toggleCategory = (cat: ProductCategory) => {
+                        setSelectedCategories((prev) => {
+                          if (prev.includes(cat)) {
+                            return prev.filter((c) => c !== cat);
+                          }
+                          return [...prev, cat];
+                        });
+                      };
+                      
+                      return (
+                        <button
+                          key={category}
+                          type="button"
+                          onClick={() => toggleCategory(category)}
+                          className={`text-sm text-left py-2 px-3 rounded-lg transition-all ${
+                            isSelected
+                              ? 'bg-(--color-primary)/10 text-(--color-primary) font-medium'
+                              : 'text-(--color-text) hover:bg-black/5'
+                          }`}
+                        >
+                          {labelFor(category)}
+                        </button>
+                      );
+                    })}
+                 </div>
               </div>
-            )}
-          </div>
-        )}
+
+              {/* Tags */}
+              {availableTags.length > 0 && (
+                <div>
+                   <div className="flex items-center justify-between mb-4">
+                      <span className="text-xs font-medium text-(--color-muted) uppercase tracking-[0.18em]">
+                        {(t.catalog as any).filterByTags || 'Etiquetas'}
+                      </span>
+                      {selectedTags.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedTags([]);
+                            saveCatalogState({
+                              selectedCategories,
+                              selectedTags: [],
+                              searchQuery,
+                              sortBy,
+                              scrollPosition: 0,
+                            });
+                          }}
+                          className="text-xs text-(--color-primary) hover:underline"
+                        >
+                          {t.common.clear || 'Limpiar'}
+                        </button>
+                      )}
+                   </div>
+                   <div className="flex flex-wrap gap-2">
+                      {availableTags.map(({ id, label }) => (
+                        <button
+                          key={id}
+                          type="button"
+                          onClick={() => toggleTag(id)}
+                          className={`px-3 py-1 text-[10px] uppercase tracking-widest transition-all border ${
+                            selectedTags.includes(id)
+                              ? 'bg-(--color-primary) text-white border-(--color-primary)'
+                              : 'bg-transparent text-(--color-muted) border-(--color-border) hover:border-(--color-primary) hover:text-(--color-primary)'
+                          }`}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                   </div>
+                </div>
+              )}
+           </div>
+           
+           {/* Sidebar Footer */}
+           <div className="p-6 border-t border-(--color-border) bg-(--color-surface)/50">
+              <button
+                onClick={() => setShowFilters(false)}
+                className="w-full py-3 bg-(--color-primary) text-white text-sm uppercase tracking-widest font-medium hover:bg-(--color-primary)/90 transition-colors"
+              >
+                {t.catalog.viewResults || 'Ver Resultados'}
+              </button>
+           </div>
+         </div>
       </div>
 
       {globalDiscount?.active && globalDiscount.percent > 0 && (
