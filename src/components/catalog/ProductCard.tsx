@@ -250,7 +250,7 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
       {/* Image */}
       <div
         ref={imageContainerRef}
-        className="relative aspect-3/4 overflow-hidden bg-(--color-surface) rounded-squircle"
+        className="relative aspect-3/4 overflow-hidden bg-[#F4F4F4]"
         style={{ touchAction: 'pan-y' }}
         onClickCapture={handleImageContainerClickCapture}
       >
@@ -272,7 +272,7 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
                   alt={`${product.title[locale]} - ${idx + 1}`}
                   loading={idx === 0 ? 'eager' : 'lazy'}
                   decoding="async"
-                  className="h-full w-full object-cover select-none"
+                  className="h-full w-full object-cover select-none transition-transform duration-700 ease-out group-hover:scale-105"
                   draggable={false}
                   style={{ pointerEvents: 'none' }}
                 />
@@ -286,7 +286,7 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
             alt={product.title[locale]}
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 z-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="absolute inset-0 z-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
             draggable={false}
           />
         )}
@@ -297,14 +297,14 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
               type="button"
               aria-label="Previous image"
               onClick={goPrev}
-              className="hidden sm:block absolute left-3 top-1/2 z-20 -translate-y-1/2 bg-transparent backdrop-blur p-3 text-(--color-text) transition-all hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300 border border-(--color-border)"
+              className="hidden sm:block absolute left-2 top-1/2 z-20 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 text-(--color-text) transition-all hover:bg-white pointer-events-auto opacity-0 group-hover:opacity-100 duration-300"
             >
               <svg
-                className="size-5"
+                className="size-4"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
@@ -316,14 +316,14 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
               type="button"
               aria-label="Next image"
               onClick={goNext}
-              className="hidden sm:block absolute right-3 top-1/2 z-20 -translate-y-1/2 bg-tr backdrop-blur p-3 text-(--color-text) transition-all hover:scale-105 active:scale-95 pointer-events-auto rounded-squircle opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300 border border-(--color-border)"
+              className="hidden sm:block absolute right-2 top-1/2 z-20 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-2 text-(--color-text) transition-all hover:bg-white pointer-events-auto opacity-0 group-hover:opacity-100 duration-300"
             >
               <svg
-                className="size-5"
+                className="size-4"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
@@ -333,43 +333,33 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
           </>
         )}
 
-        <div className="pointer-events-none absolute inset-0 z-10 bg-linear-to-t from-black/35 via-black/0 to-black/0" />
-
-        {!!categoryLabel && (
-          <div className="absolute left-2 top-2 md:left-3 md:top-3 z-20 bg-(--color-surface-2) backdrop-blur-sm px-2 py-0.5 md:px-3 md:py-1 text-[clamp(0.58rem,0.8vw,0.68rem)] font-medium uppercase tracking-[0.18em] text-(--color-text) border border-(--color-border)">
-            {categoryLabel}
-          </div>
-        )}
-
         {product.isNew && (
-          <div className="absolute right-2 top-2 md:right-3 md:top-3 z-20 bg-(--color-primary) px-2 py-0.5 md:px-3 md:py-1 text-[clamp(0.58rem,0.8vw,0.68rem)] font-medium uppercase tracking-widest text-white">
-            {t.admin.isNew}
+          <div className="absolute top-3 right-3 z-20">
+             <span className="text-[10px] uppercase tracking-[0.2em] font-medium text-(--color-text) bg-white/90 backdrop-blur px-2 py-1">
+               {t.admin.isNew}
+             </span>
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="pt-4 text-left">
-        <h3 className="text-[clamp(1.1rem,2vw,1.5rem)] font-ebgaramond leading-tight text-(--color-text) line-clamp-2 tracking-tight">
+      <div className="pt-5 pb-2 text-center">
+        <h3 className="text-lg font-heading text-(--color-text) line-clamp-2 tracking-wide font-medium group-hover:text-(--color-primary) transition-colors duration-300">
           {product.title[locale]}
         </h3>
 
-        <p className="mt-4 text-[clamp(0.85rem,1.2vw,1rem)] font-body text-(--color-text) line-clamp-3 font-light leading-relaxed">
-          {product.description[locale]}
-        </p>
-
-        <div className="mt-4 flex items-end justify-end gap-1 md:gap-2">
+        <div className="mt-2 flex items-center justify-center gap-3">
           {finalPrice == null ? (
-            <span className="text-[clamp(1.1rem,2vw,1.3rem)] font-medium text-(--color-muted) opacity-70">-</span>
+            <span className="text-sm text-(--color-muted) font-light">-</span>
           ) : effectiveDiscountPercent > 0 && basePrice != null && finalPrice !== basePrice ? (
-            <div className="flex flex-wrap justify-end items-end gap-x-2 gap-y-0">
-              <span className="text-[clamp(0.8rem,1vw,0.95rem)] text-(--color-muted) opacity-70 line-through font-accent italic">{formatPrice(basePrice)}</span>
-              <span className="text-[clamp(1.1rem,2vw,1.3rem)] font-semibold text-(--color-primary) font-accent italic">
+            <>
+              <span className="text-xs text-(--color-muted) line-through decoration-1 font-light">{formatPrice(basePrice)}</span>
+              <span className="text-sm font-medium text-(--color-primary)">
                 {formatPrice(finalPrice)}
               </span>
-            </div>
+            </>
           ) : (
-            <span className="text-[clamp(1.1rem,2vw,1.3rem)] font-semibold text-(--color-text) font-accent italic">
+            <span className="text-sm font-medium text-(--color-text) font-body tracking-wide">
               {formatPrice(finalPrice)}
             </span>
           )}
@@ -392,7 +382,7 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
   return (
     <a
       href={productHref}
-      className="group cursor-pointer block no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-(--color-border-strong) focus-visible:ring-offset-2 focus-visible:ring-offset-(--color-bg) rounded-squircle"
+      className="group cursor-pointer block no-underline focus:outline-none focus-visible:ring-1 focus-visible:ring-(--color-primary) focus-visible:ring-offset-4 focus-visible:ring-offset-(--color-bg)"
     >
       {cardContent}
     </a>

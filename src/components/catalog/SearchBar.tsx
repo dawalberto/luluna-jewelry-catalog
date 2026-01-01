@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useI18n } from '../../i18n';
-import { Input } from '../ui';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -51,12 +50,12 @@ export default function SearchBar({
         </svg>
       </div>
 
-      <Input
+      <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder || defaultPlaceholder}
-        className="pl-10"
+        className="w-full pl-10 pr-10 py-3 bg-transparent border-b border-(--color-border) text-(--color-text) placeholder-(--color-muted) focus:outline-none focus:border-(--color-primary) transition-colors font-body text-sm md:text-base"
       />
 
       {query && (

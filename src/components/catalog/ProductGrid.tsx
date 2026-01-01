@@ -77,7 +77,7 @@ export default function ProductGrid({
 
   return (
     <div
-      className={`grid ${mobileColsClass} sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 md:gap-x-10 gap-y-10 md:gap-y-12`}
+      className={`grid ${mobileColsClass} sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 md:gap-x-10 gap-y-16 md:gap-y-24`}
     >
       {products.map((product) => (
         <div key={product.id} onClick={handleProductClick}>
