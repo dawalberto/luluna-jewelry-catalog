@@ -14,7 +14,30 @@ export default defineConfig({
   site: 'https://lulunajoyas.com',
   base: '/',
   
-  integrations: [react(), sitemap()],
+  integrations: [
+    react(), 
+    sitemap({
+      changefreq: 'weekly',
+      priority: 0.7,
+      lastmod: new Date(),
+      // Custom entries for specific pages
+      customPages: [
+        'https://lulunajoyas.com/',
+        'https://lulunajoyas.com/catalog',
+        'https://lulunajoyas.com/admin'
+      ],
+      // Filter out admin pages from public sitemap
+      filter: (page) => !page.includes('/admin'),
+      // Add alternate language links if needed
+      i18n: {
+        defaultLocale: 'es',
+        locales: {
+          es: 'es',
+          en: 'en'
+        }
+      }
+    })
+  ],
 
   vite: {
     plugins: [tailwindcss()],

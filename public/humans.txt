@@ -1,0 +1,40 @@
+/* TEAM */
+  Creator & Developer: Alberto García Sola
+  Contact: alberto [at] https://thisisalberto.dev/
+  Location: Spain
+
+/* ARTIST */
+  Jewelry Artist: Dalia López Rubio
+  Business: Luluna Jewelry
+  Instagram: @lulunajoyas
+  
+/* SITE */
+  Last update: 2026/01/01
+  Language: Spanish / English
+  Doctype: HTML5
+  IDE: Visual Studio Code
+  
+/* TECHNOLOGY */
+  Framework: Astro
+  UI Library: React
+  Styling: Tailwind CSS
+  Backend: Firebase (Firestore, Authentication, Storage)
+  Image CDN: Cloudinary
+  Hosting: GitHub Pages
+  Domain: lulunajoyas.com
+  
+/* THANKS */
+  Astro Team
+  Firebase Team
+  React Team
+  Tailwind CSS Team
+  The Open Source Community
+  
+/* SITE FEATURES */
+  - Headless CMS architecture
+  - Real-time catalog management
+  - Multilingual support (ES/EN)
+  - Optimized images with Cloudinary
+  - SEO optimized
+  - Responsive design
+  - Handcrafted polymer clay jewelry

@@ -29,6 +29,8 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
           src={mainImageUrl}
           alt={`${alt} - Image ${selectedIndex + 1}`}
           className="w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
         />
       </div>
 
@@ -57,8 +59,8 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
                 <img
                   src={thumbUrl}
                   alt={`${alt} - Thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
+                  className="w-full h-full object-cover"                  loading="lazy"
+                  decoding="async"                />
               </button>
             );
           })}

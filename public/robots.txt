@@ -1,5 +1,23 @@
+# robots.txt for lulunajoyas.com
+
+# Allow all search engines
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /admin/
+Disallow: /*.json$
 
+# Crawl delay for polite crawling
+Crawl-delay: 1
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+
+# Sitemap location
 Sitemap: https://lulunajoyas.com/sitemap-index.xml
