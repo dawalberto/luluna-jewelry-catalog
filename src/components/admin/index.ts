@@ -1,6 +1,7 @@
 export { default as AdminApp } from './AdminApp';
 export { default as AdminPanel } from './AdminPanel';
 export { default as CategoriesPanel } from './CategoriesPanel';
+export { default as CollectionsPanel } from './CollectionsPanel';
 export { default as GlobalDiscountPanel } from './GlobalDiscountPanel';
 export { default as HomePanel } from './HomePanel';
 export { default as PricingPanel } from './PricingPanel';

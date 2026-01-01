@@ -1,4 +1,5 @@
 export * from './CategoryService';
+export * from './CollectionService';
 export { default as FirebaseClient } from './FirebaseClient';
 export * from './GlobalDiscountService';
 export * from './PricingService';

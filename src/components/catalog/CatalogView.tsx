@@ -3,9 +3,8 @@ import { useI18n } from '../../i18n';
 import { GlobalDiscountService, PricingService, SiteContentService } from '../../services';
 import type { GlobalDiscount, PricingConfig, ProductCategory, SiteContent } from '../../types';
 import { loadCatalogState, saveCatalogState } from '../../utils';
-import { useCategories, useProducts, useTags } from '../../utils/hooks';
+import { useCategories, useCollections, useProducts, useTags } from '../../utils/hooks';
 import ProductGrid from './ProductGrid';
-import SearchBar from './SearchBar';
 
 const pricingService = new PricingService();
 const globalDiscountService = new GlobalDiscountService();
@@ -18,6 +17,7 @@ export default function CatalogView() {
   
   const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedCollection, setSelectedCollection] = useState<string | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | undefined>(undefined);
   const [globalDiscount, setGlobalDiscount] = useState<GlobalDiscount | undefined>(undefined);
@@ -29,6 +29,7 @@ export default function CatalogView() {
   const [mobileGridColumns, setMobileGridColumns] = useState<1 | 2>(2);
 
   const { categories: dbCategories } = useCategories();
+  const { collections: dbCollections } = useCollections();
 
   // Load saved catalog state on mount (client-side only)
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function CatalogView() {
       }
       
       setSelectedTags(savedState.selectedTags || []);
+      setSelectedCollection((savedState as any).selectedCollection);
       setSearchQuery(savedState.searchQuery || '');
       // Migrar el estado antiguo al nuevo formato
       const legacyState = savedState as any;
@@ -87,9 +89,10 @@ export default function CatalogView() {
       selectedTags,
       searchQuery,
       sortBy,
-      scrollPosition: 0, // Reset scroll position when filters change
-    });
-  }, [selectedCategories, selectedTags, searchQuery, sortBy]);
+      scrollPosition: 0,
+      selectedCollection,
+    } as any);
+  }, [selectedCategories, selectedTags, searchQuery, sortBy, selectedCollection]);
 
   const filters = {
     categories: selectedCategories.length > 0 ? selectedCategories : undefined,
@@ -100,16 +103,26 @@ export default function CatalogView() {
   const { products, isLoading } = useProducts(filters, { limit: 50 });
   const { tags: dbTags } = useTags();
 
-  // Filter by tags client-side
-  const tagFilteredProducts = useMemo(() => {
-    if (selectedTags.length === 0) return products;
-    
-    return products.filter((product) => {
-      if (!product.tags || product.tags.length === 0) return false;
-      // Product must have ALL selected tags
-      return selectedTags.every((tag) => product.tags!.includes(tag));
-    });
-  }, [products, selectedTags]);
+  // Filter by tags and collection client-side
+  const tagAndCollectionFilteredProducts = useMemo(() => {
+    let filtered = products;
+
+    // Filter by tags
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter((product) => {
+        if (!product.tags || product.tags.length === 0) return false;
+        // Product must have ALL selected tags
+        return selectedTags.every((tag) => product.tags!.includes(tag));
+      });
+    }
+
+    // Filter by collection
+    if (selectedCollection) {
+      filtered = filtered.filter((product) => product.collectionId === selectedCollection);
+    }
+
+    return filtered;
+  }, [products, selectedTags, selectedCollection]);
 
   // Get all unique tags from database for the filter UI
   const availableTags = useMemo(() => {
@@ -163,7 +176,7 @@ export default function CatalogView() {
   const sortedProducts = useMemo(() => {
     // Sort by date if selected
     if (sortBy === 'date-desc' || sortBy === 'date-asc') {
-      const withMeta = tagFilteredProducts.map((product, index) => {
+      const withMeta = tagAndCollectionFilteredProducts.map((product, index) => {
         const createdAt = product.createdAt?.toMillis?.() ?? 0;
         const title =
           product.title?.[locale] ??
@@ -190,7 +203,7 @@ export default function CatalogView() {
 
     // Sort by popularity if selected
     if (sortBy === 'popularity') {
-      const withMeta = tagFilteredProducts.map((product, index) => {
+      const withMeta = tagAndCollectionFilteredProducts.map((product, index) => {
         const title =
           product.title?.[locale] ??
           product.title?.es ??
@@ -253,7 +266,7 @@ export default function CatalogView() {
         return base;
       };
 
-      const withMeta = tagFilteredProducts.map((product, index) => {
+      const withMeta = tagAndCollectionFilteredProducts.map((product, index) => {
         const title =
           product.title?.[locale] ??
           product.title?.es ??
@@ -284,8 +297,8 @@ export default function CatalogView() {
     }
 
     // Default: no sorting
-    return tagFilteredProducts;
-  }, [tagFilteredProducts, sortBy, pricingConfig, globalDiscount?.active, globalDiscount?.percent, locale]);
+    return tagAndCollectionFilteredProducts;
+  }, [tagAndCollectionFilteredProducts, sortBy, pricingConfig, globalDiscount?.active, globalDiscount?.percent, locale]);
 
   useEffect(() => {
     let mounted = true;
@@ -434,10 +447,10 @@ export default function CatalogView() {
 
            {/* Sidebar Content */}
            <div className="flex-1 overflow-y-auto p-6 space-y-8">
-              {/* Search */}
+              {/* Search
               <div>
                  <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
-              </div>
+              </div> */}
 
               {/* Categories */}
               <div>
@@ -523,7 +536,8 @@ export default function CatalogView() {
                               searchQuery,
                               sortBy,
                               scrollPosition: 0,
-                            });
+                              selectedCollection,
+                            } as any);
                           }}
                           className="text-xs text-(--color-primary) hover:underline"
                         >
@@ -549,6 +563,57 @@ export default function CatalogView() {
                    </div>
                 </div>
               )}
+
+              {/* Collections */}
+              {dbCollections.length > 0 && (
+                <div>
+                   <div className="flex items-center justify-between mb-4">
+                      <span className="text-xs font-medium text-(--color-muted) uppercase tracking-[0.18em]">
+                        {(t.catalog as any).filterByCollection || 'Colección'}
+                      </span>
+                      {selectedCollection && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedCollection(undefined);
+                            saveCatalogState({
+                              selectedCategories,
+                              selectedTags,
+                              searchQuery,
+                              sortBy,
+                              scrollPosition: 0,
+                              selectedCollection: undefined,
+                            } as any);
+                          }}
+                          className="text-xs text-(--color-primary) hover:underline"
+                        >
+                          {t.common.clear || 'Limpiar'}
+                        </button>
+                      )}
+                   </div>
+                   <div className="flex flex-col gap-2">
+                      {dbCollections.map((collection) => {
+                        const isSelected = selectedCollection === collection.id;
+                        const label = collection.title?.[locale] ?? collection.title?.es ?? collection.id;
+                        
+                        return (
+                          <button
+                            key={collection.id}
+                            type="button"
+                            onClick={() => setSelectedCollection(isSelected ? undefined : collection.id)}
+                            className={`text-sm text-left py-2 px-3 rounded-lg transition-all ${
+                              isSelected
+                                ? 'bg-(--color-primary)/10 text-(--color-primary) font-medium'
+                                : 'text-(--color-text) hover:bg-black/5'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                   </div>
+                </div>
+              )}
            </div>
            
            {/* Sidebar Footer */}
@@ -557,7 +622,7 @@ export default function CatalogView() {
                 onClick={() => setShowFilters(false)}
                 className="w-full py-3 bg-(--color-primary) text-white text-sm uppercase tracking-widest font-medium hover:bg-(--color-primary)/90 transition-colors"
               >
-                {t.catalog.viewResults || 'Ver Resultados'}
+                Ver Resultados
               </button>
            </div>
          </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useI18n } from '../../i18n';
 import { Button } from '../ui';
 import CategoriesPanel from './CategoriesPanel';
+import CollectionsPanel from './CollectionsPanel';
 import GlobalDiscountPanel from './GlobalDiscountPanel';
 import HomePanel from './HomePanel';
 import PricingPanel from './PricingPanel';
@@ -12,7 +13,7 @@ import TagsPanel from './TagsPanel';
 
 function AdminPanelContent() {
   const { t } = useI18n();
-  type AdminTab = 'home' | 'products' | 'pricing' | 'discount' | 'categories' | 'tags' | 'shippings' | 'storage';
+  type AdminTab = 'home' | 'products' | 'pricing' | 'discount' | 'categories' | 'collections' | 'tags' | 'shippings' | 'storage';
   const [activeTab, setActiveTab] = useState<AdminTab>('products');
 
   return (
@@ -48,6 +49,15 @@ function AdminPanelContent() {
           aria-current={activeTab === 'categories' ? 'page' : undefined}
         >
           {t.admin.categoriesTitle}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={activeTab === 'collections' ? 'outline' : 'ghost'}
+          onClick={() => setActiveTab('collections')}
+          aria-current={activeTab === 'collections' ? 'page' : undefined}
+        >
+          {(t.admin as any).collectionsTitle || 'Colecciones'}
         </Button>
         <Button
           type="button"
@@ -101,6 +111,7 @@ function AdminPanelContent() {
       {activeTab === 'pricing' && <PricingPanel />}
       {activeTab === 'discount' && <GlobalDiscountPanel />}
       {activeTab === 'categories' && <CategoriesPanel />}
+      {activeTab === 'collections' && <CollectionsPanel />}
       {activeTab === 'tags' && <TagsPanel />}
       {activeTab === 'shippings' && <ShippingPanel />}
       {activeTab === 'storage' && <StoragePanel />}

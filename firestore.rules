@@ -38,6 +38,15 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    // Collections collection
+    match /collections/{collectionId} {
+      // Public read so catalog can render filters and product details
+      allow read: if true;
+
+      // Only admins can manage collections
+      allow create, update, delete: if isAdmin();
+    }
+
     // Shippings collection
     match /shippings/{shippingId} {
       // Public read so product details can display shipping options

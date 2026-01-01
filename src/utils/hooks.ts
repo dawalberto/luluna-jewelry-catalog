@@ -1,7 +1,8 @@
 import useSWR, { type SWRConfiguration } from 'swr';
-import { CategoryService, ProductService, ShippingService, TagService } from '../services';
+import { CategoryService, CollectionService, ProductService, ShippingService, TagService } from '../services';
 import type {
     Category,
+    Collection,
     PaginatedResponse,
     PaginationOptions,
     Product,
@@ -12,6 +13,7 @@ import type {
 
 const productService = new ProductService();
 const categoryService = new CategoryService();
+const collectionService = new CollectionService();
 const tagService = new TagService();
 const shippingService = new ShippingService();
 
@@ -159,6 +161,27 @@ export function useTags(config?: SWRConfiguration) {
 
   return {
     tags: data || [],
+    isLoading,
+    isError: !!error,
+    error,
+    mutate,
+  };
+}
+
+/**
+ * Hook to fetch all collections
+ */
+export function useCollections(config?: SWRConfiguration) {
+  const key = ['collections'];
+
+  const { data, error, isLoading, mutate } = useSWR<Collection[]>(
+    key,
+    () => collectionService.getCollections(),
+    { ...defaultConfig, ...config }
+  );
+
+  return {
+    collections: data || [],
     isLoading,
     isError: !!error,
     error,

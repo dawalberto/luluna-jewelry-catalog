@@ -4,7 +4,7 @@ import { cloudinaryConfig } from '../../config/env';
 import { useI18n } from '../../i18n';
 import { PricingService, ProductService } from '../../services';
 import type { CreateProductInput, MultilingualText, PricingConfig, ProductCategory, ProductPriceType } from '../../types';
-import { useCategories, useTags } from '../../utils/hooks';
+import { useCategories, useCollections, useTags } from '../../utils/hooks';
 import { Button, Input } from '../ui';
 
 const productService = new ProductService();
@@ -19,6 +19,7 @@ interface ProductFormProps {
 export default function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) {
   const { t, locale } = useI18n();
   const { categories: dbCategories, isLoading: categoriesLoading } = useCategories();
+  const { collections: dbCollections, isLoading: collectionsLoading } = useCollections();
   const { tags: dbTags, isLoading: tagsLoading } = useTags();
   const isEditing = !!product;
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | null>(null);
@@ -39,6 +40,12 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
     }
     return [] as Array<{ id: string; label: string }>;
   }, [dbTags, locale]);
+  const collections = useMemo(() => {
+    if (dbCollections.length > 0) {
+      return dbCollections.map((collection) => ({ id: collection.id, label: collection.title?.[locale] ?? collection.title?.es ?? collection.id }));
+    }
+    return [] as Array<{ id: string; label: string }>;
+  }, [dbCollections, locale]);
   const [formData, setFormData] = useState<CreateProductInput>(() => {
     if (product) {
       return {
@@ -46,6 +53,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         description: product.description || { es: '', en: '' },
         categories: product.categories || [],
         tags: product.tags || [],
+        collectionId: product.collectionId,
         pricing: product.pricing || { type: 'S' },
         discount: product.discount || { enabled: false, percent: 0, description: '' },
         isNew: product.isNew || false,
@@ -59,6 +67,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
       description: { es: '', en: '' },
       categories: [],
       tags: [],
+      collectionId: undefined,
       pricing: { type: 'S' },
       discount: { enabled: false, percent: 0, description: '' },
       isNew: false,
@@ -370,6 +379,29 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
             ))
           )}
         </div>
+      </div>
+
+      {/* Collection */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {(t.admin as any).productCollection || 'Colección'}
+        </label>
+        {collectionsLoading ? (
+          <div className="text-sm text-gray-500">{t.common.loading}</div>
+        ) : (
+          <select
+            className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-(--color-border-strong)"
+            value={formData.collectionId || ''}
+            onChange={(e) => handleInputChange('collectionId', e.target.value || undefined)}
+          >
+            <option value="">{(t.admin as any).noCollection || 'Sin colección'}</option>
+            {collections.map(({ id, label }) => (
+              <option key={id} value={id}>
+                {label}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Pricing */}

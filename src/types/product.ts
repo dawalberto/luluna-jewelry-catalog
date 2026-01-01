@@ -60,6 +60,7 @@ export interface Product {
   // New model
   categories: ProductCategory[];
   tags?: string[]; // Product tags for filtering and organization
+  collectionId?: string; // Collection ID for grouping products (e.g., "summer-2024")
   pricing: ProductPricing;
   discount?: ProductDiscount;
   isNew?: boolean;
@@ -83,6 +84,7 @@ export interface CreateProductInput {
   description: MultilingualText;
   categories: ProductCategory[];
   tags?: string[];
+  collectionId?: string;
   pricing: ProductPricing;
   discount?: ProductDiscount;
   isNew?: boolean;
@@ -99,6 +101,7 @@ export interface UpdateProductInput {
   title?: MultilingualText;
   description?: MultilingualText;
   categories?: ProductCategory[];
+  collectionId?: string;
   tags?: string[];
   pricing?: ProductPricing;
   discount?: ProductDiscount;
