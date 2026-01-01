@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import type { Product, PricingConfig, GlobalDiscount, ProductCategory } from '../types';
+import type { GlobalDiscount, PricingConfig, Product, ProductCategory } from '../types';
 
 /**
  * Design tokens matching global.css
