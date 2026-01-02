@@ -837,8 +837,8 @@ export default function CatalogView() {
             {collectionGroups.map((group) => (
               <section key={group.id} className="scroll-mt-24">
                 <div className="flex items-center gap-4 mb-8">
-                  <h2 className="text-xs md:text-sm uppercase tracking-[0.22em] text-(--color-muted) font-medium">
-                    {group.label}
+                  <h2 className="text-base md:text-xl font-dream-avenue text-(--color-muted)">
+                    ✨ {group.label}
                   </h2>
                   <div className="flex-1 border-t border-(--color-border)" />
                 </div>
