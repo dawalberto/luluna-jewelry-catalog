@@ -5,6 +5,7 @@ const CATALOG_STATE_KEY = 'luluna_catalog_state';
 export interface CatalogState {
   selectedCategory?: ProductCategory | 'all'; // Legacy: deprecated
   selectedCategories?: ProductCategory[]; // New: multiple categories
+  selectedSubcategoryKeys?: string[];
   selectedTags?: string[];
   selectedCollection?: string;
   searchQuery: string;
@@ -57,6 +58,10 @@ export const loadCatalogState = (): CatalogState | null => {
     // Ensure selectedCategories is valid (default to empty array if undefined)
     if (!state.selectedCategories) {
       state.selectedCategories = [];
+    }
+
+    if (!state.selectedSubcategoryKeys) {
+      state.selectedSubcategoryKeys = [];
     }
 
     return state;

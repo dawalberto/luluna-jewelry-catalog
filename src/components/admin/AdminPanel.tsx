@@ -9,11 +9,12 @@ import PricingPanel from './PricingPanel';
 import ProductsPanel from './ProductsPanel';
 import ShippingPanel from './ShippingPanel';
 import StoragePanel from './StoragePanel';
+import SubcategoriesPanel from './SubcategoriesPanel';
 import TagsPanel from './TagsPanel';
 
 function AdminPanelContent() {
   const { t } = useI18n();
-  type AdminTab = 'home' | 'products' | 'pricing' | 'discount' | 'categories' | 'collections' | 'tags' | 'shippings' | 'storage';
+  type AdminTab = 'home' | 'products' | 'pricing' | 'discount' | 'categories' | 'subcategories' | 'collections' | 'tags' | 'shippings' | 'storage';
   const [activeTab, setActiveTab] = useState<AdminTab>('products');
 
   return (
@@ -49,6 +50,15 @@ function AdminPanelContent() {
           aria-current={activeTab === 'categories' ? 'page' : undefined}
         >
           {t.admin.categoriesTitle}
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={activeTab === 'subcategories' ? 'outline' : 'ghost'}
+          onClick={() => setActiveTab('subcategories')}
+          aria-current={activeTab === 'subcategories' ? 'page' : undefined}
+        >
+          {(t.admin as any).subcategoriesTitle || 'Subcategorías'}
         </Button>
         <Button
           type="button"
@@ -111,6 +121,7 @@ function AdminPanelContent() {
       {activeTab === 'pricing' && <PricingPanel />}
       {activeTab === 'discount' && <GlobalDiscountPanel />}
       {activeTab === 'categories' && <CategoriesPanel />}
+      {activeTab === 'subcategories' && <SubcategoriesPanel />}
       {activeTab === 'collections' && <CollectionsPanel />}
       {activeTab === 'tags' && <TagsPanel />}
       {activeTab === 'shippings' && <ShippingPanel />}

@@ -46,12 +46,36 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
     }
     return [] as Array<{ id: string; label: string }>;
   }, [dbCollections, locale]);
+
+  const makeSubcategoryKey = (categoryId: string, subcategoryId: string) =>
+    `${categoryId}:${subcategoryId}`;
+
+  const availableSubcategories = useMemo(() => {
+    if (dbCategories.length === 0) return [] as Array<{ key: string; parentId: string; label: string }>;
+
+    const out: Array<{ key: string; parentId: string; label: string }> = [];
+    dbCategories.forEach((cat) => {
+      const parentLabel = cat.title?.[locale] ?? cat.title?.es ?? cat.id;
+      (cat.subcategories ?? []).forEach((sub) => {
+        const subLabel = sub.title?.[locale] ?? sub.title?.es ?? sub.id;
+        out.push({
+          key: makeSubcategoryKey(cat.id, sub.id),
+          parentId: cat.id,
+          label: `${parentLabel} · ${subLabel}`,
+        });
+      });
+    });
+
+    out.sort((a, b) => a.label.localeCompare(b.label));
+    return out;
+  }, [dbCategories, locale]);
   const [formData, setFormData] = useState<CreateProductInput>(() => {
     if (product) {
       return {
         title: product.title || { es: '', en: '' },
         description: product.description || { es: '', en: '' },
         categories: product.categories || [],
+        subcategoryKeys: product.subcategoryKeys || [],
         tags: product.tags || [],
         collectionId: product.collectionId ?? '',
         pricing: product.pricing || { type: 'S' },
@@ -66,6 +90,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
       title: { es: '', en: '' },
       description: { es: '', en: '' },
       categories: [],
+      subcategoryKeys: [],
       tags: [],
       collectionId: '',
       pricing: { type: 'S' },
@@ -98,9 +123,36 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
       const next = has
         ? prev.categories.filter((c) => c !== category)
         : [...prev.categories, category];
+
+      // Preserve prior behavior: never allow leaving categories empty.
+      if (has && next.length === 0) return prev;
+
       return {
         ...prev,
-        categories: next.length > 0 ? next : prev.categories,
+        categories: next,
+        // If removing a category, remove its subcategory selections too.
+        subcategoryKeys: has
+          ? (prev.subcategoryKeys || []).filter((k) => !k.startsWith(`${category}:`))
+          : prev.subcategoryKeys,
+      };
+    });
+  };
+
+  const toggleSubcategory = (parentCategoryId: string, subcategoryId: string) => {
+    const key = makeSubcategoryKey(parentCategoryId, subcategoryId);
+    setFormData((prev) => {
+      const current = prev.subcategoryKeys || [];
+      const has = current.includes(key);
+      const nextKeys = has ? current.filter((k) => k !== key) : [...current, key];
+
+      const nextCategories = prev.categories.includes(parentCategoryId)
+        ? prev.categories
+        : [...prev.categories, parentCategoryId];
+
+      return {
+        ...prev,
+        categories: nextCategories,
+        subcategoryKeys: nextKeys,
       };
     });
   };
@@ -361,6 +413,38 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           )}
         </div>
       </div>
+
+      {/* Subcategories */}
+      {availableSubcategories.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            {(t.admin as any).productSubcategories || 'Subcategorías'}
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {availableSubcategories.map(({ key, parentId, label }) => {
+              const subId = key.split(':')[1] || '';
+              const checked = (formData.subcategoryKeys || []).includes(key);
+              const disabled = categoriesLoading;
+              return (
+                <label key={key} className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => toggleSubcategory(parentId, subId)}
+                    className="w-4 h-4 text-(--color-primary) border-gray-300 rounded-squircle focus:ring-(--color-border-strong)"
+                    disabled={disabled}
+                  />
+                  {label}
+                </label>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-xs text-gray-500">
+            {(t.admin as any).subcategoriesAutoSelectParent ||
+              'Al seleccionar una subcategoría, se marcará automáticamente su categoría padre.'}
+          </p>
+        </div>
+      )}
 
       {/* Tags */}
       <div>

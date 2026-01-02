@@ -22,6 +22,14 @@ const CreateCategorySchema = z.object({
 const UpdateCategorySchema = z.object({
   id: CategoryIdSchema,
   title: MultilingualTextSchema.optional(),
+  subcategories: z
+    .array(
+      z.object({
+        id: CategoryIdSchema,
+        title: MultilingualTextSchema,
+      })
+    )
+    .optional(),
 });
 
 export class CategoryService {

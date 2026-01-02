@@ -9,5 +9,6 @@ export { default as ProductForm } from './ProductForm';
 export { default as ProductsPanel } from './ProductsPanel';
 export { default as ShippingPanel } from './ShippingPanel';
 export { default as StoragePanel } from './StoragePanel';
+export { default as SubcategoriesPanel } from './SubcategoriesPanel';
 export { default as TagsPanel } from './TagsPanel';
 

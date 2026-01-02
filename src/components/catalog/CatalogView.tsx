@@ -16,6 +16,7 @@ export default function CatalogView() {
   const mobileGridStorageKey = 'luluna:catalog:mobileGridColumns';
   
   const [selectedCategories, setSelectedCategories] = useState<ProductCategory[]>([]);
+  const [selectedSubcategoryKeys, setSelectedSubcategoryKeys] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<string | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,9 +28,11 @@ export default function CatalogView() {
   const [scrollToRestore, setScrollToRestore] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [mobileGridColumns, setMobileGridColumns] = useState<1 | 2>(2);
+  const [expandedCategoryIds, setExpandedCategoryIds] = useState<string[]>([]);
 
   const clearAllFilters = () => {
     setSelectedCategories([]);
+    setSelectedSubcategoryKeys([]);
     setSelectedTags([]);
     setSelectedCollection(undefined);
     setSearchQuery('');
@@ -38,6 +41,7 @@ export default function CatalogView() {
 
     saveCatalogState({
       selectedCategories: [],
+      selectedSubcategoryKeys: [],
       selectedTags: [],
       selectedCollection: undefined,
       searchQuery: '',
@@ -63,6 +67,7 @@ export default function CatalogView() {
       }
       
       setSelectedTags(savedState.selectedTags || []);
+      setSelectedSubcategoryKeys(savedState.selectedSubcategoryKeys || []);
       setSelectedCollection(savedState.selectedCollection);
       setSearchQuery(savedState.searchQuery || '');
       // Migrar el estado antiguo al nuevo formato
@@ -104,16 +109,33 @@ export default function CatalogView() {
   useEffect(() => {
     saveCatalogState({
       selectedCategories,
+      selectedSubcategoryKeys,
       selectedTags,
       searchQuery,
       sortBy,
       scrollPosition: 0,
       selectedCollection,
     });
-  }, [selectedCategories, selectedTags, searchQuery, sortBy, selectedCollection]);
+  }, [selectedCategories, selectedSubcategoryKeys, selectedTags, searchQuery, sortBy, selectedCollection]);
+
+  const parentCategoriesFromSubcategories = useMemo(() => {
+    const out = new Set<ProductCategory>();
+    selectedSubcategoryKeys.forEach((k) => {
+      const parent = k.split(':')[0];
+      if (parent) out.add(parent as ProductCategory);
+    });
+    return Array.from(out);
+  }, [selectedSubcategoryKeys]);
+
+  const categoriesForQuery = useMemo(() => {
+    const merged = new Set<ProductCategory>();
+    selectedCategories.forEach((c) => merged.add(c));
+    parentCategoriesFromSubcategories.forEach((c) => merged.add(c));
+    return Array.from(merged);
+  }, [selectedCategories, parentCategoriesFromSubcategories]);
 
   const filters = {
-    categories: selectedCategories.length > 0 ? selectedCategories : undefined,
+    categories: categoriesForQuery.length > 0 ? categoriesForQuery : undefined,
     search: searchQuery || undefined,
     publishedOnly: true,
   };
@@ -122,9 +144,26 @@ export default function CatalogView() {
   const { products, isLoading } = useProducts(filters, { limit: productLimit });
   const { tags: dbTags } = useTags();
 
-  // Filter by tags and collection client-side
+  // Filter by category/subcategory, tags and collection client-side
   const tagAndCollectionFilteredProducts = useMemo(() => {
     let filtered = products;
+
+    // Apply subcategory filtering client-side (products without subcategoryKeys remain compatible).
+    if (selectedCategories.length > 0 || selectedSubcategoryKeys.length > 0) {
+      filtered = filtered.filter((product: any) => {
+        const productCategories: string[] = Array.isArray(product?.categories) ? product.categories : [];
+        const productSubKeys: string[] = Array.isArray(product?.subcategoryKeys) ? product.subcategoryKeys : [];
+
+        const matchesCategory =
+          selectedCategories.length > 0 &&
+          selectedCategories.some((cat) => productCategories.includes(cat));
+        const matchesSubcategory =
+          selectedSubcategoryKeys.length > 0 &&
+          selectedSubcategoryKeys.some((k) => productSubKeys.includes(k));
+
+        return matchesCategory || matchesSubcategory;
+      });
+    }
 
     // Filter by tags
     if (selectedTags.length > 0) {
@@ -141,7 +180,36 @@ export default function CatalogView() {
     }
 
     return filtered;
-  }, [products, selectedTags, selectedCollection]);
+  }, [products, selectedCategories, selectedSubcategoryKeys, selectedTags, selectedCollection]);
+
+  const labelForCategory = (id: ProductCategory) => {
+    const fromDb = dbCategories.find((c) => c.id === id)?.title?.[locale];
+    if (typeof fromDb === 'string' && fromDb.length > 0) return fromDb;
+    const legacy = (t as any)?.categories?.[id];
+    if (typeof legacy === 'string') return legacy;
+    return id;
+  };
+
+  const toggleCategory = (cat: ProductCategory) => {
+    setSelectedCategories((prev) => {
+      if (prev.includes(cat)) return prev.filter((c) => c !== cat);
+      return [...prev, cat];
+    });
+  };
+
+  const toggleExpandedCategory = (catId: string) => {
+    setExpandedCategoryIds((prev) => {
+      if (prev.includes(catId)) return prev.filter((x) => x !== catId);
+      return [...prev, catId];
+    });
+  };
+
+  const toggleSubcategoryKey = (key: string) => {
+    setSelectedSubcategoryKeys((prev) => {
+      if (prev.includes(key)) return prev.filter((k) => k !== key);
+      return [...prev, key];
+    });
+  };
 
   // Get all unique tags from database for the filter UI
   const availableTags = useMemo(() => {
@@ -616,6 +684,7 @@ export default function CatalogView() {
                             setSelectedCollection(undefined);
                             saveCatalogState({
                               selectedCategories,
+                              selectedSubcategoryKeys,
                               selectedTags,
                               searchQuery,
                               sortBy,
@@ -659,13 +728,15 @@ export default function CatalogView() {
                     <span className="text-xs font-medium text-(--color-muted) uppercase tracking-[0.18em]">
                       {t.categories.title || 'Categoría'}
                     </span>
-                    {selectedCategories.length > 0 && (
+                    {(selectedCategories.length > 0 || selectedSubcategoryKeys.length > 0) && (
                       <button
                         type="button"
                         onClick={() => {
                           setSelectedCategories([]);
+                          setSelectedSubcategoryKeys([]);
                           saveCatalogState({
                             selectedCategories: [],
+                            selectedSubcategoryKeys: [],
                             selectedTags,
                             selectedCollection,
                             searchQuery,
@@ -680,43 +751,109 @@ export default function CatalogView() {
                     )}
                  </div>
                  <div className="flex flex-col gap-2">
-                    {(dbCategories.length > 0
-                      ? dbCategories.map((c) => c.id)
-                      : Object.keys((t as any)?.categories ?? {}).filter((k) => k !== 'all')
-                    ).map((category) => {
-                      const isSelected = selectedCategories.includes(category);
-                      const labelFor = (id: ProductCategory) => {
-                        const fromDb = dbCategories.find((c) => c.id === id)?.title?.[locale];
-                        if (typeof fromDb === 'string' && fromDb.length > 0) return fromDb;
-                        const legacy = (t as any)?.categories?.[id];
-                        if (typeof legacy === 'string') return legacy;
-                        return id;
-                      };
-                      
-                      const toggleCategory = (cat: ProductCategory) => {
-                        setSelectedCategories((prev) => {
-                          if (prev.includes(cat)) {
-                            return prev.filter((c) => c !== cat);
+                    {dbCategories.length > 0 ? (
+                      dbCategories
+                        .slice()
+                        .sort((a, b) => (a.title?.[locale] ?? a.title?.es ?? a.id).localeCompare(b.title?.[locale] ?? b.title?.es ?? b.id))
+                        .map((cat) => {
+                          const hasSubs = (cat.subcategories?.length ?? 0) > 0;
+                          const isExpanded = expandedCategoryIds.includes(cat.id);
+                          const catLabel = cat.title?.[locale] ?? cat.title?.es ?? cat.id;
+
+                          if (!hasSubs) {
+                            const isSelected = selectedCategories.includes(cat.id);
+                            return (
+                              <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() => toggleCategory(cat.id)}
+                                className={`text-sm text-left py-2 px-3 rounded-lg transition-all ${
+                                  isSelected
+                                    ? 'bg-(--color-primary)/10 text-(--color-primary) font-medium'
+                                    : 'text-(--color-text) hover:bg-black/5'
+                                }`}
+                              >
+                                {catLabel}
+                              </button>
+                            );
                           }
-                          return [...prev, cat];
-                        });
-                      };
-                      
-                      return (
-                        <button
-                          key={category}
-                          type="button"
-                          onClick={() => toggleCategory(category)}
-                          className={`text-sm text-left py-2 px-3 rounded-lg transition-all ${
-                            isSelected
-                              ? 'bg-(--color-primary)/10 text-(--color-primary) font-medium'
-                              : 'text-(--color-text) hover:bg-black/5'
-                          }`}
-                        >
-                          {labelFor(category)}
-                        </button>
-                      );
-                    })}
+
+                          return (
+                            <div key={cat.id} className="flex flex-col gap-2">
+                              <button
+                                type="button"
+                                onClick={() => toggleExpandedCategory(cat.id)}
+                                className="text-sm text-left py-2 px-3 rounded-lg transition-all text-(--color-text) hover:bg-black/5"
+                              >
+                                {catLabel}
+                              </button>
+
+                              {isExpanded && (
+                                <div className="flex flex-col gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleCategory(cat.id)}
+                                    className={`text-sm text-left py-2 px-3 rounded-lg transition-all ml-4 ${
+                                      selectedCategories.includes(cat.id)
+                                        ? 'bg-(--color-primary)/10 text-(--color-primary) font-medium'
+                                        : 'text-(--color-text) hover:bg-black/5'
+                                    }`}
+                                  >
+                                    {catLabel}
+                                  </button>
+
+                                  {(cat.subcategories ?? [])
+                                    .slice()
+                                    .sort((a, b) =>
+                                      (a.title?.[locale] ?? a.title?.es ?? a.id).localeCompare(
+                                        b.title?.[locale] ?? b.title?.es ?? b.id
+                                      )
+                                    )
+                                    .map((sub) => {
+                                      const key = `${cat.id}:${sub.id}`;
+                                      const isSelected = selectedSubcategoryKeys.includes(key);
+                                      const subLabel = sub.title?.[locale] ?? sub.title?.es ?? sub.id;
+                                      return (
+                                        <button
+                                          key={key}
+                                          type="button"
+                                          onClick={() => toggleSubcategoryKey(key)}
+                                          className={`text-sm text-left py-2 px-3 rounded-lg transition-all ml-4 ${
+                                            isSelected
+                                              ? 'bg-(--color-primary)/10 text-(--color-primary) font-medium'
+                                              : 'text-(--color-text) hover:bg-black/5'
+                                          }`}
+                                        >
+                                          {subLabel}
+                                        </button>
+                                      );
+                                    })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
+                    ) : (
+                      Object.keys((t as any)?.categories ?? {})
+                        .filter((k) => k !== 'all')
+                        .map((category) => {
+                          const isSelected = selectedCategories.includes(category);
+                          return (
+                            <button
+                              key={category}
+                              type="button"
+                              onClick={() => toggleCategory(category)}
+                              className={`text-sm text-left py-2 px-3 rounded-lg transition-all ${
+                                isSelected
+                                  ? 'bg-(--color-primary)/10 text-(--color-primary) font-medium'
+                                  : 'text-(--color-text) hover:bg-black/5'
+                              }`}
+                            >
+                              {labelForCategory(category)}
+                            </button>
+                          );
+                        })
+                    )}
                  </div>
               </div>
 
@@ -734,6 +871,7 @@ export default function CatalogView() {
                             setSelectedTags([]);
                             saveCatalogState({
                               selectedCategories,
+                              selectedSubcategoryKeys,
                               selectedTags: [],
                               selectedCollection,
                               searchQuery,

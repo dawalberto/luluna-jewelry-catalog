@@ -59,6 +59,11 @@ export interface Product {
   description: MultilingualText;
   // New model
   categories: ProductCategory[];
+  /**
+   * Optional subcategory selections.
+   * Stored as stable composite keys: `${categoryId}:${subcategoryId}`.
+   */
+  subcategoryKeys?: string[];
   tags?: string[]; // Product tags for filtering and organization
   collectionId: string; // Collection ID for grouping products (e.g., "summer-2024")
   pricing: ProductPricing;
@@ -83,6 +88,7 @@ export interface CreateProductInput {
   title: MultilingualText;
   description: MultilingualText;
   categories: ProductCategory[];
+  subcategoryKeys?: string[];
   tags?: string[];
   collectionId: string;
   pricing: ProductPricing;
@@ -101,6 +107,7 @@ export interface UpdateProductInput {
   title?: MultilingualText;
   description?: MultilingualText;
   categories?: ProductCategory[];
+  subcategoryKeys?: string[];
   collectionId?: string;
   tags?: string[];
   pricing?: ProductPricing;
