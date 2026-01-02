@@ -503,13 +503,13 @@ export default function CatalogView() {
             />
           </svg>
         </div>
-        <p className="text-base md:text-lg font-body text-(--color-muted) max-w-2xl mx-auto leading-relaxed font-light tracking-wide">
+        <p className="text-base md:text-lg mt-6 font-body text-(--color-muted) max-w-2xl mx-auto leading-relaxed font-light tracking-wide">
           {siteContent?.catalogSubtitle?.[locale] || t.catalog.subtitle}
         </p>
       </div>
 
       {/* Compact Filter Bar */}
-      <div className="mb-8 md:mb-12 sticky top-0 z-30 bg-(--color-bg) py-4 transition-all">
+      <div className="mb-4 md:mb-6 sticky top-0 z-30 bg-(--color-bg) pt-2 md:pt-0 pb-4 transition-all">
         <div className="flex items-center justify-between gap-4 border-b border-(--color-border) pb-4">
           {/* Left: Filters Toggle Button */}
           <button
@@ -838,7 +838,7 @@ export default function CatalogView() {
               <section key={group.id} className="scroll-mt-24">
                 <div className="flex items-center gap-4 mb-8">
                   <h2 className="text-base md:text-xl font-dream-avenue text-(--color-muted)">
-                    ✨ {group.label}
+                    {group.label}
                   </h2>
                   <div className="flex-1 border-t border-(--color-border)" />
                 </div>
