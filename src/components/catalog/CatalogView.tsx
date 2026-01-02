@@ -34,13 +34,14 @@ export default function CatalogView() {
     setSelectedCollection(undefined);
     setSearchQuery('');
     setShowFilters(false);
+    setSortBy('collections');
 
     saveCatalogState({
       selectedCategories: [],
       selectedTags: [],
       selectedCollection: undefined,
       searchQuery: '',
-      sortBy,
+      sortBy: 'collections',
       scrollPosition: 0,
     });
   };
