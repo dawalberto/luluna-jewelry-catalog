@@ -6,8 +6,9 @@ export interface CatalogState {
   selectedCategory?: ProductCategory | 'all'; // Legacy: deprecated
   selectedCategories?: ProductCategory[]; // New: multiple categories
   selectedTags?: string[];
+  selectedCollection?: string;
   searchQuery: string;
-  sortBy: 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
+  sortBy: 'collections' | 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
   scrollPosition: number;
   timestamp: number;
   // Legacy fields for backward compatibility

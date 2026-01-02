@@ -66,6 +66,7 @@
     "sortDefault": "Sin ordenar",
     "sortDateDesc": "Más recientes",
     "sortDateAsc": "Más antiguos",
+    "sortCollections": "Colecciones",
     "sortPopularity": "Popularidad",
     "sortPriceAsc": "Precio ↑",
     "sortPriceDesc": "Precio ↓",
@@ -148,6 +149,9 @@
     "tagDeleted": "Etiqueta eliminada",
     "tagDeleteError": "Error eliminando etiqueta",
     "productTags": "Etiquetas",
+
+    "selectCollection": "Selecciona una colección",
+    "collectionDeleteBlocked": "No puedes eliminar una colección que tiene productos. Reasigna esos productos a otra colección primero.",
 
     "shippingsTitle": "Envíos",
     "shippingsHelp": "Administra las opciones de envío disponibles.",

@@ -99,7 +99,6 @@ export default function ProductsPanel() {
   };
 
   const productCollectionLabel = (product: Product) => {
-    if (!product.collectionId) return '-';
     const collection = collections.find((c) => c.id === product.collectionId);
     if (!collection) return product.collectionId;
     return collection.title?.[locale] ?? collection.title?.es ?? collection.id;

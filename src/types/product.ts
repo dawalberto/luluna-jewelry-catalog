@@ -60,7 +60,7 @@ export interface Product {
   // New model
   categories: ProductCategory[];
   tags?: string[]; // Product tags for filtering and organization
-  collectionId?: string; // Collection ID for grouping products (e.g., "summer-2024")
+  collectionId: string; // Collection ID for grouping products (e.g., "summer-2024")
   pricing: ProductPricing;
   discount?: ProductDiscount;
   isNew?: boolean;
@@ -84,7 +84,7 @@ export interface CreateProductInput {
   description: MultilingualText;
   categories: ProductCategory[];
   tags?: string[];
-  collectionId?: string;
+  collectionId: string;
   pricing: ProductPricing;
   discount?: ProductDiscount;
   isNew?: boolean;
@@ -120,7 +120,7 @@ export interface ProductFilters {
   tags?: string[]; // Filter by tags
   search?: string;
   publishedOnly?: boolean;
-  sortBy?: 'none' | 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
+  sortBy?: 'none' | 'collections' | 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
 }
 
 /**

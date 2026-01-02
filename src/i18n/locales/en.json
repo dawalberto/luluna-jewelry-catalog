@@ -66,6 +66,7 @@
     "sortDefault": "No sorting",
     "sortDateDesc": "Newest first",
     "sortDateAsc": "Oldest first",
+    "sortCollections": "Collections",
     "sortPopularity": "Popularity",
     "sortPriceAsc": "Price ↑",
     "sortPriceDesc": "Price ↓",
@@ -147,6 +148,9 @@
     "tagDeleted": "Tag deleted",
     "tagDeleteError": "Error deleting tag",
     "productTags": "Tags",
+
+    "selectCollection": "Select a collection",
+    "collectionDeleteBlocked": "You can’t delete a collection that has products. Reassign those products to another collection first.",
 
     "shippingsTitle": "Shipping",
     "shippingsHelp": "Manage available shipping options.",

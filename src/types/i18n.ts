@@ -75,6 +75,7 @@ export interface Translations {
     sortDefault: string;
     sortDateDesc: string;
     sortDateAsc: string;
+    sortCollections: string;
     sortPopularity: string;
     sortPriceAsc: string;
     sortPriceDesc: string;

@@ -53,7 +53,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         description: product.description || { es: '', en: '' },
         categories: product.categories || [],
         tags: product.tags || [],
-        collectionId: product.collectionId,
+        collectionId: product.collectionId ?? '',
         pricing: product.pricing || { type: 'S' },
         discount: product.discount || { enabled: false, percent: 0, description: '' },
         isNew: product.isNew || false,
@@ -67,7 +67,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
       description: { es: '', en: '' },
       categories: [],
       tags: [],
-      collectionId: undefined,
+      collectionId: '',
       pricing: { type: 'S' },
       discount: { enabled: false, percent: 0, description: '' },
       isNew: false,
@@ -247,6 +247,12 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
       return;
     }
 
+    if (!formData.collectionId || formData.collectionId.trim() === '') {
+      setSaving(false);
+      setError('Please select a collection.');
+      return;
+    }
+
     if (formData.pricing.type === 'custom') {
       const price = formData.pricing.customPrice ?? 0;
       if (!Number.isFinite(price) || price <= 0) {
@@ -392,10 +398,13 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         ) : (
           <select
             className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-(--color-border-strong)"
-            value={formData.collectionId || ''}
-            onChange={(e) => handleInputChange('collectionId', e.target.value === '' ? undefined : e.target.value)}
+            value={formData.collectionId}
+            onChange={(e) => handleInputChange('collectionId', e.target.value)}
+            required
           >
-            <option value="">{(t.admin as any).noCollection || 'Sin colección'}</option>
+            <option value="" disabled>
+              {(t.admin as any).selectCollection || 'Selecciona una colección'}
+            </option>
             {collections.map(({ id, label }) => (
               <option key={id} value={id}>
                 {label}

@@ -22,8 +22,8 @@ export default function CatalogView() {
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | undefined>(undefined);
   const [globalDiscount, setGlobalDiscount] = useState<GlobalDiscount | undefined>(undefined);
   const [siteContent, setSiteContent] = useState<SiteContent | undefined>(undefined);
-  type SortBy = 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
-  const [sortBy, setSortBy] = useState<SortBy>('date-desc');
+  type SortBy = 'collections' | 'price-asc' | 'price-desc' | 'popularity' | 'date-desc' | 'date-asc';
+  const [sortBy, setSortBy] = useState<SortBy>('collections');
   const [scrollToRestore, setScrollToRestore] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [mobileGridColumns, setMobileGridColumns] = useState<1 | 2>(2);
@@ -38,11 +38,11 @@ export default function CatalogView() {
     saveCatalogState({
       selectedCategories: [],
       selectedTags: [],
+      selectedCollection: undefined,
       searchQuery: '',
       sortBy,
       scrollPosition: 0,
-      selectedCollection: undefined,
-    } as any);
+    });
   };
 
   const { categories: dbCategories } = useCategories();
@@ -62,14 +62,14 @@ export default function CatalogView() {
       }
       
       setSelectedTags(savedState.selectedTags || []);
-      setSelectedCollection((savedState as any).selectedCollection);
+      setSelectedCollection(savedState.selectedCollection);
       setSearchQuery(savedState.searchQuery || '');
       // Migrar el estado antiguo al nuevo formato
       const legacyState = savedState as any;
       if (legacyState.sortBy === 'price' && legacyState.priceSortOrder) {
         setSortBy(legacyState.priceSortOrder === 'asc' ? 'price-asc' : 'price-desc');
       } else {
-        setSortBy(savedState.sortBy || 'date-desc');
+        setSortBy((savedState.sortBy as SortBy) || 'collections');
       }
       
       // Store scroll position to restore after products load
@@ -108,7 +108,7 @@ export default function CatalogView() {
       sortBy,
       scrollPosition: 0,
       selectedCollection,
-    } as any);
+    });
   }, [selectedCategories, selectedTags, searchQuery, sortBy, selectedCollection]);
 
   const filters = {
@@ -117,7 +117,8 @@ export default function CatalogView() {
     publishedOnly: true,
   };
 
-  const { products, isLoading } = useProducts(filters, { limit: 50 });
+  const productLimit = sortBy === 'collections' ? 500 : 50;
+  const { products, isLoading } = useProducts(filters, { limit: productLimit });
   const { tags: dbTags } = useTags();
 
   // Filter by tags and collection client-side
@@ -191,6 +192,9 @@ export default function CatalogView() {
   }, [isLoading, scrollToRestore]);
 
   const sortedProducts = useMemo(() => {
+    if (sortBy === 'collections') {
+      return tagAndCollectionFilteredProducts;
+    }
     // Sort by date if selected
     if (sortBy === 'date-desc' || sortBy === 'date-asc') {
       const withMeta = tagAndCollectionFilteredProducts.map((product, index) => {
@@ -316,6 +320,68 @@ export default function CatalogView() {
     // Default: no sorting
     return tagAndCollectionFilteredProducts;
   }, [tagAndCollectionFilteredProducts, sortBy, pricingConfig, globalDiscount?.active, globalDiscount?.percent, locale]);
+
+  const collectionGroups = useMemo(() => {
+    if (sortBy !== 'collections') return [] as Array<{ id: string; label: string; products: typeof tagAndCollectionFilteredProducts }>;
+
+    const collectionTitleFor = (collectionId: string) => {
+      const fromDb = dbCollections.find((c) => c.id === collectionId);
+      return fromDb?.title?.[locale] ?? fromDb?.title?.es ?? collectionId;
+    };
+
+    const groupsById = new Map<string, typeof tagAndCollectionFilteredProducts>();
+    const maxCreatedAtById = new Map<string, number>();
+
+    tagAndCollectionFilteredProducts.forEach((product) => {
+      const collectionId = product.collectionId;
+      const createdAt = product.createdAt?.toMillis?.() ?? 0;
+
+      const existing = groupsById.get(collectionId);
+      if (existing) {
+        existing.push(product);
+      } else {
+        groupsById.set(collectionId, [product]);
+      }
+
+      const prevMax = maxCreatedAtById.get(collectionId) ?? 0;
+      if (createdAt > prevMax) maxCreatedAtById.set(collectionId, createdAt);
+    });
+
+    const sortWithinCollectionNewestFirst = (items: typeof tagAndCollectionFilteredProducts) => {
+      const withMeta = items.map((product, index) => {
+        const createdAt = product.createdAt?.toMillis?.() ?? 0;
+        const title = product.title?.[locale] ?? product.title?.es ?? product.title?.en ?? '';
+        return { product, index, createdAt, title };
+      });
+
+      withMeta.sort((a, b) => {
+        const diff = b.createdAt - a.createdAt;
+        if (diff !== 0) return diff;
+        const byTitle = a.title.localeCompare(b.title);
+        return byTitle !== 0 ? byTitle : a.index - b.index;
+      });
+
+      return withMeta.map((x) => x.product);
+    };
+
+    const orderedCollectionIds = Array.from(groupsById.keys()).sort((a, b) => {
+      const aMax = maxCreatedAtById.get(a) ?? 0;
+      const bMax = maxCreatedAtById.get(b) ?? 0;
+      if (aMax !== bMax) return bMax - aMax;
+
+      // Stable tie-breaker that doesn't depend on async-loaded titles
+      return a.localeCompare(b);
+    });
+
+    return orderedCollectionIds.map((id) => {
+      const items = groupsById.get(id) ?? [];
+      return {
+        id,
+        label: collectionTitleFor(id),
+        products: sortWithinCollectionNewestFirst(items),
+      };
+    });
+  }, [tagAndCollectionFilteredProducts, sortBy, dbCollections, locale]);
 
   useEffect(() => {
     let mounted = true;
@@ -488,6 +554,7 @@ export default function CatalogView() {
                 onChange={(e) => setSortBy(e.target.value as SortBy)}
                 className="text-xs md:text-sm bg-transparent border-none text-(--color-text) focus:ring-0 cursor-pointer font-medium hover:opacity-70 transition-opacity pr-8 py-0"
               >
+                <option value="collections">{(t.catalog as any).sortCollections || 'Colecciones'}</option>
                 <option value="date-desc">{t.catalog.sortDateDesc}</option>
                 <option value="date-asc">{t.catalog.sortDateAsc}</option>
                 <option value="popularity">{t.catalog.sortPopularity}</option>
@@ -534,6 +601,57 @@ export default function CatalogView() {
                  <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
               </div> */}
 
+                            {/* Collections */}
+              {dbCollections.length > 0 && (
+                <div>
+                   <div className="flex items-center justify-between mb-4">
+                      <span className="text-xs font-medium text-(--color-muted) uppercase tracking-[0.18em]">
+                        {(t.catalog as any).filterByCollection || 'Colección'}
+                      </span>
+                      {selectedCollection && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedCollection(undefined);
+                            saveCatalogState({
+                              selectedCategories,
+                              selectedTags,
+                              searchQuery,
+                              sortBy,
+                              scrollPosition: 0,
+                              selectedCollection: undefined,
+                            });
+                          }}
+                          className="text-xs text-(--color-primary) hover:underline"
+                        >
+                          {t.common.clear || 'Limpiar'}
+                        </button>
+                      )}
+                   </div>
+                   <div className="flex flex-col gap-2">
+                      {dbCollections.map((collection) => {
+                        const isSelected = selectedCollection === collection.id;
+                        const label = collection.title?.[locale] ?? collection.title?.es ?? collection.id;
+                        
+                        return (
+                          <button
+                            key={collection.id}
+                            type="button"
+                            onClick={() => setSelectedCollection(isSelected ? undefined : collection.id)}
+                            className={`text-sm text-left py-2 px-3 rounded-lg transition-all ${
+                              isSelected
+                                ? 'bg-(--color-primary)/10 text-(--color-primary) font-medium'
+                                : 'text-(--color-text) hover:bg-black/5'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                   </div>
+                </div>
+              )}
+
               {/* Categories */}
               <div>
                  <div className="flex items-center justify-between mb-4">
@@ -548,6 +666,7 @@ export default function CatalogView() {
                           saveCatalogState({
                             selectedCategories: [],
                             selectedTags,
+                            selectedCollection,
                             searchQuery,
                             sortBy,
                             scrollPosition: 0,
@@ -615,11 +734,11 @@ export default function CatalogView() {
                             saveCatalogState({
                               selectedCategories,
                               selectedTags: [],
+                              selectedCollection,
                               searchQuery,
                               sortBy,
                               scrollPosition: 0,
-                              selectedCollection,
-                            } as any);
+                            });
                           }}
                           className="text-xs text-(--color-primary) hover:underline"
                         >
@@ -642,57 +761,6 @@ export default function CatalogView() {
                           {label}
                         </button>
                       ))}
-                   </div>
-                </div>
-              )}
-
-              {/* Collections */}
-              {dbCollections.length > 0 && (
-                <div>
-                   <div className="flex items-center justify-between mb-4">
-                      <span className="text-xs font-medium text-(--color-muted) uppercase tracking-[0.18em]">
-                        {(t.catalog as any).filterByCollection || 'Colección'}
-                      </span>
-                      {selectedCollection && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedCollection(undefined);
-                            saveCatalogState({
-                              selectedCategories,
-                              selectedTags,
-                              searchQuery,
-                              sortBy,
-                              scrollPosition: 0,
-                              selectedCollection: undefined,
-                            } as any);
-                          }}
-                          className="text-xs text-(--color-primary) hover:underline"
-                        >
-                          {t.common.clear || 'Limpiar'}
-                        </button>
-                      )}
-                   </div>
-                   <div className="flex flex-col gap-2">
-                      {dbCollections.map((collection) => {
-                        const isSelected = selectedCollection === collection.id;
-                        const label = collection.title?.[locale] ?? collection.title?.es ?? collection.id;
-                        
-                        return (
-                          <button
-                            key={collection.id}
-                            type="button"
-                            onClick={() => setSelectedCollection(isSelected ? undefined : collection.id)}
-                            className={`text-sm text-left py-2 px-3 rounded-lg transition-all ${
-                              isSelected
-                                ? 'bg-(--color-primary)/10 text-(--color-primary) font-medium'
-                                : 'text-(--color-text) hover:bg-black/5'
-                            }`}
-                          >
-                            {label}
-                          </button>
-                        );
-                      })}
                    </div>
                 </div>
               )}
@@ -747,19 +815,65 @@ export default function CatalogView() {
       )}
 
       {/* Product Grid */}
-      <ProductGrid
-        products={sortedProducts}
-        isLoading={isLoading}
-        pricingConfig={pricingConfig}
-        globalDiscount={globalDiscount}
-        mobileColumns={mobileGridColumns}
-        catalogState={{
-          selectedCategories,
-          selectedTags,
-          searchQuery,
-          sortBy,
-        }}
-      />
+      {sortBy === 'collections' ? (
+        isLoading || collectionGroups.length === 0 ? (
+          <ProductGrid
+            products={[]}
+            isLoading={isLoading}
+            pricingConfig={pricingConfig}
+            globalDiscount={globalDiscount}
+            mobileColumns={mobileGridColumns}
+            catalogState={{
+              selectedCategories,
+              selectedTags,
+              selectedCollection,
+              searchQuery,
+              sortBy,
+            }}
+          />
+        ) : (
+          <div className="space-y-16">
+            {collectionGroups.map((group) => (
+              <section key={group.id} className="scroll-mt-24">
+                <div className="flex items-center gap-4 mb-8">
+                  <h2 className="text-xs md:text-sm uppercase tracking-[0.22em] text-(--color-muted) font-medium">
+                    {group.label}
+                  </h2>
+                  <div className="flex-1 border-t border-(--color-border)" />
+                </div>
+                <ProductGrid
+                  products={group.products}
+                  pricingConfig={pricingConfig}
+                  globalDiscount={globalDiscount}
+                  mobileColumns={mobileGridColumns}
+                  catalogState={{
+                    selectedCategories,
+                    selectedTags,
+                    selectedCollection,
+                    searchQuery,
+                    sortBy,
+                  }}
+                />
+              </section>
+            ))}
+          </div>
+        )
+      ) : (
+        <ProductGrid
+          products={sortedProducts}
+          isLoading={isLoading}
+          pricingConfig={pricingConfig}
+          globalDiscount={globalDiscount}
+          mobileColumns={mobileGridColumns}
+          catalogState={{
+            selectedCategories,
+            selectedTags,
+            selectedCollection,
+            searchQuery,
+            sortBy,
+          }}
+        />
+      )}
 
       {/* Download PDF Button */}
       {/* <DownloadPDFButton

@@ -131,14 +131,14 @@ export default function CollectionsPanel() {
     if (!confirm((t.admin as any).collectionDeleteConfirm || '¿Estás seguro de eliminar esta colección?')) return;
     setCollectionSaving(true);
     try {
-      // Remove collection from all products that have it
       const productsWithCollection = products.filter((p) => p.collectionId === id);
 
-      for (const product of productsWithCollection) {
-        await productService.updateProduct({
-          id: product.id,
-          collectionId: undefined,
-        });
+      if (productsWithCollection.length > 0) {
+        alert(
+          (t.admin as any).collectionDeleteBlocked ||
+            'No puedes eliminar una colección que tiene productos. Reasigna esos productos a otra colección primero.'
+        );
+        return;
       }
 
       await collectionService.deleteCollection(id);
