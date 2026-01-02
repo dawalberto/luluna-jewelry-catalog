@@ -1,14 +1,16 @@
 import {
+  GoogleAuthProvider,
   isSignInWithEmailLink,
   onAuthStateChanged,
   sendSignInLinkToEmail,
   signInWithEmailLink,
+  signInWithPopup,
   signOut,
   type User,
 } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useMemo, useState } from 'react';
-import { siteConfig } from '../../config/env';
+import { adminConfig, siteConfig } from '../../config/env';
 import { I18nProvider, useI18n } from '../../i18n';
 import FirebaseClient from '../../services/FirebaseClient';
 import type { Locale } from '../../types/i18n';
@@ -33,6 +35,17 @@ export default function AdminApp({ initialLocale }: AdminAppProps) {
 function AdminAuthGate() {
   const { t } = useI18n();
   const firebase = useMemo(() => FirebaseClient.getInstance(), []);
+  const allowedEmails = useMemo(() => new Set(adminConfig.allowedEmails), []);
+  const allowlistEnabled = allowedEmails.size > 0;
+
+  const getAuthErrorMessage = (e: unknown) => {
+    const code = (e as any)?.code as string | undefined;
+    if (code === 'auth/operation-not-allowed') return t.admin.googleNotEnabled;
+    if (code === 'auth/popup-blocked') return t.admin.popupBlocked;
+    if (code === 'auth/popup-closed-by-user') return t.admin.popupClosed;
+    if (code === 'auth/unauthorized-domain') return t.admin.unauthorizedDomain;
+    return t.admin.signInError;
+  };
 
   const [authReady, setAuthReady] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -53,6 +66,16 @@ function AdminAuthGate() {
         return;
       }
 
+      if (allowlistEnabled) {
+        const nextEmail = (nextUser.email || '').trim().toLowerCase();
+        if (!nextEmail || !allowedEmails.has(nextEmail)) {
+          setIsAdmin(false);
+          setError(t.admin.emailNotAllowed);
+          await signOut(firebase.auth);
+          return;
+        }
+      }
+
       setIsAdmin(null);
       try {
         const adminSnap = await getDoc(doc(firebase.firestore, 'admins', nextUser.uid));
@@ -65,7 +88,7 @@ function AdminAuthGate() {
     });
 
     return () => unsubscribe();
-  }, [firebase, t.admin.adminCheckError]);
+  }, [allowlistEnabled, allowedEmails, firebase, t.admin.adminCheckError, t.admin.emailNotAllowed]);
 
   // Complete passwordless sign-in when coming back from the email link.
   useEffect(() => {
@@ -94,7 +117,7 @@ function AdminAuthGate() {
         window.history.replaceState({}, document.title, window.location.pathname);
       } catch (e) {
         console.error(e);
-        setError(t.admin.signInError);
+        setError(getAuthErrorMessage(e));
       } finally {
         setSubmitting(false);
       }
@@ -110,6 +133,11 @@ function AdminAuthGate() {
     try {
       const normalizedEmail = email.trim();
 
+      if (allowlistEnabled && !allowedEmails.has(normalizedEmail.toLowerCase())) {
+        setError(t.admin.emailNotAllowed);
+        return;
+      }
+
       const baseUrl = (siteConfig.url || 'http://localhost:4321').replace(/\/$/, '');
       const actionCodeSettings = {
         url: `${baseUrl}/admin`,
@@ -121,7 +149,29 @@ function AdminAuthGate() {
       setLinkSent(true);
     } catch (e) {
       console.error(e);
-      setError(t.admin.signInError);
+      setError(getAuthErrorMessage(e));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setSubmitting(true);
+    setError('');
+    setLinkSent(false);
+
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(firebase.auth, provider);
+      const signedInEmail = (result.user.email || '').trim().toLowerCase();
+
+      if (allowlistEnabled && (!signedInEmail || !allowedEmails.has(signedInEmail))) {
+        setError(t.admin.emailNotAllowed);
+        await signOut(firebase.auth);
+      }
+    } catch (e) {
+      console.error(e);
+      setError(getAuthErrorMessage(e));
     } finally {
       setSubmitting(false);
     }
@@ -173,6 +223,12 @@ function AdminAuthGate() {
               {t.admin.signIn}
             </Button>
           </form>
+
+          <div className="my-4 text-center text-sm text-gray-500">{t.admin.or}</div>
+
+          <Button type="button" onClick={handleGoogleSignIn} disabled={submitting} className="w-full">
+            {t.admin.signInWithGoogle}
+          </Button>
         </div>
       </div>
     );

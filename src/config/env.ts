@@ -34,3 +34,15 @@ export const siteConfig = {
     en: 'Unique and elegant handcrafted jewelry',
   },
 };
+
+/**
+ * Admin access configuration
+ * - PUBLIC_ADMIN_ALLOWED_EMAILS: comma-separated list of allowed emails for /admin login UI.
+ *   Example: "admin@domain.com,other@domain.com"
+ */
+export const adminConfig = {
+  allowedEmails: String(import.meta.env.PUBLIC_ADMIN_ALLOWED_EMAILS || '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean),
+};

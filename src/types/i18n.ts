@@ -150,6 +150,13 @@ export interface Translations {
     adminCheckError: string;
     emailLinkHelp: string;
     linkSent: string;
+    or: string;
+    signInWithGoogle: string;
+    emailNotAllowed: string;
+    googleNotEnabled: string;
+    popupBlocked: string;
+    popupClosed: string;
+    unauthorizedDomain: string;
 
     addProduct: string;
     editProduct: string;
