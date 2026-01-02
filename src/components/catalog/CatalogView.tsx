@@ -28,6 +28,23 @@ export default function CatalogView() {
   const [showFilters, setShowFilters] = useState(false);
   const [mobileGridColumns, setMobileGridColumns] = useState<1 | 2>(2);
 
+  const clearAllFilters = () => {
+    setSelectedCategories([]);
+    setSelectedTags([]);
+    setSelectedCollection(undefined);
+    setSearchQuery('');
+    setShowFilters(false);
+
+    saveCatalogState({
+      selectedCategories: [],
+      selectedTags: [],
+      searchQuery: '',
+      sortBy,
+      scrollPosition: 0,
+      selectedCollection: undefined,
+    } as any);
+  };
+
   const { categories: dbCategories } = useCategories();
   const { collections: dbCollections } = useCollections();
 
@@ -352,12 +369,23 @@ export default function CatalogView() {
     <div className="container mx-auto px-3 py-4 md:px-4 md:py-10">
       <div className="text-center mb-5 md:mb-10">
         <div className="relative inline-block mb-4 md:mb-6">
-        <h1 className="text-4xl md:text-7xl font-dream-avenue font-light text-(--color-text) tracking-tight">
+        <h1
+          className="text-4xl md:text-7xl font-dream-avenue font-light text-(--color-text) tracking-tight cursor-pointer"
+          role="button"
+          tabIndex={0}
+          onClick={clearAllFilters}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              clearAllFilters();
+            }
+          }}
+        >
           {siteContent?.catalogTitle?.[locale] || t.catalog.title}
         </h1>
           {/* Pincelada acrílica/acuarela */}
           <svg 
-            className="absolute left-0 right-0 bottom-0 w-full h-4 md:h-6 pointer-events-none opacity-90"
+            className="absolute left-0 right-0 -bottom-4 w-full h-4 md:h-6 pointer-events-none opacity-90"
             viewBox="0 0 300 20" 
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
