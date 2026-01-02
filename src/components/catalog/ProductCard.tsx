@@ -18,7 +18,6 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
   const images = useMemo(() => (Array.isArray(product.images) ? product.images : []), [product.images]);
   const hasMultipleImages = images.length > 1;
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const imageContainerRef = useRef<HTMLDivElement | null>(null);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const suppressClickRef = useRef(false);
@@ -33,7 +32,6 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
   // Reset carousel when product changes
   useEffect(() => {
     setActiveImageIndex(0);
-    setIsAutoPlaying(true);
     suppressClickRef.current = false;
 
     const scroller = scrollerRef.current;
@@ -42,10 +40,6 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
     }
   }, [product.id]);
 
-  const stopAutoplay = () => {
-    setIsAutoPlaying(false);
-  };
-
   const scrollToIndex = (index: number, behavior: ScrollBehavior = 'smooth') => {
     const scroller = scrollerRef.current;
     if (!scroller) return;
@@ -53,23 +47,6 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
     if (!width || !Number.isFinite(width)) return;
     scroller.scrollTo({ left: index * width, behavior });
   };
-
-  // Auto-advance images unless user interacts
-  useEffect(() => {
-    if (!hasMultipleImages) return;
-    if (!isAutoPlaying) return;
-
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-
-    const intervalId = window.setInterval(() => {
-      const nextIndex = (activeImageIndex + 1) % images.length;
-      scrollToIndex(nextIndex, 'smooth');
-      setActiveImageIndex(nextIndex);
-    }, 3000);
-
-    return () => window.clearInterval(intervalId);
-  }, [activeImageIndex, hasMultipleImages, images.length, isAutoPlaying]);
 
   const imageUrl = images[activeImageIndex] || images[0];
 
@@ -88,8 +65,6 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
 
     const scroller = scrollerRef.current;
     if (!scroller) return;
-
-    stopAutoplay();
 
     pointerDragRef.current = {
       pointerId: e.pointerId,
@@ -160,7 +135,6 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
     e.stopPropagation();
     if (!hasMultipleImages) return;
     const nextIndex = (activeImageIndex - 1 + images.length) % images.length;
-    stopAutoplay();
     setActiveImageIndex(nextIndex);
     scrollToIndex(nextIndex, 'smooth');
   };
@@ -170,7 +144,6 @@ export default function ProductCard({ product, pricingConfig, globalDiscount, on
     e.stopPropagation();
     if (!hasMultipleImages) return;
     const nextIndex = (activeImageIndex + 1) % images.length;
-    stopAutoplay();
     setActiveImageIndex(nextIndex);
     scrollToIndex(nextIndex, 'smooth');
   };
