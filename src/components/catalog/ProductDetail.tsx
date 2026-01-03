@@ -309,14 +309,115 @@ export default function ProductDetail({
             )}
 
             {/* Description */}
-            <div className="mb-12">
+            <div>
               <p className="font-body text-base md:text-lg text-(--color-text) leading-relaxed whitespace-pre-line font-light">
                 {product.description[locale] || product.description.es}
               </p>
             </div>
 
+            {/* Product Features */}
+            <div className="mt-12 pt-8 border-t border-(--color-border)">
+              <h3 className="font-heading text-xs font-medium text-(--color-muted) mb-6 uppercase tracking-[0.2em]">
+                {t.productDetail.features || "Características"}
+              </h3>
+              <ul className="space-y-3 font-body text-(--color-text) font-light text-sm">
+                <li className="flex items-start gap-3">
+                  <span className="text-(--color-gold) text-xs">●</span>
+                  <span>{t.productDetail.feature1}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-(--color-gold) text-xs">●</span>
+                  <span>{t.productDetail.feature2}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-(--color-gold) text-xs">●</span>
+                  <span>{t.productDetail.feature3}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-(--color-gold) text-xs">●</span>
+                  <span>{t.productDetail.feature4}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-(--color-gold) text-xs">●</span>
+                  <span>{t.productDetail.feature5}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-(--color-gold) text-xs">●</span>
+                  <span>{t.productDetail.feature6}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-(--color-gold) text-xs">●</span>
+                  <span>{t.productDetail.feature7}</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Tags - Subtle display */}
+            {tagNames.length > 0 && (
+              <div className="mt-8 pt-6 border-t border-(--color-border)">
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                  {tagNames.map((tagName, index) => (
+                    <span
+                      key={index}
+                      className="text-xs text-(--color-muted) font-light tracking-wide hover:text-(--color-primary) transition-colors cursor-default"
+                    >
+                      #{tagName}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Shipping Options */}
+            {(shippings.length > 0 || freeShippingEnabled) && (
+              <div className="mt-10 pt-8 border-t border-(--color-border)">
+                <h3 className="font-heading text-xs font-medium text-(--color-muted) mb-6 uppercase tracking-[0.2em]">
+                  {(t.productDetail as any).shippingOptions || "Opciones de envío"}
+                </h3>
+                <div className="space-y-4">
+                  {shippings.map((shipping) => (
+                    <div key={shipping.id} className="flex items-center justify-between py-2">
+                      <div className="flex-1">
+                        <p className="font-body text-sm font-medium text-(--color-text) mb-0.5">
+                          {shipping.description?.[locale] ?? shipping.description?.es}
+                        </p>
+                        <p className="font-body text-xs text-(--color-muted) font-light">
+                          {shipping.deliveryTime?.[locale] ?? shipping.deliveryTime?.es}
+                        </p>
+                      </div>
+                      <div className="ml-4">
+                        <span className="font-accent italic text-base text-(--color-text)">
+                          {formatPrice(shipping.price)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+
+                  {freeShippingEnabled && (
+                    <div className="flex items-center justify-between py-2">
+                      <div className="flex-1">
+                        <p className="font-body text-sm font-medium text-(--color-text) mb-0.5">
+                          {(t.productDetail as any).freeShippingLabel || "Envío gratis"}
+                        </p>
+                        <p className="font-body text-xs text-(--color-muted) font-light">
+                          {((t.productDetail as any).freeShippingFrom || "A partir de") +
+                            " " +
+                            formatPrice(freeShippingThreshold)}
+                        </p>
+                      </div>
+                      <div className="ml-4">
+                        <span className="font-accent italic text-base text-(--color-text)">
+                          {formatPrice(0)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Contact CTA */}
-            <div className="mt-auto space-y-4">
+            <div className="mt-10 pt-8 border-t border-(--color-border) space-y-4">
               <h3 className="font-heading text-xs font-medium text-(--color-muted) mb-4 text-center uppercase tracking-[0.2em]">
                 {t.productDetail.shopViaDM}
               </h3>
@@ -351,106 +452,6 @@ export default function ProductDetail({
                 </div>
               </a>
             </div>
-
-            {/* Product Features */}
-            <div className="mt-12 pt-8 border-t border-(--color-border)">
-              <h3 className="font-heading text-xs font-medium text-(--color-muted) mb-6 uppercase tracking-[0.2em]">
-                {t.productDetail.features || "Características"}
-              </h3>
-              <ul className="space-y-3 font-body text-(--color-text) font-light text-sm">
-                <li className="flex items-start gap-3">
-                  <span className="text-(--color-gold) text-xs">●</span>
-                  <span>{t.productDetail.feature1}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-(--color-gold) text-xs">●</span>
-                  <span>{t.productDetail.feature2}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-(--color-gold) text-xs">●</span>
-                  <span>{t.productDetail.feature3}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-(--color-gold) text-xs">●</span>
-                  <span>{t.productDetail.feature4}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-(--color-gold) text-xs">●</span>
-                  <span>{t.productDetail.feature5}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-(--color-gold) text-xs">●</span>
-                  <span>{t.productDetail.feature6}</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Tags - Subtle display */}
-            {tagNames.length > 0 && (
-              <div className="mt-8 pt-6 border-t border-(--color-border)">
-                <div className="flex flex-wrap gap-x-4 gap-y-2">
-                  {tagNames.map((tagName, index) => (
-                    <span
-                      key={index}
-                      className="text-xs text-(--color-muted) font-light tracking-wide hover:text-(--color-primary) transition-colors cursor-default"
-                    >
-                      #{tagName}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Shipping Options */}
-            {(shippings.length > 0 || freeShippingEnabled) && (
-              <div className="mt-10 pt-8 border-t border-(--color-border)">
-                <h3 className="font-heading text-xs font-medium text-(--color-muted) mb-6 uppercase tracking-[0.2em]">
-                  {(t.productDetail as any).shippingOptions || "Opciones de envío"}
-                </h3>
-                <div className="space-y-4">
-                  {shippings.map((shipping) => (
-                    <div
-                      key={shipping.id}
-                      className="flex items-center justify-between py-2 border-b border-(--color-border) last:border-0"
-                    >
-                      <div className="flex-1">
-                        <p className="font-body text-sm font-medium text-(--color-text) mb-0.5">
-                          {shipping.description?.[locale] ?? shipping.description?.es}
-                        </p>
-                        <p className="font-body text-xs text-(--color-muted) font-light">
-                          {shipping.deliveryTime?.[locale] ?? shipping.deliveryTime?.es}
-                        </p>
-                      </div>
-                      <div className="ml-4">
-                        <span className="font-accent italic text-base text-(--color-text)">
-                          {formatPrice(shipping.price)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-
-                  {freeShippingEnabled && (
-                    <div className="flex items-center justify-between py-2 border-b border-(--color-border) last:border-0">
-                      <div className="flex-1">
-                        <p className="font-body text-sm font-medium text-(--color-text) mb-0.5">
-                          {(t.productDetail as any).freeShippingLabel || "Envío gratis"}
-                        </p>
-                        <p className="font-body text-xs text-(--color-muted) font-light">
-                          {((t.productDetail as any).freeShippingFrom || "A partir de") +
-                            " " +
-                            formatPrice(freeShippingThreshold)}
-                        </p>
-                      </div>
-                      <div className="ml-4">
-                        <span className="font-accent italic text-base text-(--color-text)">
-                          {formatPrice(0)}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

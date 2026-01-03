@@ -64,6 +64,7 @@ export interface Translations {
     feature4: string;
     feature5: string;
     feature6: string;
+    feature7: string;
     shippingOptions: string;
   };
   catalog: {
