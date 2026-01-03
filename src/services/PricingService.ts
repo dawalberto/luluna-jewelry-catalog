@@ -4,10 +4,16 @@ import { firebaseConfig } from '../config/env';
 import type { PricingConfig } from '../types';
 import FirebaseClient from './FirebaseClient';
 
+const FreeShippingSchema = z.object({
+  enabled: z.boolean(),
+  threshold: z.number().nonnegative(),
+});
+
 const PricingConfigSchema = z.object({
   S: z.number().nonnegative(),
   M: z.number().nonnegative(),
   L: z.number().nonnegative(),
+  freeShipping: FreeShippingSchema.optional(),
 });
 
 const PRICING_DOC_PATH = { collection: 'settings', docId: 'pricing' } as const;
@@ -28,14 +34,31 @@ export class PricingService {
 
     if (!snap.exists()) {
       // Reasonable defaults; admin can change from /admin
-      return { S: 0, M: 0, L: 0 };
+      return { S: 0, M: 0, L: 0, freeShipping: { enabled: false, threshold: 0 } };
     }
 
     const data = snap.data() as Partial<PricingConfig>;
+
+    // Backward compatible parsing.
+    const rawFree: any = (data as any).freeShipping;
+    const freeShipping =
+      rawFree && typeof rawFree === 'object'
+        ? {
+            enabled: Boolean(rawFree.enabled),
+            threshold:
+              typeof rawFree.threshold === 'number'
+                ? rawFree.threshold
+                : typeof rawFree.threshold === 'string'
+                  ? Number.parseFloat(rawFree.threshold) || 0
+                  : 0,
+          }
+        : { enabled: false, threshold: 0 };
+
     return PricingConfigSchema.parse({
       S: data.S ?? 0,
       M: data.M ?? 0,
       L: data.L ?? 0,
+      freeShipping,
     });
   }
 

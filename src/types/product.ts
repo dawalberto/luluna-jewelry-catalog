@@ -37,6 +37,13 @@ export interface PricingConfig {
   S: number;
   M: number;
   L: number;
+
+  /** Optional extra pricing settings stored in settings/pricing */
+  freeShipping?: {
+    enabled: boolean;
+    /** Euro amount from which free shipping applies */
+    threshold: number;
+  };
 }
 
 /**

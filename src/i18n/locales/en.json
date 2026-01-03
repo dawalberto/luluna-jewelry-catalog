@@ -49,10 +49,12 @@
     "contactWhatsApp": "Contact via WhatsApp",
     "whatsappMessage": "Hello, I'm interested in this jewelry I saw in the catalog:",
     "features": "Features",
-    "feature1": "Artisanal jewelry completely handmade",
+    "feature1": "Handmade jewelry",
     "feature2": "High quality polymer clay",
     "feature3": "Unique and elegant design",
-    "feature4": "Satisfaction guarantee",
+    "feature4": "Hypoallergenic",
+    "feature5": "Lightweight",
+    "feature6": "Custom jewelry",
     "shippingOptions": "Shipping options"
   },
   "catalog": {

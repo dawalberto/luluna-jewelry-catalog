@@ -49,10 +49,12 @@
     "contactWhatsApp": "Consultar por WhatsApp",
     "whatsappMessage": "Hola, me interesa esta joya que he visto en el catálogo:",
     "features": "Características",
-    "feature1": "Joyería artesanal totalmente hecha a mano",
+    "feature1": "Joyas hecha a mano",
     "feature2": "Arcilla polimérica de alta calidad",
     "feature3": "Diseño único y elegante",
-    "feature4": "Garantía de satisfacción",
+    "feature4": "Hipoalergénicos",
+    "feature5": "Livianos",
+    "feature6": "Joyas personalizadas",
     "shippingOptions": "Opciones de envío"
   },
   "catalog": {
