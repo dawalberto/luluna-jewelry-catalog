@@ -1,4 +1,5 @@
 ---
-const target = `/catalog${Astro.url.search}`
-return Astro.redirect(target, 301)
+import CatalogPage from "./catalog.astro"
 ---
+
+<CatalogPage />
