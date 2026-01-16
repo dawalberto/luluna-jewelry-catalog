@@ -371,23 +371,42 @@ export default function ProductDetail({
 
             {/* Shipping Options */}
             {(shippings.length > 0 || freeShippingEnabled) && (
-              <div className="mt-10 pt-8 border-t border-(--color-border)">
-                <h3 className="font-heading text-xs font-medium text-(--color-muted) mb-6 uppercase tracking-[0.2em]">
-                  {(t.productDetail as any).shippingOptions || "Opciones de envío"}
-                </h3>
-                <div className="space-y-4">
+              <div className="mt-12 pt-8 border-t border-(--color-border)">
+                <div className="flex items-center gap-2 mb-6">
+                  <svg
+                    className="w-4 h-4 text-(--color-muted)"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1}
+                      d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                    />
+                  </svg>
+                  <h3 className="font-heading text-xs font-medium text-(--color-muted) uppercase tracking-[0.2em]">
+                    {(t.productDetail as any).shippingOptions || "Opciones de envío"}
+                  </h3>
+                </div>
+
+                <div className="space-y-1">
                   {shippings.map((shipping) => (
-                    <div key={shipping.id} className="flex items-center justify-between py-2">
-                      <div className="flex-1">
-                        <p className="font-body text-sm font-medium text-(--color-text) mb-0.5">
+                    <div
+                      key={shipping.id}
+                      className="group flex items-center justify-between p-3 border border-transparent hover:border-[#E5E5E5] hover:bg-white/50 transition-all duration-300 rounded-sm"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-body text-sm font-medium text-(--color-text)">
                           {shipping.description?.[locale] ?? shipping.description?.es}
-                        </p>
-                        <p className="font-body text-xs text-(--color-muted) font-light">
+                        </span>
+                        <span className="font-body text-[10px] text-(--color-muted) font-light uppercase tracking-wider mt-0.5">
                           {shipping.deliveryTime?.[locale] ?? shipping.deliveryTime?.es}
-                        </p>
+                        </span>
                       </div>
                       <div className="ml-4">
-                        <span className="font-accent italic text-base text-(--color-text)">
+                        <span className="font-accent italic text-lg text-(--color-text)">
                           {formatPrice(shipping.price)}
                         </span>
                       </div>
@@ -395,19 +414,19 @@ export default function ProductDetail({
                   ))}
 
                   {freeShippingEnabled && (
-                    <div className="flex items-center justify-between py-2">
-                      <div className="flex-1">
-                        <p className="font-body text-sm font-medium text-(--color-text) mb-0.5">
+                    <div className="group flex items-center justify-between p-3 border border-transparent hover:border-[#E5E5E5] hover:bg-white/50 transition-all duration-300 rounded-sm">
+                      <div className="flex flex-col">
+                        <span className="font-body text-sm font-medium text-(--color-text)">
                           {(t.productDetail as any).freeShippingLabel || "Envío gratis"}
-                        </p>
-                        <p className="font-body text-xs text-(--color-muted) font-light">
+                        </span>
+                        <span className="font-body text-[10px] text-(--color-muted) font-light uppercase tracking-wider mt-0.5">
                           {((t.productDetail as any).freeShippingFrom || "A partir de") +
                             " " +
                             formatPrice(freeShippingThreshold)}
-                        </p>
+                        </span>
                       </div>
                       <div className="ml-4">
-                        <span className="font-accent italic text-base text-(--color-text)">
+                        <span className="font-accent italic text-lg text-(--color-text)">
                           {formatPrice(0)}
                         </span>
                       </div>
@@ -419,19 +438,38 @@ export default function ProductDetail({
 
             {/* Payment Methods (informational) */}
             {paymentMethods.length > 0 && (
-              <div className="mt-10 pt-8 border-t border-(--color-border)">
-                <h3 className="font-heading text-xs font-medium text-(--color-muted) mb-6 uppercase tracking-[0.2em]">
-                  {(t.productDetail as any).paymentMethodsTitle || "Métodos de pago"}
-                </h3>
-                <div className="space-y-3">
+              <div className="mt-8 pt-6 border-t border-(--color-border)">
+                <div className="flex items-center gap-2 mb-6">
+                  <svg
+                    className="w-4 h-4 text-(--color-muted)"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1}
+                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                    />
+                  </svg>
+                  <h3 className="font-heading text-xs font-medium text-(--color-muted) uppercase tracking-[0.2em]">
+                    {(t.productDetail as any).paymentMethodsTitle || "Métodos de pago"}
+                  </h3>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
                   {paymentMethods.map((method) => (
-                    <div key={method.id} className="py-1">
-                      <p className="font-body text-sm font-medium text-(--color-text)">
+                    <div
+                      key={method.id}
+                      className="px-3 py-1.5 border border-(--color-border) text-(--color-muted) cursor-default"
+                    >
+                      <span className="font-body text-[10px] uppercase tracking-[0.1em] font-medium block">
                         {method.title?.[locale] ??
                           method.title?.es ??
                           method.title?.en ??
                           method.id}
-                      </p>
+                      </span>
                     </div>
                   ))}
                 </div>
