@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useI18n } from "../../i18n"
 import { PricingService, ProductService } from "../../services"
 import type { PricingConfig, Product } from "../../types"
@@ -44,6 +44,7 @@ function getProductFinalPrice(product: Product, pricing: PricingConfig): number 
 
 export default function ProductsPanel() {
   const { t, locale } = useI18n()
+  const topRef = useRef<HTMLDivElement | null>(null)
   const [showForm, setShowForm] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const { products, isLoading, mutate } = useProducts({ publishedOnly: false }, { limit: 100 })
@@ -52,11 +53,29 @@ export default function ProductsPanel() {
   const [pricing, setPricing] = useState<PricingConfig>({ S: 0, M: 0, L: 0 })
   const [searchDraft, setSearchDraft] = useState("")
   const [searchApplied, setSearchApplied] = useState("")
+  const [scrollToTopOnOpen, setScrollToTopOnOpen] = useState(false)
 
   // Load pricing config
   useState(() => {
     pricingService.getPricingConfig().then(setPricing).catch(console.error)
   })
+
+  useEffect(() => {
+    if (!showForm || !scrollToTopOnOpen) return
+
+    const scroll = () => {
+      if (topRef.current) {
+        topRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
+      } else if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, left: 0, behavior: "smooth" })
+      }
+    }
+
+    // Ensure the form has a chance to mount/layout before scrolling.
+    const id = window.setTimeout(scroll, 0)
+    setScrollToTopOnOpen(false)
+    return () => window.clearTimeout(id)
+  }, [showForm, scrollToTopOnOpen])
 
   const handleDelete = async (id: string) => {
     if (!confirm(t.admin.deleteConfirm)) return
@@ -135,6 +154,7 @@ export default function ProductsPanel() {
 
   return (
     <>
+      <div ref={topRef} />
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">{t.admin.products}</h2>
         <Button
@@ -403,6 +423,7 @@ export default function ProductsPanel() {
                     <span className="px-2">|</span>
                     <button
                       onClick={() => {
+                        setScrollToTopOnOpen(true)
                         setEditingProduct(product)
                         setShowForm(true)
                       }}
