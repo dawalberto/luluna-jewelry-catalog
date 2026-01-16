@@ -44,6 +44,77 @@ export default function ProductDetail({
   )
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
+  const [showCopiedMessage, setShowCopiedMessage] = useState(false)
+
+  const handleShare = async () => {
+    const url = window.location.href
+    const title = product.title[locale] || product.title.es
+    const text = product.description[locale] || product.description.es
+
+    const shareData = {
+      title,
+      text: text?.slice(0, 100) + (text?.length > 100 ? "..." : ""), // Truncate text
+      url,
+    }
+
+    try {
+      // Prioritize native mobile share
+      if (typeof navigator.share === "function") {
+        await navigator.share(shareData)
+      } else {
+        // Force error to trigger fallback
+        throw new Error("Web Share API not supported")
+      }
+    } catch (err) {
+      // Ignore user abort (Canceled share)
+      if ((err as Error).name === "AbortError") return
+
+      console.log("Share failed, falling back to clipboard", err)
+
+      // Fallback strategies for clipboard
+      const fallbackCopy = () => {
+        try {
+          // Legacy method (works in some non-secure contexts)
+          const textArea = document.createElement("textarea")
+          textArea.value = url
+
+          // Ensure it's not visible but part of DOM
+          textArea.style.position = "fixed"
+          textArea.style.left = "-9999px"
+          textArea.style.top = "0"
+          document.body.appendChild(textArea)
+
+          textArea.focus()
+          textArea.select()
+
+          const successful = document.execCommand("copy")
+          document.body.removeChild(textArea)
+
+          if (!successful) throw new Error("execCommand failed")
+
+          setShowCopiedMessage(true)
+          setTimeout(() => setShowCopiedMessage(false), 2000)
+        } catch (legacyErr) {
+          console.error("Legacy copy failed", legacyErr)
+          // Final fallback: just show the URL
+          window.prompt(locale === "es" ? "Copia este enlace:" : "Copy this link:", url)
+        }
+      }
+
+      // Try Clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(url)
+          setShowCopiedMessage(true)
+          setTimeout(() => setShowCopiedMessage(false), 2000)
+        } catch (clipboardErr) {
+          fallbackCopy()
+        }
+      } else {
+        fallbackCopy()
+      }
+    }
+  }
 
   // Calculate price using the same logic as ProductCard
   const { finalPrice, basePrice, discountPercent } = useMemo(() => {
@@ -260,10 +331,38 @@ export default function ProductDetail({
               </div>
             )}
 
-            {/* Title */}
-            <h1 className="font-heading text-4xl md:text-5xl font-medium text-(--color-text) mb-6 leading-tight tracking-tight">
-              {product.title[locale] || product.title.es}
-            </h1>
+            {/* Title & Share */}
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <h1 className="font-heading text-4xl md:text-5xl font-medium text-(--color-text) leading-tight tracking-tight">
+                {product.title[locale] || product.title.es}
+              </h1>
+              <div className="relative shrink-0 pt-1">
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="p-3 -mr-2 text-(--color-muted) hover:text-(--color-primary) hover:bg-(--color-primary)/5 rounded-full transition-all cursor-pointer z-10 relative touch-manipulation"
+                  aria-label={locale === "es" ? "Compartir producto" : "Share product"}
+                  title={locale === "es" ? "Compartir producto" : "Share product"}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                    />
+                  </svg>
+                </button>
+                {/* Copied Tooltip */}
+                <div
+                  className={`absolute right-0 top-full mt-2 whitespace-nowrap bg-gray-900 text-white text-[10px] uppercase tracking-wider font-medium px-2 py-1 pointer-events-none transition-all duration-300 ${
+                    showCopiedMessage ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+                  }`}
+                >
+                  {locale === "es" ? "Enlace copiado" : "Link copied"}
+                </div>
+              </div>
+            </div>
 
             {/* Price */}
             <div className="mb-8 pb-8 border-b border-(--color-border)">
