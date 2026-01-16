@@ -20,6 +20,7 @@ export default function CatalogView() {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedCollection, setSelectedCollection] = useState<string | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState("")
+  const [searchDraft, setSearchDraft] = useState("")
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | undefined>(undefined)
   const [globalDiscount, setGlobalDiscount] = useState<GlobalDiscount | undefined>(undefined)
   const [siteContent, setSiteContent] = useState<SiteContent | undefined>(undefined)
@@ -36,6 +37,7 @@ export default function CatalogView() {
     setSelectedTags([])
     setSelectedCollection(undefined)
     setSearchQuery("")
+    setSearchDraft("")
     setShowFilters(false)
     setSortBy("collections")
 
@@ -70,6 +72,7 @@ export default function CatalogView() {
       setSelectedSubcategoryKeys(savedState.selectedSubcategoryKeys || [])
       setSelectedCollection(savedState.selectedCollection)
       setSearchQuery(savedState.searchQuery || "")
+      setSearchDraft(savedState.searchQuery || "")
       // Migrar el estado antiguo al nuevo formato
       const legacyState = savedState as any
       if (legacyState.sortBy === "price" && legacyState.priceSortOrder) {
@@ -145,6 +148,10 @@ export default function CatalogView() {
     categories: categoriesForQuery.length > 0 ? categoriesForQuery : undefined,
     search: searchQuery || undefined,
     publishedOnly: true,
+  }
+
+  const applySearch = () => {
+    setSearchQuery(searchDraft.trim())
   }
 
   const productLimit = sortBy === "collections" ? 500 : 50
@@ -720,10 +727,96 @@ export default function CatalogView() {
 
           {/* Sidebar Content */}
           <div className="flex-1 overflow-y-auto p-6 space-y-8">
-            {/* Search
-              <div>
-                 <SearchBar onSearch={setSearchQuery} initialValue={searchQuery} />
-              </div> */}
+            {/* Search */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-medium text-(--color-muted) uppercase tracking-[0.18em]">
+                  {locale === "es" ? "Buscar" : "Search"}
+                </span>
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchDraft("")
+                      setSearchQuery("")
+                    }}
+                    className="text-[10px] uppercase tracking-[0.18em] text-(--color-muted) hover:text-(--color-text) transition-colors"
+                  >
+                    {locale === "es" ? "Limpiar" : "Clear"}
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="relative flex-1">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-muted) pointer-events-none">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </div>
+
+                  <input
+                    type="text"
+                    value={searchDraft}
+                    onChange={(e) => setSearchDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault()
+                        applySearch()
+                      }
+                    }}
+                    placeholder={locale === "es" ? "Nombre del producto" : "Product name"}
+                    className="w-full pl-10 pr-10 py-3 bg-transparent border-b border-(--color-border) text-(--color-text) placeholder-(--color-muted) focus:outline-none focus:border-(--color-primary) transition-colors font-body text-sm md:text-base"
+                  />
+
+                  {searchDraft && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchDraft("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-(--color-text) hover:opacity-70 transition-opacity"
+                      aria-label={locale === "es" ? "Borrar" : "Clear"}
+                    >
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="square"
+                          strokeLinejoin="miter"
+                          strokeWidth={3}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={applySearch}
+                  className="shrink-0 w-11 h-11 rounded-full bg-(--color-primary) text-white flex items-center justify-center hover:bg-(--color-primary)/90 transition-colors"
+                  aria-label={locale === "es" ? "Buscar" : "Search"}
+                  title={locale === "es" ? "Buscar" : "Search"}
+                >
+                  <span className="text-base leading-none" aria-hidden>
+                    🔍
+                  </span>
+                </button>
+              </div>
+
+              {searchQuery && searchQuery !== searchDraft.trim() && (
+                <div className="mt-2 text-xs text-(--color-muted) font-light">
+                  {locale === "es" ? "Tienes cambios sin aplicar" : "You have unapplied changes"}
+                </div>
+              )}
+            </div>
 
             {/* Categories */}
             <div>
