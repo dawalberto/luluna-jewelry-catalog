@@ -3,7 +3,7 @@ import { siteConfig } from "../../config/env"
 import { useI18n } from "../../i18n"
 import type { GlobalDiscount, PricingConfig, Product } from "../../types"
 import { formatPrice } from "../../utils"
-import { useCategories, useShippings, useTags } from "../../utils/hooks"
+import { useCategories, usePaymentMethods, useShippings, useTags } from "../../utils/hooks"
 
 interface ProductDetailProps {
   product: Product
@@ -20,6 +20,7 @@ export default function ProductDetail({
   const { categories: dbCategories } = useCategories()
   const { tags: dbTags } = useTags()
   const { shippings } = useShippings()
+  const { paymentMethods } = usePaymentMethods()
 
   const freeShippingEnabled = Boolean(pricingConfig?.freeShipping?.enabled)
   const rawFreeShippingThreshold = pricingConfig?.freeShipping?.threshold
@@ -412,6 +413,27 @@ export default function ProductDetail({
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Payment Methods (informational) */}
+            {paymentMethods.length > 0 && (
+              <div className="mt-10 pt-8 border-t border-(--color-border)">
+                <h3 className="font-heading text-xs font-medium text-(--color-muted) mb-6 uppercase tracking-[0.2em]">
+                  {(t.productDetail as any).paymentMethodsTitle || "Métodos de pago"}
+                </h3>
+                <div className="space-y-3">
+                  {paymentMethods.map((method) => (
+                    <div key={method.id} className="py-1">
+                      <p className="font-body text-sm font-medium text-(--color-text)">
+                        {method.title?.[locale] ??
+                          method.title?.es ??
+                          method.title?.en ??
+                          method.id}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

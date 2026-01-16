@@ -1,10 +1,18 @@
 import useSWR, { type SWRConfiguration } from 'swr';
-import { CategoryService, CollectionService, ProductService, ShippingService, TagService } from '../services';
+import {
+    CategoryService,
+    CollectionService,
+    PaymentMethodService,
+    ProductService,
+    ShippingService,
+    TagService,
+} from '../services';
 import type {
     Category,
     Collection,
     PaginatedResponse,
     PaginationOptions,
+    PaymentMethod,
     Product,
     ProductFilters,
     Shipping,
@@ -16,6 +24,7 @@ const categoryService = new CategoryService();
 const collectionService = new CollectionService();
 const tagService = new TagService();
 const shippingService = new ShippingService();
+const paymentMethodService = new PaymentMethodService();
 
 /**
  * Default SWR configuration
@@ -203,6 +212,27 @@ export function useShippings(config?: SWRConfiguration) {
 
   return {
     shippings: data || [],
+    isLoading,
+    isError: !!error,
+    error,
+    mutate,
+  };
+}
+
+/**
+ * Hook to fetch all payment methods
+ */
+export function usePaymentMethods(config?: SWRConfiguration) {
+  const key = ['paymentMethods'];
+
+  const { data, error, isLoading, mutate } = useSWR<PaymentMethod[]>(
+    key,
+    () => paymentMethodService.getAllPaymentMethods(),
+    { ...defaultConfig, ...config }
+  );
+
+  return {
+    paymentMethods: data || [],
     isLoading,
     isError: !!error,
     error,
