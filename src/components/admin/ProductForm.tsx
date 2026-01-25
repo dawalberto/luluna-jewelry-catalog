@@ -1,131 +1,145 @@
-import imageCompression from 'browser-image-compression';
-import React, { useEffect, useMemo, useState } from 'react';
-import { cloudinaryConfig } from '../../config/env';
-import { useI18n } from '../../i18n';
-import { PricingService, ProductService } from '../../services';
-import type { CreateProductInput, MultilingualText, PricingConfig, ProductCategory, ProductPriceType } from '../../types';
-import { useCategories, useCollections, useTags } from '../../utils/hooks';
-import { Button, Input } from '../ui';
+import imageCompression from "browser-image-compression"
+import React, { useEffect, useMemo, useState } from "react"
+import { cloudinaryConfig } from "../../config/env"
+import { useI18n } from "../../i18n"
+import { PricingService, ProductService } from "../../services"
+import type {
+  CreateProductInput,
+  MultilingualText,
+  PricingConfig,
+  ProductCategory,
+  ProductPriceType,
+} from "../../types"
+import { getCloudinaryUrl } from "../../utils/cloudinary"
+import { useCategories, useCollections, useTags } from "../../utils/hooks"
+import { Button, Input } from "../ui"
 
-const productService = new ProductService();
-const pricingService = new PricingService();
+const productService = new ProductService()
+const pricingService = new PricingService()
 
 interface ProductFormProps {
-  product?: any; // Producto existente para edición
-  onSuccess?: () => void;
-  onCancel?: () => void;
+  product?: any // Producto existente para edición
+  onSuccess?: () => void
+  onCancel?: () => void
 }
 
 export default function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) {
-  const { t, locale } = useI18n();
-  const { categories: dbCategories, isLoading: categoriesLoading } = useCategories();
-  const { collections: dbCollections, isLoading: collectionsLoading } = useCollections();
-  const { tags: dbTags, isLoading: tagsLoading } = useTags();
-  const isEditing = !!product;
-  const [pricingConfig, setPricingConfig] = useState<PricingConfig | null>(null);
+  const { t, locale } = useI18n()
+  const { categories: dbCategories, isLoading: categoriesLoading } = useCategories()
+  const { collections: dbCollections, isLoading: collectionsLoading } = useCollections()
+  const { tags: dbTags, isLoading: tagsLoading } = useTags()
+  const isEditing = !!product
+  const [pricingConfig, setPricingConfig] = useState<PricingConfig | null>(null)
 
   const categories = useMemo(() => {
     // Fallback to legacy i18n categories if Firestore has none yet.
     if (dbCategories.length > 0) {
-      return dbCategories.map((c) => ({ id: c.id, label: c.title?.es ?? c.id }));
+      return dbCategories.map((c) => ({ id: c.id, label: c.title?.es ?? c.id }))
     }
-    const legacy = (t as any)?.categories;
-    if (!legacy) return [] as Array<{ id: string; label: string }>;
-    const ids = Object.keys(legacy).filter((k) => k !== 'all');
-    return ids.map((id) => ({ id, label: legacy[id] as string }));
-  }, [dbCategories, t]);
+    const legacy = (t as any)?.categories
+    if (!legacy) return [] as Array<{ id: string; label: string }>
+    const ids = Object.keys(legacy).filter((k) => k !== "all")
+    return ids.map((id) => ({ id, label: legacy[id] as string }))
+  }, [dbCategories, t])
   const tags = useMemo(() => {
     if (dbTags.length > 0) {
-      return dbTags.map((tag) => ({ id: tag.id, label: tag.title?.[locale] ?? tag.title?.es ?? tag.id }));
+      return dbTags.map((tag) => ({
+        id: tag.id,
+        label: tag.title?.[locale] ?? tag.title?.es ?? tag.id,
+      }))
     }
-    return [] as Array<{ id: string; label: string }>;
-  }, [dbTags, locale]);
+    return [] as Array<{ id: string; label: string }>
+  }, [dbTags, locale])
   const collections = useMemo(() => {
     if (dbCollections.length > 0) {
-      return dbCollections.map((collection) => ({ id: collection.id, label: collection.title?.[locale] ?? collection.title?.es ?? collection.id }));
+      return dbCollections.map((collection) => ({
+        id: collection.id,
+        label: collection.title?.[locale] ?? collection.title?.es ?? collection.id,
+      }))
     }
-    return [] as Array<{ id: string; label: string }>;
-  }, [dbCollections, locale]);
+    return [] as Array<{ id: string; label: string }>
+  }, [dbCollections, locale])
 
   const makeSubcategoryKey = (categoryId: string, subcategoryId: string) =>
-    `${categoryId}:${subcategoryId}`;
+    `${categoryId}:${subcategoryId}`
 
   const availableSubcategories = useMemo(() => {
-    if (dbCategories.length === 0) return [] as Array<{ key: string; parentId: string; label: string }>;
+    if (dbCategories.length === 0)
+      return [] as Array<{ key: string; parentId: string; label: string }>
 
-    const out: Array<{ key: string; parentId: string; label: string }> = [];
+    const out: Array<{ key: string; parentId: string; label: string }> = []
     dbCategories.forEach((cat) => {
-      const parentLabel = cat.title?.[locale] ?? cat.title?.es ?? cat.id;
-      (cat.subcategories ?? []).forEach((sub) => {
-        const subLabel = sub.title?.[locale] ?? sub.title?.es ?? sub.id;
+      const parentLabel = cat.title?.[locale] ?? cat.title?.es ?? cat.id
+      ;(cat.subcategories ?? []).forEach((sub) => {
+        const subLabel = sub.title?.[locale] ?? sub.title?.es ?? sub.id
         out.push({
           key: makeSubcategoryKey(cat.id, sub.id),
           parentId: cat.id,
           label: `${parentLabel} · ${subLabel}`,
-        });
-      });
-    });
+        })
+      })
+    })
 
-    out.sort((a, b) => a.label.localeCompare(b.label));
-    return out;
-  }, [dbCategories, locale]);
+    out.sort((a, b) => a.label.localeCompare(b.label))
+    return out
+  }, [dbCategories, locale])
   const [formData, setFormData] = useState<CreateProductInput>(() => {
     if (product) {
       return {
-        title: product.title || { es: '', en: '' },
-        description: product.description || { es: '', en: '' },
+        title: product.title || { es: "", en: "" },
+        description: product.description || { es: "", en: "" },
         categories: product.categories || [],
         subcategoryKeys: product.subcategoryKeys || [],
         tags: product.tags || [],
-        collectionId: product.collectionId ?? '',
-        pricing: product.pricing || { type: 'S' },
-        discount: product.discount || { enabled: false, percent: 0, description: '' },
+        collectionId: product.collectionId ?? "",
+        pricing: product.pricing || { type: "S" },
+        discount: product.discount || { enabled: false, percent: 0, description: "" },
         isNew: product.isNew || false,
         popularity: product.popularity || 0,
         images: product.images || [],
         published: product.published || false,
-      };
+      }
     }
     return {
-      title: { es: '', en: '' },
-      description: { es: '', en: '' },
+      title: { es: "", en: "" },
+      description: { es: "", en: "" },
       categories: [],
       subcategoryKeys: [],
       tags: [],
-      collectionId: '',
-      pricing: { type: 'S' },
-      discount: { enabled: false, percent: 0, description: '' },
+      collectionId: "",
+      pricing: { type: "S" },
+      discount: { enabled: false, percent: 0, description: "" },
       isNew: false,
       popularity: 0,
       images: [],
       published: false,
-    };
-  });
+    }
+  })
 
-  const [uploading, setUploading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleInputChange = (field: keyof CreateProductInput, value: any, lang?: 'es' | 'en') => {
+  const handleInputChange = (field: keyof CreateProductInput, value: any, lang?: "es" | "en") => {
     if (lang) {
       setFormData((prev) => ({
         ...prev,
         [field]: { ...(prev[field] as MultilingualText), [lang]: value },
-      }));
+      }))
     } else {
-      setFormData((prev) => ({ ...prev, [field]: value }));
+      setFormData((prev) => ({ ...prev, [field]: value }))
     }
-  };
+  }
 
   const toggleCategory = (category: ProductCategory) => {
     setFormData((prev) => {
-      const has = prev.categories.includes(category);
+      const has = prev.categories.includes(category)
       const next = has
         ? prev.categories.filter((c) => c !== category)
-        : [...prev.categories, category];
+        : [...prev.categories, category]
 
       // Preserve prior behavior: never allow leaving categories empty.
-      if (has && next.length === 0) return prev;
+      if (has && next.length === 0) return prev
 
       return {
         ...prev,
@@ -134,88 +148,86 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         subcategoryKeys: has
           ? (prev.subcategoryKeys || []).filter((k) => !k.startsWith(`${category}:`))
           : prev.subcategoryKeys,
-      };
-    });
-  };
+      }
+    })
+  }
 
   const toggleSubcategory = (parentCategoryId: string, subcategoryId: string) => {
-    const key = makeSubcategoryKey(parentCategoryId, subcategoryId);
+    const key = makeSubcategoryKey(parentCategoryId, subcategoryId)
     setFormData((prev) => {
-      const current = prev.subcategoryKeys || [];
-      const has = current.includes(key);
-      const nextKeys = has ? current.filter((k) => k !== key) : [...current, key];
+      const current = prev.subcategoryKeys || []
+      const has = current.includes(key)
+      const nextKeys = has ? current.filter((k) => k !== key) : [...current, key]
 
       const nextCategories = prev.categories.includes(parentCategoryId)
         ? prev.categories
-        : [...prev.categories, parentCategoryId];
+        : [...prev.categories, parentCategoryId]
 
       return {
         ...prev,
         categories: nextCategories,
         subcategoryKeys: nextKeys,
-      };
-    });
-  };
+      }
+    })
+  }
 
   const toggleTag = (tagId: string) => {
     setFormData((prev) => {
-      const has = prev.tags?.includes(tagId) || false;
-      const next = has
-        ? prev.tags!.filter((t) => t !== tagId)
-        : [...(prev.tags || []), tagId];
+      const has = prev.tags?.includes(tagId) || false
+      const next = has ? prev.tags!.filter((t) => t !== tagId) : [...(prev.tags || []), tagId]
       return {
         ...prev,
         tags: next,
-      };
-    });
-  };
+      }
+    })
+  }
 
   useEffect(() => {
     // If nothing selected yet, default to "pendientes" if available, else pick the first.
-    if (formData.categories.length > 0) return;
-    if (categories.length === 0) return;
-    const defaultCategory = categories.find(c => c.id === 'pendientes') || categories[0];
-    setFormData((prev) => ({ ...prev, categories: [defaultCategory.id] }));
-  }, [categories, formData.categories.length]);
+    if (formData.categories.length > 0) return
+    if (categories.length === 0) return
+    const defaultCategory = categories.find((c) => c.id === "pendientes") || categories[0]
+    setFormData((prev) => ({ ...prev, categories: [defaultCategory.id] }))
+  }, [categories, formData.categories.length])
 
   useEffect(() => {
     // Load pricing config
-    pricingService.getPricingConfig().then(setPricingConfig).catch(console.error);
-  }, []);
+    pricingService.getPricingConfig().then(setPricingConfig).catch(console.error)
+  }, [])
 
   const setPriceType = (type: ProductPriceType) => {
     setFormData((prev) => {
-      if (type === 'custom') {
+      if (type === "custom") {
         return {
           ...prev,
           pricing: {
             type,
-            customPrice: prev.pricing.type === 'custom' ? prev.pricing.customPrice : 0,
+            customPrice: prev.pricing.type === "custom" ? prev.pricing.customPrice : 0,
           },
-        };
+        }
       }
-      return { ...prev, pricing: { type } };
-    });
-  };
+      return { ...prev, pricing: { type } }
+    })
+  }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const files = e.target.files
+    if (!files || files.length === 0) return
 
     if (!cloudinaryConfig.cloudName) {
-      setError('Cloudinary cloud name is missing. Check PUBLIC_CLOUDINARY_CLOUD_NAME in .env');
-      return;
+      setError("Cloudinary cloud name is missing. Check PUBLIC_CLOUDINARY_CLOUD_NAME in .env")
+      return
     }
 
-    if (!cloudinaryConfig.uploadPreset || cloudinaryConfig.uploadPreset === 'your_upload_preset') {
+    if (!cloudinaryConfig.uploadPreset || cloudinaryConfig.uploadPreset === "your_upload_preset") {
       setError(
-        'Cloudinary upload preset is missing/invalid. Create an unsigned upload preset in Cloudinary and set PUBLIC_CLOUDINARY_UPLOAD_PRESET in .env'
-      );
-      return;
+        "Cloudinary upload preset is missing/invalid. Create an unsigned upload preset in Cloudinary and set PUBLIC_CLOUDINARY_UPLOAD_PRESET in .env"
+      )
+      return
     }
 
-    setUploading(true);
-    setError('');
+    setUploading(true)
+    setError("")
 
     try {
       const uploadPromises = Array.from(files).map(async (file) => {
@@ -224,119 +236,129 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           maxSizeMB: 1, // Maximum file size in MB
           maxWidthOrHeight: 2048, // Max dimension
           useWebWorker: true,
-          fileType: file.type as 'image/jpeg' | 'image/png' | 'image/webp',
-        };
-
-        let compressedFile: File;
-        try {
-          compressedFile = await imageCompression(file, options);
-          console.log(`Image compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
-        } catch (compressionError) {
-          console.warn('Image compression failed, using original file:', compressionError);
-          compressedFile = file;
+          fileType: file.type as "image/jpeg" | "image/png" | "image/webp",
         }
 
-        const formData = new FormData();
-        formData.append('file', compressedFile);
-        formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+        let compressedFile: File
+        try {
+          compressedFile = await imageCompression(file, options)
+          console.log(
+            `Image compressed: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${(
+              compressedFile.size /
+              1024 /
+              1024
+            ).toFixed(2)}MB`
+          )
+        } catch (compressionError) {
+          console.warn("Image compression failed, using original file:", compressionError)
+          compressedFile = file
+        }
+
+        const formData = new FormData()
+        formData.append("file", compressedFile)
+        formData.append("upload_preset", cloudinaryConfig.uploadPreset)
 
         const response = await fetch(
           `https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/image/upload`,
           {
-            method: 'POST',
+            method: "POST",
             body: formData,
           }
-        );
+        )
 
-        const data = await response.json().catch(() => ({} as any));
+        const data = await response.json().catch(() => ({} as any))
         if (!response.ok) {
-          const message = data?.error?.message || `Cloudinary upload failed (HTTP ${response.status})`;
-          throw new Error(message);
+          const message =
+            data?.error?.message || `Cloudinary upload failed (HTTP ${response.status})`
+          throw new Error(message)
         }
 
-        const url = (data as any)?.secure_url;
-        if (typeof url !== 'string' || url.length === 0) {
-          throw new Error('Cloudinary upload succeeded but no secure_url was returned');
+        const url = (data as any)?.secure_url
+        if (typeof url !== "string" || url.length === 0) {
+          throw new Error("Cloudinary upload succeeded but no secure_url was returned")
         }
-        return url;
-      });
+        return url
+      })
 
-      const uploadedUrls = await Promise.all(uploadPromises);
+      const uploadedUrls = await Promise.all(uploadPromises)
       setFormData((prev) => ({
         ...prev,
-        images: [...prev.images, ...uploadedUrls.filter((u) => typeof u === 'string' && u.length > 0)],
-      }));
+        images: [
+          ...prev.images,
+          ...uploadedUrls.filter((u) => typeof u === "string" && u.length > 0),
+        ],
+      }))
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Error uploading images';
-      setError(message);
-      console.error(err);
+      const message = err instanceof Error ? err.message : "Error uploading images"
+      setError(message)
+      console.error(err)
     } finally {
-      setUploading(false);
+      setUploading(false)
     }
-  };
+  }
 
   const removeImage = (index: number) => {
     setFormData((prev) => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setError('');
+    e.preventDefault()
+    setSaving(true)
+    setError("")
 
     if (!formData.images || formData.images.length === 0) {
-      setSaving(false);
-      setError('Please upload at least one product image before saving.');
-      return;
+      setSaving(false)
+      setError("Please upload at least one product image before saving.")
+      return
     }
 
     if (!formData.categories || formData.categories.length === 0) {
-      setSaving(false);
-      setError('Please select at least one category.');
-      return;
+      setSaving(false)
+      setError("Please select at least one category.")
+      return
     }
 
-    if (!formData.collectionId || formData.collectionId.trim() === '') {
-      setSaving(false);
-      setError('Please select a collection.');
-      return;
+    if (!formData.collectionId || formData.collectionId.trim() === "") {
+      setSaving(false)
+      setError("Please select a collection.")
+      return
     }
 
-    if (formData.pricing.type === 'custom') {
-      const price = formData.pricing.customPrice ?? 0;
+    if (formData.pricing.type === "custom") {
+      const price = formData.pricing.customPrice ?? 0
       if (!Number.isFinite(price) || price <= 0) {
-        setSaving(false);
-        setError('Please enter a valid custom price.');
-        return;
+        setSaving(false)
+        setError("Please enter a valid custom price.")
+        return
       }
     }
 
     if (formData.discount?.enabled) {
-      const percent = formData.discount.percent ?? 0;
+      const percent = formData.discount.percent ?? 0
       if (!Number.isFinite(percent) || percent <= 0 || percent > 100) {
-        setSaving(false);
-        setError('Please enter a valid discount percentage (1-100).');
-        return;
+        setSaving(false)
+        setError("Please enter a valid discount percentage (1-100).")
+        return
       }
     }
 
     try {
       if (isEditing && product?.id) {
-        await productService.updateProduct({ id: product.id, ...formData });
+        await productService.updateProduct({ id: product.id, ...formData })
       } else {
-        await productService.createProduct(formData);
+        await productService.createProduct(formData)
       }
-      onSuccess?.();
+      onSuccess?.()
     } catch (err: any) {
-      setError(err.message || 'Error saving product');
-      console.error(err);
+      setError(err.message || "Error saving product")
+      console.error(err)
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
@@ -348,19 +370,17 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
 
       {/* Title */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          {t.admin.productTitle}
-        </label>
+        <label className="block text-sm font-medium text-gray-700">{t.admin.productTitle}</label>
         <Input
           placeholder="Español"
           value={formData.title.es}
-          onChange={(e) => handleInputChange('title', e.target.value, 'es')}
+          onChange={(e) => handleInputChange("title", e.target.value, "es")}
           required
         />
         <Input
           placeholder="English"
           value={formData.title.en}
-          onChange={(e) => handleInputChange('title', e.target.value, 'en')}
+          onChange={(e) => handleInputChange("title", e.target.value, "en")}
           required
         />
       </div>
@@ -375,7 +395,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           rows={3}
           placeholder="Español"
           value={formData.description.es}
-          onChange={(e) => handleInputChange('description', e.target.value, 'es')}
+          onChange={(e) => handleInputChange("description", e.target.value, "es")}
           required
         />
         <textarea
@@ -383,7 +403,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           rows={3}
           placeholder="English"
           value={formData.description.en}
-          onChange={(e) => handleInputChange('description', e.target.value, 'en')}
+          onChange={(e) => handleInputChange("description", e.target.value, "en")}
           required
         />
       </div>
@@ -418,13 +438,13 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
       {availableSubcategories.length > 0 && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            {(t.admin as any).productSubcategories || 'Subcategorías'}
+            {(t.admin as any).productSubcategories || "Subcategorías"}
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {availableSubcategories.map(({ key, parentId, label }) => {
-              const subId = key.split(':')[1] || '';
-              const checked = (formData.subcategoryKeys || []).includes(key);
-              const disabled = categoriesLoading;
+              const subId = key.split(":")[1] || ""
+              const checked = (formData.subcategoryKeys || []).includes(key)
+              const disabled = categoriesLoading
               return (
                 <label key={key} className="flex items-center gap-2 text-sm text-gray-700">
                   <input
@@ -436,12 +456,12 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                   />
                   {label}
                 </label>
-              );
+              )
             })}
           </div>
           <p className="mt-2 text-xs text-gray-500">
             {(t.admin as any).subcategoriesAutoSelectParent ||
-              'Al seleccionar una subcategoría, se marcará automáticamente su categoría padre.'}
+              "Al seleccionar una subcategoría, se marcará automáticamente su categoría padre."}
           </p>
         </div>
       )}
@@ -449,13 +469,15 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
       {/* Tags */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          {(t.admin as any).productTags || 'Etiquetas'}
+          {(t.admin as any).productTags || "Etiquetas"}
         </label>
         <div className="grid grid-cols-2 gap-2">
           {tagsLoading ? (
             <div className="text-sm text-gray-500">{t.common.loading}</div>
           ) : tags.length === 0 ? (
-            <div className="text-sm text-gray-500">{(t.admin as any).noTags || 'Aún no hay etiquetas.'}</div>
+            <div className="text-sm text-gray-500">
+              {(t.admin as any).noTags || "Aún no hay etiquetas."}
+            </div>
           ) : (
             tags.map(({ id, label }) => (
               <label key={id} className="flex items-center gap-2 text-sm text-gray-700">
@@ -475,7 +497,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
       {/* Collection */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          {(t.admin as any).productCollection || 'Colección'}
+          {(t.admin as any).productCollection || "Colección"}
         </label>
         {collectionsLoading ? (
           <div className="text-sm text-gray-500">{t.common.loading}</div>
@@ -483,11 +505,11 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           <select
             className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-(--color-border-strong)"
             value={formData.collectionId}
-            onChange={(e) => handleInputChange('collectionId', e.target.value)}
+            onChange={(e) => handleInputChange("collectionId", e.target.value)}
             required
           >
             <option value="" disabled>
-              {(t.admin as any).selectCollection || 'Selecciona una colección'}
+              {(t.admin as any).selectCollection || "Selecciona una colección"}
             </option>
             {collections.map(({ id, label }) => (
               <option key={id} value={id}>
@@ -503,7 +525,9 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         <label className="block text-sm font-medium text-gray-700">{t.admin.productPrice}</label>
 
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.priceType}</label>
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            {t.admin.priceType}
+          </label>
           <select
             className="w-full px-4 py-2 border border-gray-300 rounded-squircle focus:outline-none focus:ring-2 focus:ring-(--color-border-strong)"
             value={formData.pricing.type}
@@ -525,7 +549,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           </select>
         </div>
 
-        {formData.pricing.type === 'custom' && (
+        {formData.pricing.type === "custom" && (
           <Input
             type="number"
             label={t.admin.customPrice}
@@ -533,7 +557,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
             onChange={(e) =>
               setFormData((prev) => ({
                 ...prev,
-                pricing: { type: 'custom', customPrice: parseFloat(e.target.value) },
+                pricing: { type: "custom", customPrice: parseFloat(e.target.value) },
               }))
             }
             min="0"
@@ -556,7 +580,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                 discount: {
                   enabled: e.target.checked,
                   percent: prev.discount?.percent ?? 0,
-                  description: prev.discount?.description ?? '',
+                  description: prev.discount?.description ?? "",
                 },
               }))
             }
@@ -579,7 +603,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
                   discount: {
                     enabled: true,
                     percent: parseFloat(e.target.value),
-                    description: prev.discount?.description ?? '',
+                    description: prev.discount?.description ?? "",
                   },
                 }))
               }
@@ -591,7 +615,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
             <Input
               type="text"
               label={t.admin.discountDescription}
-              value={formData.discount.description ?? ''}
+              value={formData.discount.description ?? ""}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -613,7 +637,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           type="checkbox"
           id="isNew"
           checked={!!formData.isNew}
-          onChange={(e) => handleInputChange('isNew', e.target.checked)}
+          onChange={(e) => handleInputChange("isNew", e.target.checked)}
           className="w-4 h-4 text-(--color-primary) border-gray-300 rounded-squircle focus:ring-(--color-border-strong)"
         />
         <label htmlFor="isNew" className="ml-2 text-sm text-gray-700">
@@ -627,7 +651,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           type="number"
           label={t.admin.productPopularity}
           value={formData.popularity ?? 0}
-          onChange={(e) => handleInputChange('popularity', parseFloat(e.target.value) || 0)}
+          onChange={(e) => handleInputChange("popularity", parseFloat(e.target.value) || 0)}
           min="0"
           step="1"
         />
@@ -649,15 +673,17 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
             className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-squircle file:border-0 file:text-sm file:font-semibold file:bg-(--color-primary) file:text-white hover:file:brightness-95"
           />
           {uploading && <p className="text-sm text-gray-500">Uploading...</p>}
-          
+
           {formData.images.length > 0 && (
             <div className="grid grid-cols-4 gap-2">
               {formData.images.map((url, index) => (
                 <div key={index} className="relative group">
                   <img
-                    src={url}
+                    src={getCloudinaryUrl(url, { width: 300 })}
                     alt={`Product ${index + 1}`}
                     className="w-full h-24 object-cover rounded-squircle"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <button
                     type="button"
@@ -679,7 +705,7 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
           type="checkbox"
           id="published"
           checked={formData.published}
-          onChange={(e) => handleInputChange('published', e.target.checked)}
+          onChange={(e) => handleInputChange("published", e.target.checked)}
           className="w-4 h-4 text-(--color-primary) border-gray-300 rounded-squircle focus:ring-(--color-border-strong)"
         />
         <label htmlFor="published" className="ml-2 text-sm text-gray-700">
@@ -699,5 +725,5 @@ export default function ProductForm({ product, onSuccess, onCancel }: ProductFor
         )}
       </div>
     </form>
-  );
+  )
 }
