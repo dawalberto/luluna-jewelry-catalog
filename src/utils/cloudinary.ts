@@ -12,6 +12,45 @@ export interface CloudinaryOptions {
   gravity?: 'auto' | 'face' | 'center';
 }
 
+const DEFAULT_RESPONSIVE_WIDTHS = [400, 800, 1200];
+
+function isProbablyCloudinaryUrl(value: string): boolean {
+  return value.includes('res.cloudinary.com') && value.includes('/image/upload/');
+}
+
+function stripKnownImageExtension(publicId: string): string {
+  const idx = publicId.lastIndexOf('.');
+  if (idx === -1) return publicId;
+  const ext = publicId.slice(idx + 1).toLowerCase();
+  const isKnown = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif'].includes(ext);
+  return isKnown ? publicId.slice(0, idx) : publicId;
+}
+
+/**
+ * Normalize stored product image reference into a Cloudinary publicId.
+ * The app stores `secure_url` strings today, but callers may also provide raw public IDs.
+ */
+function normalizeToPublicId(source: string): string {
+  if (!source) return source;
+  if (!source.startsWith('http')) return source;
+  if (!isProbablyCloudinaryUrl(source)) return source;
+
+  try {
+    const url = new URL(source);
+    const parts = url.pathname.split('/').filter(Boolean);
+    const uploadIdx = parts.indexOf('upload');
+    if (uploadIdx === -1) return source;
+
+    const afterUpload = parts.slice(uploadIdx + 1);
+    const versionIdx = afterUpload.findIndex((p) => /^v\d+$/.test(p));
+    const publicIdParts = versionIdx >= 0 ? afterUpload.slice(versionIdx + 1) : afterUpload;
+    const publicIdWithExt = publicIdParts.join('/');
+    return stripKnownImageExtension(publicIdWithExt);
+  } catch {
+    return source;
+  }
+}
+
 /**
  * Generate optimized Cloudinary URL
  */
@@ -24,9 +63,21 @@ export function getCloudinaryUrl(
     height,
     quality = 'auto',
     format = 'auto',
-    crop = 'fill',
-    gravity = 'auto',
+    crop,
+    gravity,
   } = options;
+
+  const cloudName = cloudinaryConfig.cloudName;
+  if (!cloudName) {
+    // Avoid breaking rendering if env is missing in some contexts.
+    return publicId;
+  }
+
+  const normalizedPublicId = normalizeToPublicId(publicId);
+  // If this isn't a Cloudinary reference, don't try to build a Cloudinary URL.
+  if (normalizedPublicId.startsWith('http') && !isProbablyCloudinaryUrl(publicId)) {
+    return publicId;
+  }
 
   const transformations: string[] = [];
 
@@ -38,9 +89,8 @@ export function getCloudinaryUrl(
   if (gravity) transformations.push(`g_${gravity}`);
 
   const transformString = transformations.join(',');
-  const cloudName = cloudinaryConfig.cloudName;
 
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformString}/${publicId}`;
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformString}/${normalizedPublicId}`;
 }
 
 /**
@@ -56,11 +106,12 @@ export function extractPublicId(url: string): string {
  */
 export function getResponsiveSrcSet(
   publicId: string,
-  widths: number[] = [320, 640, 768, 1024, 1280]
+  widths: number[] = DEFAULT_RESPONSIVE_WIDTHS,
+  options: Omit<CloudinaryOptions, 'width'> = {}
 ): string {
   return widths
     .map((width) => {
-      const url = getCloudinaryUrl(publicId, { width, format: 'auto', quality: 'auto' });
+      const url = getCloudinaryUrl(publicId, { ...options, width, format: 'auto', quality: 'auto' });
       return `${url} ${width}w`;
     })
     .join(', ');

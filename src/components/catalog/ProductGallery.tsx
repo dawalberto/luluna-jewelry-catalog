@@ -1,25 +1,26 @@
-import { useState } from 'react';
-import { getCloudinaryUrl } from '../../utils/cloudinary';
+import { useState } from "react"
+import { getCloudinaryUrl } from "../../utils/cloudinary"
 
 interface ProductGalleryProps {
-  images: string[];
-  alt: string;
+  images: string[]
+  alt: string
 }
 
 export default function ProductGallery({ images, alt }: ProductGalleryProps) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0)
 
   if (images.length === 0) {
-    return null;
+    return null
   }
 
   const mainImageUrl = getCloudinaryUrl(images[selectedIndex], {
     width: 800,
     height: 1000,
-    quality: 'auto',
-    format: 'auto',
-    crop: 'fill',
-  });
+    quality: "auto",
+    format: "auto",
+    crop: "fill",
+    gravity: "auto",
+  })
 
   return (
     <div className="space-y-4">
@@ -41,10 +42,11 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
             const thumbUrl = getCloudinaryUrl(image, {
               width: 200,
               height: 250,
-              quality: 'auto',
-              format: 'auto',
-              crop: 'fill',
-            });
+              quality: "auto",
+              format: "auto",
+              crop: "fill",
+              gravity: "auto",
+            })
 
             return (
               <button
@@ -52,20 +54,22 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
                 onClick={() => setSelectedIndex(index)}
                 className={`aspect-[4/5] rounded-squircle overflow-hidden transition-all ${
                   selectedIndex === index
-                    ? 'ring-2 ring-(--color-primary) scale-95'
-                    : 'hover:scale-95 opacity-70 hover:opacity-100'
+                    ? "ring-2 ring-(--color-primary) scale-95"
+                    : "hover:scale-95 opacity-70 hover:opacity-100"
                 }`}
               >
                 <img
                   src={thumbUrl}
                   alt={`${alt} - Thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"                  loading="lazy"
-                  decoding="async"                />
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
               </button>
-            );
+            )
           })}
         </div>
       )}
     </div>
-  );
+  )
 }

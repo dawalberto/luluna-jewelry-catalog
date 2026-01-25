@@ -3,6 +3,7 @@ import { siteConfig } from "../../config/env"
 import { useI18n } from "../../i18n"
 import type { GlobalDiscount, PricingConfig, Product } from "../../types"
 import { formatPrice } from "../../utils"
+import { getCloudinaryUrl, getResponsiveSrcSet } from "../../utils/cloudinary"
 import { useCategories, usePaymentMethods, useShippings, useTags } from "../../utils/hooks"
 
 interface ProductDetailProps {
@@ -226,11 +227,15 @@ export default function ProductDetail({
             {/* Main Image */}
             <div className="relative aspect-square bg-[#F4F4F4] overflow-hidden group">
               <img
-                src={images[activeImageIndex]}
+                src={getCloudinaryUrl(images[activeImageIndex], { width: 800 })}
+                srcSet={getResponsiveSrcSet(images[activeImageIndex])}
+                sizes="(min-width: 1024px) 50vw, 100vw"
                 alt={product.title[locale] || product.title.es}
                 className={`w-full h-full object-cover transition-transform duration-700 ease-out ${
                   isZoomed ? "scale-150 cursor-zoom-out" : "cursor-zoom-in"
                 }`}
+                loading="eager"
+                decoding="async"
                 onClick={toggleZoom}
               />
 
@@ -304,9 +309,11 @@ export default function ProductDetail({
                     }`}
                   >
                     <img
-                      src={image}
+                      src={getCloudinaryUrl(image, { width: 200 })}
                       alt={`${product.title[locale] || product.title.es} - ${index + 1}`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </button>
                 ))}

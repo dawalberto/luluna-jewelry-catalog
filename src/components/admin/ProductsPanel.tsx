@@ -3,6 +3,7 @@ import { useI18n } from "../../i18n"
 import { PricingService, ProductService } from "../../services"
 import type { PricingConfig, Product } from "../../types"
 import { formatPrice } from "../../utils"
+import { getCloudinaryUrl } from "../../utils/cloudinary"
 import { useCategories, useCollections, useProducts } from "../../utils/hooks"
 import { Button } from "../ui"
 import ProductForm from "./ProductForm"
@@ -337,9 +338,11 @@ export default function ProductsPanel() {
                     <div className="flex items-center" style={{ minWidth: "200px" }}>
                       {product.images[0] && (
                         <img
-                          src={product.images[0]}
+                          src={getCloudinaryUrl(product.images[0], { width: 96 })}
                           alt={product.title[locale]}
                           className="w-12 h-12 rounded-squircle object-cover mr-3 shrink-0"
+                          loading="lazy"
+                          decoding="async"
                         />
                       )}
                       <div className="text-sm font-medium text-gray-900">
